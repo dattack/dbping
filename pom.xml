@@ -4,7 +4,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.dattack</groupId>
-        <version>1</version>
+        <version>2-SNAPSHOT</version>
     </parent>
     <artifactId>dbping</artifactId>
     <version>0.2-SNAPSHOT</version>
@@ -37,9 +37,6 @@
             <timezone>Europe/Madrid</timezone>
         </developer>
     </developers>
-    <prerequisites>
-        <maven>3.0.4</maven>
-    </prerequisites>
     <scm>
         <connection>scm:git:https://github.com/dattack/dbping.git</connection>
         <developerConnection>scm:git:git+ssh://git@github.com/dattack/dbping.git</developerConnection>
@@ -116,32 +113,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <releases>
-                <updatePolicy>never</updatePolicy>
-                <checksumPolicy>fail</checksumPolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>dattack-releases</id>
-            <name>Dattack Releases</name>
-            <url>http://maven.dattack.com/release</url>
-        </repository>
-        <repository>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <updatePolicy>always</updatePolicy>
-                <checksumPolicy>warn</checksumPolicy>
-            </snapshots>
-            <id>dattack-snapshots</id>
-            <name>Dattack Snapshots</name>
-            <url>http://maven.dattack.com/snapshot</url>
-        </repository>
-    </repositories>
     <build>
         <plugins>
             <plugin>

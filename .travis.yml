@@ -1,15 +1,31 @@
 language: java
 jdk:
-  - oraclejdk8
-  - oraclejdk7
+- oraclejdk8
 sudo: false
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
 notifications:
   email:
     recipients:
-      - dev@dattack.com
+    - dev@dattack.com
     on_success: always
     on_failure: always
+env:
+  global:
+  - secure: QHZzL1vqXuhkpsyUlRbwF+yw6eBMbBkU+x1WNvPoKNjPzoXJ8SgU4l0PFD1g8L+vlOz5i0YpZJWCQ4A0YZ0K9mUVfFtrCnXohR1ZxPg2EB70oA/6jkY6JU6L8TFzykyTzk4CqddHCWaKWaahLUybx0eBQ0cNtNcbFB109ChXpUDRKUj3g188NMgpSymNJS96Yof0TJsbkyEBAL5Easj+408cU9kjnVfjOdToWmBo1GIIxUjZeIED3TVXllj8dApqI2JcXMpMwnhc7H8A2aX/9MBLpcyv21wiwza7rTHGS12H64msEmGgUOS1DwvZnfZEIYUvJ7DHNz8PjTuwIZ4BQPPhZXq0qFZXb+kZ0S58g4X9zjdtSk+ot2en9fxhBEgHt8FDBENnDrdfVjI8FYFSyNam0QESnD9ploEHK+22svovjZ7lN2npzn3cR3TuLpkgJIjqInxxOHIOHrU9VgBHaAGpBuo0EK7TRJ3e0vg+EA8rhPAXO8euUt/cE+XUv3Upv9vVQ5JW2a/NRaUgJ052RXThiVrhuXS8HETvNoMF2p138QcqxS0SAXauCKh9xAkDgVO2wjy9LbjwSmt5W9LrpOTzL5Rd4eY8NPOfTxDyfyNvjGKQRa33yY+n10yJfTxIiv7z2/dyCRRN7yLqDvGTB3GEHKNHwXmwaWhokcu/HrY=
+  - secure: aMW4gSawupIk+UlOU3AibsbUS6SaiMzWLvWpVx81/0IqSuySMoklq1mrONxAxuBBqIG1jx3scHCqxrdidqHPYfNkby/sz3wFXcV56Y64ihOO1tiSA28zspm5im1DOeAGQk2vBml36siEeXUeDSL4iYqTcF/TREAMU9TAkE16VLEW66UmwF2xIwvie5lGq8kbZYMk8nLqo9k5WjoKvdGT4E5yauyWI8+B2XzkLLF9I6OQOpeYcipb4Dgnt7lnNhJFeWDJe/HlOueupYU7ZflBRLGvyLbwwPoQgTsRRIst40xTIJvqhXwvn1BtP5/TqrYDDCDCQvpJ4qjQVwTpaZUwhn0FHutqoflCL4FLY98Uu/vzn6eQc0v6urKxHSdybSirYm8aOUwt5M9IC15doDG1sOxpllBaWcll7eSa0kfbDyRG3wOaJ2YCQrW3SXgboo1E6i8hd72Xb5v7xFdMwWBSCqPhuK3TXqS2EcKvrNxm/Trpn4IDAVjkPeYrAjcB7A/Bd3cYO9QJF2uv2pJWHFNo0oNgnsYWDeKTwEJi2rElY6XkG5X74rmErv98OeOHKCmjndf4lERzlxcmsnLX2JPiI0Djj7cF8g5daIzgb9BA+EiMwDNljvSlv1vfhG2AwnIWuR3D+j+ZFA0GUncWbEhAMuWNgyvxtpeRuLPWDgdprqg=
+  - secure: r45LnePjA7jiBehn39JsRWBF8FOYpXiPBDyQZc2ji41qtwZT8EhEP+/DsIHR5VJFrTMQScwZLSLoDlAL7ptDcJC+cNFJNcL7WhvnsmLCOTV5VnZvHU7ZqI8GFNvEVjy9j6s8qn3vKGoifzqhVobZRlOoQfeWO+tYNU7FRu/aYQ9EPRe+V2E5ZwVcSqlm22ng6yDrz4wHjV2NJLsgAMDg/j2bkzcEbmSFnBgn8QXFTjAhsA1wFlzXDz4JQYZVk0n1+NjuhbtTgrd/Uilb0B1+k781wwm2RoEHon+Cfmj8VmcReJz4JYb7xDxUNP9q6qt//v52+w1X+E6+nuLvFntYKPZadjKUqTVEeb/uZry0T1FKxNpat/99c649UiuN0t5VsYJrJIUHzvqXwYsLnR5xbjyyWLVkHcbXq7GrYPE17hitwJvaGaZnlE1CZOdaVLeUjeqnZJuj7Et6gKa6WKJSdHebBqiyaJMuAWKqQ5dFBaToyraj0paD8YXxERUD4c+uDh9cyZNpnRdp88dn9yzZDTMcoAGO3xs5xqzaT9feLczf088lvNGvEDtnlDXHmX41Y5sC1BdtvjEVPPCfy/Ft6nFGLnVLw/hIVGPkoiKH07BnTW8AxtU6Ckr8Rpz6xMatdmk7TccftISI7YG9mGmLv3jFs9n85D8AaoKsxIjchvg=
+  - secure: uq2rGgc47hBJU/4GKe/Gti4m2ze3cRm0PCz8r/Gk2uYRznr5m1fJ7n04YLCwqwXXE+BQllk47kQ5my4BMzHuxlWzq8ROqJE3z0FWoWri8+A/bVUIfycSag7gjVeAG/2KmQS1Z+h/HQAx/FoqWTyKLTgp8iCaM1QcZcJw6Ta2n6O8RpkwJa8VZYS8OiZ3e7p/rm680uWc5w8oS6qLRaPTFI4dgwHZzu87/bKgl9/j1c67CaDAQHiI/mFybwWNqVN4OtHhRaKl0pF8YZcN6MMoNANYwUzmXqc1nr7ojRIeunSuLdTB1d94C2fEEbfYaZd5IMvXuGdA7gCubCysZD4s1ImRz2dB0zpBGEFgXcGnDRZbBszbaHtALOPtuDK9JS33AmtV+w67UDgPMyi3vJKWD9uUm/6DNaiZ4ap82wP8sxPgckp5AOsqd6tBQXRLK7qIp9mx9ImDPzDoGXxqC2lcjBVlCCQrXnZL3mfZV5I4rR3Jhonx+lO8Q3UD6hJydgzOXhVkNixwDRQrJDHaa7o8ASLNyvjZ4D66E+IbVKwRe5RNdXYFnc/4YBeiVNk+Hvx7kWCgPKunSzT0Oz6HrrGBcP0rOCF/Qm58x3o6GFIVI5kwwHEfZTHeU2fLKDQ/fU8AuV7uWe8cZj5mC+u31wmDVjAkmP/Fqkh6pTI4Y1UKE18=
+
+install: mvn install -P !build-extras -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
+script: mvn test -P !build-extras -B
+
+cache:
+  directories:
+    - ~/.m2/repository
+
+after_success:
+  - ./.travis/before-deploy.sh
+  - ./.travis/deploy.sh
+  - bash <(curl -s https://codecov.io/bash)
+
+
