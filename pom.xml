@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>parent</artifactId>
         <groupId>com.dattack</groupId>
-        <version>2-SNAPSHOT</version>
+        <artifactId>parent</artifactId>
+        <version>3-SNAPSHOT</version>
     </parent>
     <artifactId>dbping</artifactId>
     <version>0.2-SNAPSHOT</version>
@@ -62,16 +62,15 @@
         <commons-cli.version>1.3.1</commons-cli.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-math.version>3.6</commons-math.version>
-        <compiler.source.version>1.7</compiler.source.version>
-        <compiler.target.version>1.7</compiler.target.version>
-        <data-formats.version>0.1</data-formats.version>
+        <compiler.source.version>1.8</compiler.source.version>
+        <compiler.target.version>1.8</compiler.target.version>
+        <data-formats.version>0.2</data-formats.version>
         <freemarker.version>2.3.23</freemarker.version>
-        <jtoolbox-commons-email.version>0.1</jtoolbox-commons-email.version>
         <junit.version>4.12</junit.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <slf4j.version>1.7.15</slf4j.version>
+        <slf4j.version>1.7.25</slf4j.version>
         <sqlite.version>3.8.11.2</sqlite.version>
-        <standalone-jndi.version>0.1</standalone-jndi.version>
+        <standalone-jndi.version>0.2.1</standalone-jndi.version>
     </properties>
     <dependencies>
         <dependency>
@@ -89,15 +88,16 @@
             <artifactId>commons-cli</artifactId>
             <version>${commons-cli.version}</version>
         </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>${commons-math.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
         <!-- For test only -->
         <dependency>
@@ -143,6 +143,14 @@
                         <program>
                             <mainClass>com.dattack.dbping.cli.PingAnalyzerCli</mainClass>
                             <id>analyzer</id>
+                            <platforms>
+                                <platform>unix</platform>
+                                <platform>windows</platform>
+                            </platforms>
+                        </program>
+                        <program>
+                            <mainClass>com.dattack.jtoolbox.security.tool.SecurityTool</mainClass>
+                            <id>securityTool</id>
                             <platforms>
                                 <platform>unix</platform>
                                 <platform>windows</platform>
