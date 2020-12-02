@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -42,6 +43,7 @@ import com.dattack.jtoolbox.io.IOUtils;
  * @author cvarela
  * @since 0.1
  */
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class CSVFileLogWriter implements LogWriter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CSVFileLogWriter.class);
@@ -71,7 +73,7 @@ public class CSVFileLogWriter implements LogWriter {
 
     private String format(final LogEntry entry) {
 
-        String data = null;
+        String data;
         synchronized (csvBuilder) {
             csvBuilder.append(new Date(entry.getEventTime())) //
                     .append(StringUtils.trimToEmpty(entry.getTaskName())) //
@@ -97,7 +99,7 @@ public class CSVFileLogWriter implements LogWriter {
 
     private String format(final LogHeader header) {
 
-        String data = null;
+        String data;
         synchronized (csvBuilder) {
 
             csvBuilder.comment();
@@ -106,11 +108,10 @@ public class CSVFileLogWriter implements LogWriter {
             Collections.sort(keys);
 
             for (final String key : keys) {
-                csvBuilder.comment(new StringBuilder() //
-                        .append(normalize(ObjectUtils.toString(key))) //
-                        .append(": ") //
-                        .append(normalize(ObjectUtils.toString(header.getProperties().get(key)))) //
-                        .toString() //
+                csvBuilder.comment(//
+                        normalize(ObjectUtils.toString(key)) + //
+                                ": " + //
+                                normalize(ObjectUtils.toString(header.getProperties().get(key))) // //
                 );
             }
 
@@ -122,18 +123,16 @@ public class CSVFileLogWriter implements LogWriter {
                     @Override
                     public void visite(final SqlScriptBean command) {
                         csvBuilder.comment(
-                                new StringBuilder().append("  ").append(command.getLabel()).append(": ").toString());
+                                "  " + command.getLabel() + ": ");
 
                         for (final SqlStatementBean item : command.getStatementList()) {
-                            csvBuilder.comment(new StringBuilder().append(" |-- ").append(item.getLabel()).append(": ")
-                                    .append(normalize(item.getSql())).toString());
+                            csvBuilder.comment(" |-- " + item.getLabel() + ": " + normalize(item.getSql()));
                         }
                     }
 
                     @Override
                     public void visite(final SqlStatementBean command) {
-                        csvBuilder.comment(new StringBuilder().append("  ").append(command.getLabel()).append(": ")
-                                .append(normalize(command.getSql())).toString());
+                        csvBuilder.comment("  " + command.getLabel() + ": " + normalize(command.getSql()));
 
                     }
                 });
@@ -184,7 +183,7 @@ public class CSVFileLogWriter implements LogWriter {
         FileOutputStream out = null;
         try {
             out = getOutputStream();
-            out.write(message.getBytes());
+            out.write(message.getBytes(StandardCharsets.UTF_8));
         } catch (final IOException e) {
             LOGGER.warn(e.getMessage());
         } finally {

@@ -15,6 +15,7 @@
  */
 package com.dattack.dbping.engine;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ import java.util.List;
  * @author cvarela
  * @since 0.1
  */
-public class DataRow {
+public class DataRow implements Serializable {
 
     private final List<Object> data;
 

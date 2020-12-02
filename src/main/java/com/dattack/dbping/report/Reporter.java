@@ -72,11 +72,11 @@ public class Reporter {
         long reportEndDateFilter = Long.MAX_VALUE;
 
         if (context.getStartDate() != null) {
-            reportStartDateFilter = context.getStartDate().getTime();
+            reportStartDateFilter = context.getStartDate().toEpochMilli();
         }
 
         if (context.getEndDate() != null) {
-            reportEndDateFilter = context.getEndDate().getTime();
+            reportEndDateFilter = context.getEndDate().toEpochMilli();
         }
 
         while (true) {

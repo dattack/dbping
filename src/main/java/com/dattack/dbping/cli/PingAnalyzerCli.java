@@ -18,6 +18,11 @@ package com.dattack.dbping.cli;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -71,8 +76,8 @@ public final class PingAnalyzerCli {
             final CommandLine cmd = parser.parse(options, args);
 
             final ReportContext context = new ReportContext();
-            context.setStartDate(TimeUtils.parseDate(cmd.getOptionValue(START_DATE_OPTION)));
-            context.setEndDate(TimeUtils.parseDate(cmd.getOptionValue(END_DATE_OPTION)));
+            context.setStartDate(parseInstant(cmd.getOptionValue(START_DATE_OPTION)));
+            context.setEndDate(parseInstant(cmd.getOptionValue(END_DATE_OPTION)));
             context.setTimeSpan(TimeUtils.parseTimeSpanMillis(cmd.getOptionValue(SPAN_OPTION)));
             context.setMaxValue(parseLong(cmd.getOptionValue(MAX_VALUE_OPTION)));
             context.setMinValue(parseLong(cmd.getOptionValue(MIN_VALUE_OPTION)));
@@ -90,6 +95,11 @@ public final class PingAnalyzerCli {
         } catch (final ParseException | ConfigurationException e) {
             System.err.println(e.getMessage());
         }
+    }
+
+    private static Instant parseInstant(final String txt) {
+        ZoneId timeZone = ZoneId.systemDefault();
+        return LocalDateTime.parse(txt, DateTimeFormatter.ISO_DATE_TIME).atZone(timeZone).toInstant();
     }
 
     /* TODO: remove this method and create a NumberUtils. */

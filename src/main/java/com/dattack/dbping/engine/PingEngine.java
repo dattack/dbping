@@ -48,7 +48,7 @@ public final class PingEngine {
 
     private final ThreadPool pool;
 
-    private class ThreadPool {
+    private static class ThreadPool {
 
         private final List<Thread> threadList;
 

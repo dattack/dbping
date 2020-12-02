@@ -22,6 +22,7 @@ import com.dattack.formats.csv.CSVConfiguration.CsvConfigurationBuilder;
  * @author cvarela
  * @since 0.1
  */
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class CSVConfigurationFactory {
 
     private static final String DEFAULT_SEPARATOR = "\t";
@@ -29,11 +30,7 @@ public class CSVConfigurationFactory {
     private final String separator;
 
     public CSVConfigurationFactory() {
-        this(DEFAULT_SEPARATOR);
-    }
-
-    public CSVConfigurationFactory(final String separator) {
-        this.separator = separator;
+        this.separator = DEFAULT_SEPARATOR;
     }
 
     public CSVConfiguration create() {

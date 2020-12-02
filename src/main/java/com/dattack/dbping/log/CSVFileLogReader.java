@@ -32,6 +32,7 @@ import com.dattack.formats.csv.CSVReader;
  * @author cvarela
  * @since 0.1
  */
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class CSVFileLogReader implements LogReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CSVFileLogReader.class);
@@ -67,12 +68,12 @@ public class CSVFileLogReader implements LogReader {
                         .withEventTime(configuration.getDateFormat().parse(rawObject.get(index++)).getTime()) //
                         .withTaskName(rawObject.get(index++)) //
                         .withThreadName(rawObject.get(index++)) //
-                        .withIteration(Long.valueOf(rawObject.get(index++))) //
+                        .withIteration(Long.parseLong(rawObject.get(index++))) //
                         .withSqlLabel(rawObject.get(index++)) //
-                        .withRows(Long.valueOf(rawObject.get(index++))) //
-                        .withConnectionTime(Long.valueOf(rawObject.get(index++))) //
-                        .withFirstRowTime(Long.valueOf(rawObject.get(index++))) //
-                        .withTotalTime(Long.valueOf(rawObject.get(index++))) //
+                        .withRows(Long.parseLong(rawObject.get(index++))) //
+                        .withConnectionTime(Long.parseLong(rawObject.get(index++))) //
+                        .withFirstRowTime(Long.parseLong(rawObject.get(index++))) //
+                        .withTotalTime(Long.parseLong(rawObject.get(index))) //
                         .build();
             } catch (final ParseException e) {
                 LOGGER.warn(e.getMessage());

@@ -16,6 +16,7 @@
 package com.dattack.dbping.report;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,8 +28,8 @@ import java.util.List;
 public class ReportContext {
 
     private SimpleDateFormat dateFormat;
-    private Date endDate;
-    private Date startDate;
+    private Instant endDate;
+    private Instant startDate;
     private Long timeSpan;
     private Long maxValue;
     private Long minValue;
@@ -59,19 +60,19 @@ public class ReportContext {
         return dateFormat;
     }
 
-    public Date getEndDate() {
+    public Instant getEndDate() {
         return endDate;
     }
 
-    public Date getStartDate() {
+    public Instant getStartDate() {
         return startDate;
     }
 
-    public void setEndDate(final Date endDate) {
+    public void setEndDate(final Instant endDate) {
         this.endDate = endDate;
     }
 
-    public void setStartDate(final Date startDate) {
+    public void setStartDate(final Instant startDate) {
         this.startDate = startDate;
     }
 

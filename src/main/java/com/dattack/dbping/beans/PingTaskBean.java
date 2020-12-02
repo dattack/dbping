@@ -59,6 +59,8 @@ public class PingTaskBean implements Serializable {
     private String commandProvider;
 
     /**
+     * Returns the command provider.
+     *
      * @return the commandProvider
      */
     public String getCommandProvider() {
@@ -66,6 +68,8 @@ public class PingTaskBean implements Serializable {
     }
 
     /**
+     * Returns the datasource.
+     *
      * @return the datasource
      */
     public String getDatasource() {
@@ -73,20 +77,26 @@ public class PingTaskBean implements Serializable {
     }
 
     /**
-     * @return the executions
+     * Returns the number of executions.
+     *
+     * @return the number of executions
      */
     public int getExecutions() {
         return executions;
     }
 
     /**
-     * @return the logFile
+     * Returns the log file to use.
+     *
+     * @return the log file to use
      */
     public String getLogFile() {
         return logFile;
     }
 
     /**
+     * Returns the maximum number of rows to be written in the log file for each iteration.
+     *
      * @return the maxRowsToDump
      */
     public int getMaxRowsToDump() {
@@ -94,28 +104,36 @@ public class PingTaskBean implements Serializable {
     }
 
     /**
-     * @return the name
+     * Returns the task name.
+     *
+     * @return the task name
      */
     public String getName() {
         return name;
     }
 
     /**
-     * @return the sqlStatementList
+     * Returns the list of sentences to be executed.
+     *
+     * @return the list of sentences to be executed
      */
     public List<SqlCommandBean> getSqlStatementList() {
         return sqlStatementList;
     }
 
     /**
-     * @return the threads
+     * The number of threads to be executed concurrently.
+     *
+     * @return the number of threads to be executed concurrently.
      */
     public int getThreads() {
         return threads;
     }
 
     /**
-     * @return the timeBetweenExecutions
+     * Returns the waiting time between two consecutive iterations.
+     *
+     * @return the waiting time between two consecutive iterations
      */
     public int getTimeBetweenExecutions() {
         return timeBetweenExecutions;
