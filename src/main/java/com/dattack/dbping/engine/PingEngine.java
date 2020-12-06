@@ -142,7 +142,7 @@ public final class PingEngine {
             try {
                 Object obj = future.get();
                 if (obj != null) {
-                    System.out.println(obj);
+                    LOGGER.info("Future result: " + obj);
                 }
             } catch (Exception e) {
                 LOGGER.warn(e.getMessage());
