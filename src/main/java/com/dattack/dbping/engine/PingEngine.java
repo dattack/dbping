@@ -15,18 +15,6 @@
  */
 package com.dattack.dbping.engine;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.dattack.dbping.beans.DbpingBean;
 import com.dattack.dbping.beans.DbpingParser;
 import com.dattack.dbping.beans.PingTaskBean;
@@ -37,8 +25,24 @@ import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import com.dattack.jtoolbox.exceptions.DattackParserException;
 import com.dattack.jtoolbox.io.FilesystemUtils;
 import com.dattack.jtoolbox.jdbc.JNDIDataSource;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import javax.sql.DataSource;
 
 /**
+ * Execution engine responsible for starting {@link PingJob}.
+ *
  * @author cvarela
  * @since 0.1
  */
@@ -46,25 +50,16 @@ public final class PingEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PingEngine.class);
 
-    private final ThreadPool pool;
+    private final ThreadPoolExecutor threadPool;
+    private final List<Future<?>> futureList;
 
-    private static class ThreadPool {
-
-        private final List<Thread> threadList;
-
-        public ThreadPool() {
-            this.threadList = new ArrayList<>();
-        }
-
-        public void submit(final Runnable task, final String threadName) {
-
-            final Thread thread = new Thread(task, threadName);
-            thread.start();
-            threadList.add(thread);
-        }
+    public PingEngine() {
+        this.threadPool = new ThreadPoolExecutor(1, 100, 1L, TimeUnit.MINUTES,
+                new LinkedBlockingQueue<>());
+        this.futureList = new ArrayList<>();
     }
 
-    private static SqlCommandProvider getSentenceProvider(final String clazzname) {
+    private static SqlCommandProvider getCommandProvider(final String clazzname) {
 
         SqlCommandProvider sentenceProvider = null;
 
@@ -83,12 +78,7 @@ public final class PingEngine {
         return sentenceProvider;
     }
 
-    public PingEngine() {
-        pool = new ThreadPool();
-    }
-
-    private void execute(final File file, final Set<String> taskNames)
-            throws ConfigurationException, DattackParserException {
+    private void execute(final File file, final Set<String> taskNames) throws DattackParserException {
 
         if (file.isDirectory()) {
 
@@ -114,8 +104,8 @@ public final class PingEngine {
 
                 final DataSource dataSource = new JNDIDataSource(pingTaskBean.getDatasource());
 
-                final SqlCommandProvider sentenceProvider = getSentenceProvider(pingTaskBean.getCommandProvider());
-                sentenceProvider.setSentences(pingTaskBean.getSqlStatementList());
+                final SqlCommandProvider commandProvider = getCommandProvider(pingTaskBean.getCommandProvider());
+                commandProvider.setSentences(pingTaskBean.getSqlStatementList());
 
                 final LogWriter logWriter = new CSVFileLogWriter(
                         ConfigurationUtil.interpolate(pingTaskBean.getLogFile(), conf));
@@ -124,18 +114,37 @@ public final class PingEngine {
                 logWriter.write(logHeader);
 
                 for (int i = 0; i < pingTaskBean.getThreads(); i++) {
-                    pool.submit(new PingJob(pingTaskBean, dataSource, sentenceProvider, logWriter),
-                            pingTaskBean.getName() + "@Thread-" + i);
+                    futureList.add(threadPool.submit(new PingJob(pingTaskBean, dataSource, commandProvider,
+                            logWriter)));
                 }
             }
         }
     }
 
+    /**
+     * Searches in the indicated files for those tasks whose name coincides with one of the indicated ones. If the
+     * list of task names is empty then it will start all the tasks that are configured in the provided files.
+     *
+     * @param filenames paths in which to start the search. These paths can be files or directories.
+     * @param taskNames the set of task names. It can be empty or null.
+     * @throws DattackParserException when there is a problem reading any of the configuration files.
+     */
     public void execute(final String[] filenames, final Set<String> taskNames)
-            throws ConfigurationException, DattackParserException {
+            throws DattackParserException {
 
         for (final String filename : filenames) {
             execute(new File(filename), taskNames);
+        }
+
+        this.threadPool.shutdown();
+
+        for (Future<?> future : futureList) {
+            try {
+                Object obj = future.get();
+                System.out.println(obj);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

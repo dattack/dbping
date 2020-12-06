@@ -24,6 +24,8 @@ import java.util.List;
 import com.dattack.jtoolbox.patterns.Builder;
 
 /**
+ * Bean that represents the metrics collected during the execution of a {@link ExecutableCommand}.
+ *
  * @author cvarela
  * @since 0.1
  */
@@ -43,6 +45,7 @@ public class LogEntry implements Serializable {
     private final String taskName;
     private final String threadName;
     private final List<DataRow> rowList;
+    private final String comment;
 
     public static final class LogEntryBuilder implements Serializable, Builder<LogEntry> {
 
@@ -61,6 +64,7 @@ public class LogEntry implements Serializable {
         private String taskName;
         private String threadName;
         private final long maxRowsToDump;
+        private String comment;
 
         private List<DataRow> rowList;
 
@@ -145,11 +149,17 @@ public class LogEntry implements Serializable {
             this.rows = 0;
             this.sqlLabel = null;
             this.totalTime = UNKNOWN;
+            this.comment = null;
             if (this.rowList == null) {
                 this.rowList = new ArrayList<>();
             } else {
                 this.rowList.clear();
             }
+            return this;
+        }
+
+        public LogEntryBuilder withComment(final String value) {
+            this.comment = value;
             return this;
         }
 
@@ -216,6 +226,7 @@ public class LogEntry implements Serializable {
         this.executionTime = builder.totalTime;
         this.exception = builder.exception;
         this.rowList = new ArrayList<>(builder.rowList);
+        this.comment = builder.comment;
     }
 
     public long getConnectionTime() {
@@ -260,5 +271,9 @@ public class LogEntry implements Serializable {
 
     public long getTotalTime() {
         return executionTime;
+    }
+
+    public String getComment() {
+        return comment;
     }
 }

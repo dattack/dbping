@@ -15,24 +15,99 @@
  */
 package com.dattack.dbping.engine;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.dattack.dbping.beans.SqlCommandBean;
+import com.dattack.dbping.beans.SqlCommandVisitor;
+import com.dattack.dbping.beans.SqlScriptBean;
+import com.dattack.dbping.beans.SqlStatementBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Defines the interface to be implemented by the provider of the SQL-query executed from a ping job.
+ * Defines the methods to be implemented by the provider of the SQL-query executed by a ping job.
  *
  * @author cvarela
  * @since 0.1
  */
-public interface SqlCommandProvider {
+public abstract class SqlCommandProvider implements SqlCommandVisitor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqlCommandProvider.class);
+
+    private final List<ExecutableCommand> executableCommandList = new ArrayList<>();
 
     /**
-     * Returns the next SqlSentence to execute.
+     * Returns the next ExecutableCommand to execute.
      *
-     * @return the SQL-query to be executed
+     * @return the next ExecutableCommand to execute
      */
-    SqlCommandBean nextSql();
+    abstract ExecutableCommand nextSql();
 
-    void setSentences(final List<SqlCommandBean> sqlList);
+    /**
+     * Sets the list os sentences to be executed.
+     *
+     * @param sqlList the list of sentences to be executed.
+     */
+    final synchronized void setSentences(final List<SqlCommandBean> sqlList) {
+
+        executableCommandList.clear();
+
+        for (SqlCommandBean bean : sqlList) {
+            bean.accept(this);
+        }
+
+        prepare(sqlList);
+    }
+
+    protected void prepare(final List<SqlCommandBean> sqlList) {
+        // empty by default
+    }
+
+    protected final boolean isEmpty() {
+        return executableCommandList.isEmpty();
+    }
+
+    protected final ExecutableCommand getCommand(final int index) {
+        return executableCommandList.get(index);
+    }
+
+    protected final int getSize() {
+        return executableCommandList.size();
+    }
+
+    @Override
+    public void visit(final SqlScriptBean bean) {
+
+        try {
+            ExecutableScript executableScript = new ExecutableScript(bean);
+            for (SqlStatementBean statement : bean.getStatementList()) {
+                executableScript.add(createExecutableStatement(statement));
+            }
+
+            executableCommandList.add(executableScript);
+        } catch (final Exception e) {
+            LOGGER.warn(e.getMessage());
+        }
+    }
+
+    @Override
+    public void visit(final SqlStatementBean bean) {
+        try {
+            executableCommandList.add(createExecutableStatement(bean));
+        } catch (final Exception e) {
+            LOGGER.warn(e.getMessage());
+        }
+    }
+
+    private ExecutableStatement createExecutableStatement(final SqlStatementBean bean) throws IOException {
+        ExecutableStatement statement;
+        if (bean.isForcePrepareStatement() || !bean.getParameterList().isEmpty()) {
+            statement = new ExecutablePreparedStatement(bean);
+        } else {
+            statement = new ExecutableStatement(bean);
+        }
+        return statement;
+    }
 }

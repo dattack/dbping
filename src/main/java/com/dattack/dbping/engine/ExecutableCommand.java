@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, The Dattack team (http://www.dattack.com)
+ * Copyright (c) 2020, The Dattack team (http://www.dattack.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dattack.dbping.beans;
+package com.dattack.dbping.engine;
+
+import com.dattack.dbping.beans.SqlCommandBean;
+import java.sql.SQLException;
 
 /**
- * Visitor pattern for the SqlCommandBean class hierarchy.
+ * Interface that must implement all commands to be executed within a PingJob.
  *
  * @author cvarela
- * @since 0.1
+ * @since 0.2
  */
-public interface SqlCommandVisitor {
+public interface ExecutableCommand {
 
-    void visit(final SqlScriptBean command);
+    SqlCommandBean getBean();
 
-    void visit(final SqlStatementBean command);
+    void execute(final ExecutionContext context);
 }
