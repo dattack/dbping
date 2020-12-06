@@ -15,10 +15,14 @@
  */
 package com.dattack.dbping.beans;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
+ * Bean representing a SQL statement.
+ *
  * @author cvarela
  * @since 0.1
  */
@@ -26,40 +30,81 @@ public class SqlStatementBean implements SqlCommandBean {
 
     private static final long serialVersionUID = -5343761660462688691L;
 
-    @XmlValue
+    @XmlElement(name = "sql", required = true)
     private String sql;
 
     @XmlAttribute(name = "label", required = true)
     private String label;
 
     @XmlAttribute(name = "weight", required = false)
-    private float weight;
+    private float weight = -1;
+
+    @XmlAttribute(name = "fetchSize", required = false)
+    private int fetchSize = -1;
+
+    @XmlElement(name = "parameter", required = false, type = SqlParameterBean.class)
+    private List<SqlParameterBean> parameterList;
+
+    @XmlAttribute(name = "forcePrepareStatement", required = false)
+    private boolean forcePrepareStatement = true;
+
+    public SqlStatementBean() {
+        parameterList = new ArrayList<>();
+    }
 
     @Override
     public void accept(final SqlCommandVisitor visitor) {
-        visitor.visite(this);
+        visitor.visit(this);
     }
 
-    /**
-     * @return the label
-     */
     @Override
     public String getLabel() {
         return label;
     }
 
     /**
-     * @return the sql
+     * Returns the sql statement.
+     *
+     * @return the sql statement
      */
     public String getSql() {
         return sql;
     }
 
     /**
-     * @return the weight
+     * Returns the weight assigned to this statement.
+     *
+     * @return the weight assigned to this statement
      */
     @Override
     public float getWeight() {
         return weight;
+    }
+
+    /**
+     * Returns the fetch size.
+     *
+     * @return the fetch size
+     */
+    public int getFetchSize() {
+        return fetchSize;
+    }
+
+    /**
+     * Returns the list of parameters used by this statement.
+     *
+     * @return the list of parameters used by this statement
+     */
+    public List<SqlParameterBean> getParameterList() {
+        return parameterList;
+    }
+
+    /**
+     * Returns a boolean indicating whether a PreparedStatement should be used to execute this SQL statement.
+     *
+     * @return a boolean indicating whether a PreparedStatement should be used to execute this SQL statement.
+     */
+    public boolean isForcePrepareStatement() {
+        return forcePrepareStatement;
     }
 }

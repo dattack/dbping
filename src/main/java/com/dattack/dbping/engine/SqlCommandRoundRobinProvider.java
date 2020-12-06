@@ -25,9 +25,8 @@ import com.dattack.dbping.beans.SqlCommandBean;
  * @author cvarela
  * @since 0.1
  */
-public class SqlCommandRoundRobinProvider implements SqlCommandProvider {
+public class SqlCommandRoundRobinProvider extends SqlCommandProvider {
 
-    private List<SqlCommandBean> sentenceList;
     private int index;
 
     public SqlCommandRoundRobinProvider() {
@@ -35,21 +34,16 @@ public class SqlCommandRoundRobinProvider implements SqlCommandProvider {
     }
 
     @Override
-    public synchronized SqlCommandBean nextSql() {
+    public synchronized ExecutableCommand nextSql() {
 
-        if (sentenceList == null || sentenceList.isEmpty()) {
+        if (isEmpty()) {
             throw new IllegalArgumentException("The sentence list must not be null or empty");
         }
 
-        final SqlCommandBean sqlSentence = sentenceList.get(index++);
-        if (index >= sentenceList.size()) {
+        final ExecutableCommand command = getCommand(index++);
+        if (index >= getSize()) {
             index = 0;
         }
-        return sqlSentence;
-    }
-
-    @Override
-    public void setSentences(final List<SqlCommandBean> sqlList) {
-        this.sentenceList = sqlList;
+        return command;
     }
 }

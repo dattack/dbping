@@ -26,9 +26,8 @@ import com.dattack.dbping.beans.SqlCommandBean;
  * @author cvarela
  * @since 0.1
  */
-public class SqlCommandWeightedRandomProvider implements SqlCommandProvider {
+public class SqlCommandWeightedRandomProvider extends SqlCommandProvider {
 
-    private List<SqlCommandBean> sentenceList;
     private final Random randomGenerator;
     private float[] cumulativeWeight;
 
@@ -41,7 +40,7 @@ public class SqlCommandWeightedRandomProvider implements SqlCommandProvider {
     }
 
     // the cumulative density function
-    private float[] cdf() {
+    private float[] cdf(List<SqlCommandBean> sentenceList) {
 
         float totalWeight = 0;
         for (final SqlCommandBean sentence : sentenceList) {
@@ -62,24 +61,23 @@ public class SqlCommandWeightedRandomProvider implements SqlCommandProvider {
     }
 
     @Override
-    public SqlCommandBean nextSql() {
+    protected void prepare(List<SqlCommandBean> sqlList) {
+        this.cumulativeWeight = cdf(sqlList);
+    }
 
-        if (sentenceList == null || sentenceList.isEmpty()) {
+    @Override
+    public ExecutableCommand nextSql() {
+
+        if (isEmpty()) {
             throw new IllegalArgumentException("The sentence list must not be null or empty");
         }
 
         final float randomWeight = randomGenerator.nextFloat();
         for (int i = 0; i < cumulativeWeight.length; i++) {
             if (cumulativeWeight[i] > randomWeight) {
-                return sentenceList.get(i);
+                return getCommand(i);
             }
         }
-        return sentenceList.get(sentenceList.size() - 1);
-    }
-
-    @Override
-    public void setSentences(final List<SqlCommandBean> sqlList) {
-        this.sentenceList = sqlList;
-        this.cumulativeWeight = cdf();
+        return getCommand(getSize() - 1);
     }
 }

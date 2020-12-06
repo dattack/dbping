@@ -90,7 +90,7 @@ public final class PingCli {
 
         } catch (@SuppressWarnings("unused") final ParseException e) {
             showUsage(options);
-        } catch (final ConfigurationException | DattackParserException e) {
+        } catch (final DattackParserException e) {
             System.err.println(e.getMessage());
         }
     }

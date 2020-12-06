@@ -1,0 +1,101 @@
+<dbping>
+    <task name="salgrade_test" threads="1" executions="10"
+          timeBetweenExecutions="100" datasource="jdbc/h2-db1" maxRowsToDump="0">
+        <query label="sql-1">
+            <sql><![CDATA[SELECT * FROM salgrade WHERE hisal > 2500]]></sql>
+        </query>
+        <query label="sql-2">
+            <sql><![CDATA[SELECT * FROM salgrade WHERE losal < 1500]]></sql>
+        </query>
+        <log-file>./logs/dbping_${task.name}.log</log-file>
+    </task>
+
+    <task name="emp_test" threads="1" executions="10"
+          timeBetweenExecutions="10" datasource="jdbc/h2-db1" maxRowsToDump="0">
+        <query label="deptno10">
+            <sql><![CDATA[SELECT * FROM emp WHERE deptno = 10]]></sql>
+        </query>
+        <query label="deptno20">
+            <sql><![CDATA[SELECT * FROM emp WHERE deptno = 20]]></sql>
+        </query>
+        <query label="deptno30">
+            <sql><![CDATA[SELECT * FROM emp WHERE deptno = 30]]></sql>
+        </query>
+        <query label="deptno40">
+            <sql><![CDATA[SELECT * FROM emp WHERE deptno = 40]]></sql>
+        </query>
+        <query label="mgr">
+            <sql><![CDATA[SELECT * FROM emp WHERE mgr IN (7839, 7698)]]></sql>
+        </query>
+        <log-file>./logs/dbping_${task.name}.log</log-file>
+    </task>
+
+    <task name="emp_test_prepared" threads="1" executions="10"
+          timeBetweenExecutions="10" datasource="jdbc/h2-db1" maxRowsToDump="0">
+        <query label="deptno">
+            <sql><![CDATA[SELECT * FROM emp WHERE deptno = ?]]></sql>
+            <parameter index="1" type="INTEGER" value="10, 20, 30, 40"/>
+        </query>
+        <query label="mgr">
+            <sql><![CDATA[SELECT * FROM emp WHERE mgr IN (7839, 7698)]]></sql>
+        </query>
+        <log-file>./logs/dbping_${task.name}.log</log-file>
+    </task>
+
+    <task name="script" threads="1" executions="10"
+          timeBetweenExecutions="1000" datasource="jdbc/h2-db1" maxRowsToDump="0">
+        <script label="s1">
+            <query label="s1.1">
+                <sql>
+                    <![CDATA[CREATE TEMPORARY TABLE IF NOT EXISTS temp1 AS SELECT * FROM emp WHERE deptno IN (10, 20)]]></sql>
+            </query>
+            <query label="s1.2">
+                <sql><![CDATA[SELECT * FROM temp1]]></sql>
+            </query>
+        </script>
+        <query label="deptno10">
+            <sql><![CDATA[SELECT * FROM emp WHERE deptno = 10]]></sql>
+        </query>
+        <script label="s2">
+            <query label="s2.1">
+                <sql>
+                    <![CDATA[CREATE TEMPORARY TABLE IF NOT EXISTS temp2 AS SELECT * FROM emp WHERE deptno IN (10, 20, 30)]]></sql>
+            </query>
+            <query label="s2.2">
+                <sql><![CDATA[SELECT * FROM temp2]]></sql>
+            </query>
+        </script>
+        <script label="s3">
+            <query label="s3.1">
+                <sql>
+                    <![CDATA[CREATE TEMPORARY TABLE IF NOT EXISTS temp2 AS SELECT * FROM emp WHERE deptno IN (?, ?, ?)]]></sql>
+                <parameter index="1" type="INTEGER" value="10"/>
+                <parameter index="1" type="INTEGER" value="20"/>
+                <parameter index="1" type="INTEGER" value="30"/>
+            </query>
+            <query label="s3.2">
+                <sql><![CDATA[SELECT * FROM temp2]]></sql>
+            </query>
+        </script>
+        <query label="deptno20">
+            <sql><![CDATA[SELECT * FROM emp WHERE deptno = 20]]></sql>
+        </query>
+        <log-file>./logs/dbping_${task.name}.log</log-file>
+    </task>
+
+    <task name="dept_test" threads="1" executions="10"
+          timeBetweenExecutions="100" datasource="jdbc/h2-db1">
+        <query label="q1">
+            <sql><![CDATA[SELECT * FROM dept]]></sql>
+        </query>
+        <log-file>./logs/dbping_${task.name}.log</log-file>
+    </task>
+
+    <task name="error_test" threads="1" executions="1" datasource="jdbc/h2-db1">
+        <query label="q1">
+            <sql><![CDATA[SELECT * FROM missing_table]]></sql>
+        </query>
+        <log-file>./logs/dbping_${task.name}.log</log-file>
+    </task>
+
+</dbping>

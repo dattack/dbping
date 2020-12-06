@@ -16,11 +16,12 @@
 package com.dattack.dbping.beans;
 
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
+ * This is a script that contains several SQL statements that must be executed together.
+ *
  * @author cvarela
  * @since 0.1
  */
@@ -32,18 +33,20 @@ public class SqlScriptBean implements SqlCommandBean {
     private String label;
 
     @XmlAttribute(name = "weight", required = false)
-    private float weight;
+    private float weight = -1;
 
     @XmlElement(name = "query", required = true, type = SqlStatementBean.class)
     private List<SqlStatementBean> statementList;
 
     @Override
     public void accept(final SqlCommandVisitor visitor) {
-        visitor.visite(this);
+        visitor.visit(this);
     }
 
     /**
-     * @return the label
+     * Returns the label associated with the script.
+     *
+     * @return the label associated with the script
      */
     @Override
     public String getLabel() {
@@ -51,6 +54,8 @@ public class SqlScriptBean implements SqlCommandBean {
     }
 
     /**
+     * Returns the list of statements contained in this script.
+     *
      * @return the statementList
      */
     public List<SqlStatementBean> getStatementList() {
@@ -58,7 +63,9 @@ public class SqlScriptBean implements SqlCommandBean {
     }
 
     /**
-     * @return the weight
+     * Returns the weight assigned to this script.
+     *
+     * @return the weight assigned to this script
      */
     @Override
     public float getWeight() {
