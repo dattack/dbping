@@ -110,6 +110,11 @@ public class ExecutablePreparedStatement extends ExecutableStatement {
         try {
             populatePreparedStatement(context, stmt);
 
+            // configure fetchSize
+            if (getBean().getFetchSize() > 0) {
+                stmt.setFetchSize(getBean().getFetchSize());
+            }
+
             boolean executeResult = stmt.execute();
 
             if (executeResult) {
