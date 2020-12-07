@@ -29,15 +29,7 @@ import org.apache.commons.configuration.CompositeConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 
 /**
@@ -49,15 +41,6 @@ import javax.sql.DataSource;
 public final class PingEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PingEngine.class);
-
-    private final ThreadPoolExecutor threadPool;
-    private final List<Future<?>> futureList;
-
-    public PingEngine() {
-        this.threadPool = new ThreadPoolExecutor(1, 100, 1L, TimeUnit.MINUTES,
-                new LinkedBlockingQueue<>());
-        this.futureList = new ArrayList<>();
-    }
 
     private static SqlCommandProvider getCommandProvider(final String clazzname) {
 
@@ -114,8 +97,7 @@ public final class PingEngine {
                 logWriter.write(logHeader);
 
                 for (int i = 0; i < pingTaskBean.getThreads(); i++) {
-                    futureList.add(threadPool.submit(new PingJob(pingTaskBean, dataSource, commandProvider,
-                            logWriter)));
+                    new Thread(new PingJob(pingTaskBean, dataSource, commandProvider, logWriter)).start();
                 }
             }
         }
@@ -134,19 +116,6 @@ public final class PingEngine {
 
         for (final String filename : filenames) {
             execute(new File(filename), taskNames);
-        }
-
-        this.threadPool.shutdown();
-
-        for (Future<?> future : futureList) {
-            try {
-                Object obj = future.get();
-                if (obj != null) {
-                    LOGGER.info("Future result: " + obj);
-                }
-            } catch (Exception e) {
-                LOGGER.warn(e.getMessage());
-            }
         }
     }
 }
