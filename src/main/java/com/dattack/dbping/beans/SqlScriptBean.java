@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlElement;
  * @author cvarela
  * @since 0.1
  */
-public class SqlScriptBean implements SqlCommandBean {
+public class SqlScriptBean extends SqlCommandBean {
 
     private static final long serialVersionUID = 5671689427608954154L;
 

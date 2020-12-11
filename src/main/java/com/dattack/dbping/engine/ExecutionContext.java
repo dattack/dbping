@@ -15,12 +15,19 @@
  */
 package com.dattack.dbping.engine;
 
+import com.dattack.dbping.beans.ContextBean;
 import com.dattack.dbping.beans.PingTaskBean;
 import com.dattack.dbping.log.LogWriter;
+import org.apache.commons.configuration.AbstractConfiguration;
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import javax.sql.DataSource;
 
 /**
@@ -37,7 +44,18 @@ public final class ExecutionContext {
     private final PingTaskBean pingTaskBean;
     private final LogWriter logWriter;
     private final LogEntry.LogEntryBuilder logEntryBuilder;
+    private final AbstractConfiguration configuration;
     private long iteration = 0;
+
+    public ExecutionContext(ExecutionContext other) {
+        this.pingTaskBean = other.pingTaskBean;
+        this.dataSource = other.dataSource;
+        this.logWriter = other.logWriter;
+        this.logEntryBuilder = other.logEntryBuilder;
+        this.configuration = new BaseConfiguration();
+        ConfigurationUtils.copy(other.configuration, this.configuration);
+        this.iteration = other.iteration;
+    }
 
     /**
      * Creates a new instance with the values provided.
@@ -46,10 +64,12 @@ public final class ExecutionContext {
      * @param dataSource   the data source that provides the connections
      * @param logWriter    the log in which to write the metrics obtained
      */
-    public ExecutionContext(final PingTaskBean pingTaskBean, final DataSource dataSource, final LogWriter logWriter) {
+    public ExecutionContext(final PingTaskBean pingTaskBean, final DataSource dataSource, final LogWriter logWriter,
+                            AbstractConfiguration configuration) {
         this.pingTaskBean = pingTaskBean;
         this.dataSource = dataSource;
         this.logWriter = logWriter;
+        this.configuration = configuration;
         final String threadName = Thread.currentThread().getName();
         this.logEntryBuilder = new LogEntry.LogEntryBuilder(pingTaskBean.getMaxRowsToDump()) //
                 .withTaskName(pingTaskBean.getName()) //
@@ -58,6 +78,10 @@ public final class ExecutionContext {
 
     public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
+    }
+
+    public AbstractConfiguration getConfiguration() {
+        return configuration;
     }
 
     private void incrIteration() {
@@ -98,5 +122,21 @@ public final class ExecutionContext {
 
     public boolean isAlive() {
         return pingTaskBean.getExecutions() <= 0 || iteration < pingTaskBean.getExecutions();
+    }
+
+    public boolean test(String activation) {
+        return StringUtils.isBlank(activation)
+                || ("EVEN".equalsIgnoreCase(activation) && getIteration() % 2 == 0)
+                || ("ODD".equalsIgnoreCase(activation) && getIteration() % 2 != 0);
+    }
+
+    public void set(final List<ContextBean> list) {
+        list.forEach(x -> {
+            if (test(x.getActivation())) {
+                getConfiguration().setProperty(x.getKey(), x.getValue());
+            } else if (StringUtils.isNotBlank(x.getUnset())) {
+                getConfiguration().setProperty(x.getKey(), x.getUnset());
+            }
+        });
     }
 }

@@ -105,7 +105,7 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
             // sets the connection time
             context.getLogEntryBuilder().connect();
 
-            try (PreparedStatement stmt = connection.prepareStatement(getBean().getSql())) {
+            try (PreparedStatement stmt = connection.prepareStatement(compileSql(context))) {
                 doExecute(context, stmt);
             }
         } catch (final Exception e) {
@@ -131,14 +131,7 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
 
     public void execute(final ExecutionContext context, Connection connection) throws NestableException {
 
-        try {
-            System.out.println("Client info: " + connection.getClientInfo());
-            populateClientInfo(connection);
-            System.out.println("Database metadata OK");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        populateClientInfo(connection);
 
         // prepare log for this execution
         context.getLogEntryBuilder() //
@@ -146,9 +139,9 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
                 .withSqlLabel(getBean().getLabel()) //
                 .withIteration(context.getIteration()) //
                 .withSqlLabel(getBean().getLabel())
-                .connect();
+                .connect(); // connection already established so the connection-time must be zero
 
-        try (PreparedStatement stmt = connection.prepareStatement(getBean().getSql())) {
+        try (PreparedStatement stmt = connection.prepareStatement(compileSql(context))) {
             doExecute(context, stmt);
         } catch (Exception e) {
             throw new NestableException(e);
@@ -159,7 +152,6 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
 
         ResultSet resultSet = null;
         try {
-            LOGGER.info("Executing query {}", getBean().getSql());
             populatePreparedStatement(context, stmt);
             setFetchSize(stmt);
 

@@ -15,8 +15,11 @@
  */
 package com.dattack.dbping.engine;
 
+import com.dattack.dbping.beans.ContextBean;
 import com.dattack.dbping.beans.SqlStatementBean;
+import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import com.dattack.jtoolbox.jdbc.JDBCUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.NestableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +48,14 @@ public class ExecutableStatement implements ExecutableCommand {
     @Override
     public SqlStatementBean getBean() {
         return bean;
+    }
+
+    protected String compileSql(final ExecutionContext context) throws IOException {
+
+        context.set(bean.getContextBeanList());
+        String sql = ConfigurationUtil.interpolate(getBean().getSql(), context.getConfiguration());
+        LOGGER.trace("Executing query {}", sql);
+        return sql;
     }
 
     @Override
@@ -100,7 +111,7 @@ public class ExecutableStatement implements ExecutableCommand {
 
         ResultSet resultSet = null;
         try {
-            boolean executeResult = stmt.execute(bean.getSql());
+            boolean executeResult = stmt.execute(compileSql(context));
 
             if (executeResult) {
                 resultSet = stmt.getResultSet();

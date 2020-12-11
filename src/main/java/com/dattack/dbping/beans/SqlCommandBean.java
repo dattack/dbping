@@ -16,22 +16,32 @@
 package com.dattack.dbping.beans;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * @author cvarela
  * @since 0.1
  */
-public interface SqlCommandBean extends Serializable {
+public abstract class SqlCommandBean implements Serializable {
 
-    void accept(final SqlCommandVisitor visitor);
+    @XmlElement(name = "context")
+    private List<ContextBean> contextBeanList;
+
+    public List<ContextBean> getContextBeanList() {
+        return contextBeanList == null ? Collections.emptyList() : contextBeanList;
+    }
+
+    public abstract void accept(final SqlCommandVisitor visitor);
 
     /**
      * @return the label
      */
-    String getLabel();
+    public abstract String getLabel();
 
     /**
      * @return the weight
      */
-    float getWeight();
+    public abstract float getWeight();
 }

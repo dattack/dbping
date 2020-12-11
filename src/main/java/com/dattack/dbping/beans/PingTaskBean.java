@@ -16,6 +16,7 @@
 package com.dattack.dbping.beans;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -57,6 +58,13 @@ public class PingTaskBean implements Serializable {
 
     @XmlElement(name = "command-provider", type = String.class)
     private String commandProvider;
+
+    @XmlElement(name = "context")
+    private List<ContextBean> contextBeanList;
+
+    public List<ContextBean> getContextBeanList() {
+        return contextBeanList == null ? Collections.emptyList() : contextBeanList;
+    }
 
     /**
      * Returns the command provider.

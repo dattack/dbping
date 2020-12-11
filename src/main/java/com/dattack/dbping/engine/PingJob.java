@@ -17,6 +17,7 @@ package com.dattack.dbping.engine;
 
 import com.dattack.dbping.beans.PingTaskBean;
 import com.dattack.dbping.log.LogWriter;
+import org.apache.commons.configuration.AbstractConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
@@ -35,28 +36,32 @@ class PingJob implements Runnable {
     private final DataSource dataSource;
     private final SqlCommandProvider sentenceProvider;
     private final LogWriter logWriter;
+    private final AbstractConfiguration configuration;
 
     public PingJob(final PingTaskBean pingTaskBean, final DataSource dataSource,
-                   final SqlCommandProvider sentenceProvider, final LogWriter logWriter) {
+                   final SqlCommandProvider sentenceProvider, final LogWriter logWriter,
+                   final AbstractConfiguration configuration) {
 
         this.pingTaskBean = pingTaskBean;
         this.dataSource = dataSource;
         this.sentenceProvider = sentenceProvider;
         this.logWriter = logWriter;
+        this.configuration = configuration;
     }
 
     @Override
     public void run() {
 
-        ExecutionContext context = new ExecutionContext(pingTaskBean, dataSource, logWriter);
+        ExecutionContext context = new ExecutionContext(pingTaskBean, dataSource, logWriter, configuration);
+        context.set(pingTaskBean.getContextBeanList());
         LOGGER.info("Starting job: {}", context.getName());
 
         while (context.isAlive()) {
             final ExecutableCommand executableCommand = sentenceProvider.nextSql();
-            executableCommand.execute(context);
+            executableCommand.execute(new ExecutionContext(context));
             context.sleep();
         }
 
-        LOGGER.info("Job finished: {}", context);
+        LOGGER.info("Job finished: {}", context.getName());
     }
 }

@@ -25,7 +25,9 @@ import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import com.dattack.jtoolbox.exceptions.DattackParserException;
 import com.dattack.jtoolbox.io.FilesystemUtils;
 import com.dattack.jtoolbox.jdbc.JNDIDataSource;
+import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.ConfigurationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
@@ -98,7 +100,10 @@ public final class PingEngine {
 
                 if (commandProvider.getSize() > 0) {
                     for (int i = 0; i < pingTaskBean.getThreads(); i++) {
-                        new Thread(new PingJob(pingTaskBean, dataSource, commandProvider, logWriter)).start();
+                        BaseConfiguration copy = new BaseConfiguration();
+                        ConfigurationUtils.copy(conf, copy);
+
+                        new Thread(new PingJob(pingTaskBean, dataSource, commandProvider, logWriter, copy)).start();
                     }
                 }
             }

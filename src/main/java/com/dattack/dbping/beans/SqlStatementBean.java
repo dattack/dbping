@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -30,7 +31,7 @@ import javax.xml.bind.annotation.XmlElements;
  * @author cvarela
  * @since 0.1
  */
-public class SqlStatementBean implements SqlCommandBean {
+public class SqlStatementBean extends SqlCommandBean {
 
     private static final long serialVersionUID = -5343761660462688691L;
 
