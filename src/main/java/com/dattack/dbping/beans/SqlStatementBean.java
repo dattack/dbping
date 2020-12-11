@@ -40,10 +40,10 @@ public class SqlStatementBean implements SqlCommandBean {
     @XmlAttribute(name = "label", required = true)
     private String label;
 
-    @XmlAttribute(name = "weight", required = false)
+    @XmlAttribute(name = "weight")
     private float weight = -1;
 
-    @XmlAttribute(name = "fetchSize", required = false)
+    @XmlAttribute(name = "fetchSize")
     private int fetchSize = -1;
 
     @XmlElements({ //
@@ -52,11 +52,14 @@ public class SqlStatementBean implements SqlCommandBean {
     })
     private List<AbstractSqlParameterBean> parameterList;
 
-    @XmlAttribute(name = "forcePrepareStatement", required = false)
+    @XmlAttribute(name = "forcePrepareStatement")
     private boolean forcePrepareStatement = true;
 
-    @XmlAttribute(name = "ignoreMetrics", required = false)
+    @XmlAttribute(name = "ignoreMetrics")
     private boolean ignoreMetrics = false;
+
+    @XmlAttribute(name = "skip")
+    private boolean skip = false;
 
     public SqlStatementBean() {
         parameterList = new ArrayList<>();
@@ -134,5 +137,14 @@ public class SqlStatementBean implements SqlCommandBean {
      */
     public boolean isIgnoreMetrics() {
         return ignoreMetrics;
+    }
+
+    /**
+     * returns True when this sentence should be skipped.
+     *
+     * @return True when this sentence should be skipped
+     */
+    public boolean isSkip() {
+        return skip;
     }
 }

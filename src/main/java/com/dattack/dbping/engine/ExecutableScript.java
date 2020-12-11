@@ -45,6 +45,10 @@ public class ExecutableScript implements ExecutableCommand {
         this.executableStatementList.add(item);
     }
 
+    public boolean isEmpty() {
+        return executableStatementList.isEmpty();
+    }
+
     @Override
     public SqlScriptBean getBean() {
         return bean;

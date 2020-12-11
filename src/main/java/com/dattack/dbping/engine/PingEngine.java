@@ -96,8 +96,10 @@ public final class PingEngine {
                 final LogHeader logHeader = new LogHeader(pingTaskBean);
                 logWriter.write(logHeader);
 
-                for (int i = 0; i < pingTaskBean.getThreads(); i++) {
-                    new Thread(new PingJob(pingTaskBean, dataSource, commandProvider, logWriter)).start();
+                if (commandProvider.getSize() > 0) {
+                    for (int i = 0; i < pingTaskBean.getThreads(); i++) {
+                        new Thread(new PingJob(pingTaskBean, dataSource, commandProvider, logWriter)).start();
+                    }
                 }
             }
         }

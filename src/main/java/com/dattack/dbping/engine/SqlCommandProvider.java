@@ -83,10 +83,14 @@ public abstract class SqlCommandProvider implements SqlCommandVisitor {
         try {
             ExecutableScript executableScript = new ExecutableScript(bean);
             for (SqlStatementBean statement : bean.getStatementList()) {
-                executableScript.add(createExecutableStatement(statement));
+                if (!statement.isSkip()) {
+                    executableScript.add(createExecutableStatement(statement));
+                }
             }
 
-            executableCommandList.add(executableScript);
+            if (!executableScript.isEmpty()) {
+                executableCommandList.add(executableScript);
+            }
         } catch (final Exception e) {
             LOGGER.warn(e.getMessage(), e);
         }
@@ -95,7 +99,9 @@ public abstract class SqlCommandProvider implements SqlCommandVisitor {
     @Override
     public void visit(final SqlStatementBean bean) {
         try {
-            executableCommandList.add(createExecutableStatement(bean));
+            if (!bean.isSkip()) {
+                executableCommandList.add(createExecutableStatement(bean));
+            }
         } catch (final Exception e) {
             LOGGER.warn(e.getMessage(), e);
         }
