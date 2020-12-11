@@ -15,7 +15,7 @@
  */
 package com.dattack.dbping.engine;
 
-import com.dattack.dbping.beans.SqlParameterBean;
+import com.dattack.dbping.beans.SimpleAbstractSqlParameterBean;
 import org.apache.commons.lang.StringUtils;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,11 +33,7 @@ import java.util.stream.Stream;
  * @author cvarela
  * @since 0.2
  */
-public class PreparedStatementParameter {
-
-    private final SqlParameterBean parameterBean;
-    private final List<String> valueList;
-    private int index;
+public class SimplePreparedStatementParameter extends AbstractPreparedStatementParameter<String> {
 
     /**
      * Default constructor.
@@ -45,56 +41,41 @@ public class PreparedStatementParameter {
      * @param parameterBean the bean containing the configuration of the parameter
      * @throws IOException if an error occurs when accessing the values of the parameter
      */
-    public PreparedStatementParameter(final SqlParameterBean parameterBean) throws IOException {
-        this.parameterBean = parameterBean;
-        this.valueList = new ArrayList<>();
-        this.index = 0;
-        loadValues();
+    public SimplePreparedStatementParameter(final SimpleAbstractSqlParameterBean parameterBean) throws IOException {
+        super(parameterBean, loadValues(parameterBean));
     }
 
-    protected final SqlParameterBean getParameterBean() {
-        return parameterBean;
+    public SimplePreparedStatementParameter(final SimpleAbstractSqlParameterBean parameterBean, String... values) {
+        super(parameterBean, Arrays.asList(values));
     }
 
-    public final int getIndex() {
-        return parameterBean.getIndex();
+    public SimpleAbstractSqlParameterBean getBean() {
+        return (SimpleAbstractSqlParameterBean) super.getParameterBean();
     }
 
     public final String getFormat() {
-        return parameterBean.getFormat();
+        return getBean().getFormat();
+    }
+
+    public final int getRef() {
+        return getBean().getRef();
     }
 
     public final String getType() {
-        return parameterBean.getType();
+        return getBean().getType();
     }
 
-    private void loadValues() throws IOException {
+    private static List<String> loadValues(SimpleAbstractSqlParameterBean parameterBean) throws IOException {
 
+        List<String> valueList = new ArrayList<>();
         if (StringUtils.isNotBlank(parameterBean.getFile())) {
-            try (Stream<String> stream = Files.lines(Paths.get(getParameterBean().getFile()))) {
+            try (Stream<String> stream = Files.lines(Paths.get(parameterBean.getFile()))) {
                 stream.forEach(valueList::add);
             }
         } else if (StringUtils.isNotBlank(parameterBean.getValue())) {
             valueList.addAll(Arrays.stream(parameterBean.getValue().split(",")) //
                     .map(String::trim).collect(Collectors.toList()));
         }
-    }
-
-    /**
-     * Returns the next value to use within this parameter. If the parameter supports multiple values, each
-     * invocation of this method will return a different value using a Round-Robin algorithm.
-     *
-     * @return returns the next value to use within this parameter.
-     */
-    public synchronized String getValue() {
-        if (valueList.isEmpty()) {
-            return null;
-        }
-
-        if (index >= valueList.size()) {
-            index = 0;
-        }
-
-        return valueList.get(index++);
+        return valueList;
     }
 }

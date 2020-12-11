@@ -20,6 +20,7 @@ import com.dattack.jtoolbox.jdbc.JDBCUtils;
 import org.apache.commons.lang.exception.NestableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -88,17 +89,14 @@ public class ExecutableStatement implements ExecutableCommand {
 
         try (Statement stmt = connection.createStatement()) {
             doExecute(context, stmt);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new NestableException(e);
         }
     }
 
-    private void doExecute(final ExecutionContext context, Statement stmt) throws SQLException {
+    private void doExecute(final ExecutionContext context, Statement stmt) throws SQLException, IOException {
 
-        // configure fetchSize
-        if (bean.getFetchSize() > 0) {
-            stmt.setFetchSize(bean.getFetchSize());
-        }
+        setFetchSize(stmt);
 
         ResultSet resultSet = null;
         try {
@@ -112,9 +110,21 @@ public class ExecutableStatement implements ExecutableCommand {
             }
 
             // sets the total time
-            context.getLogWriter().write(context.getLogEntryBuilder().build());
+            writeResults(context);
         } finally {
             JDBCUtils.closeQuietly(resultSet);
+        }
+    }
+
+    protected final void setFetchSize(final Statement stmt) throws SQLException {
+        if (bean.getFetchSize() > 0) {
+            stmt.setFetchSize(bean.getFetchSize());
+        }
+    }
+
+    protected final void writeResults(final ExecutionContext context) {
+        if (!getBean().isIgnoreMetrics()) {
+            context.getLogWriter().write(context.getLogEntryBuilder().build());
         }
     }
 }

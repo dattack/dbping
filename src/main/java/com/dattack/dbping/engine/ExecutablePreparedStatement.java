@@ -15,8 +15,12 @@
  */
 package com.dattack.dbping.engine;
 
-import com.dattack.dbping.beans.SqlParameterBean;
+import com.dattack.dbping.beans.ClusterAbstractSqlParameterBean;
+import com.dattack.dbping.beans.SimpleAbstractSqlParameterBean;
+import com.dattack.dbping.beans.AbstractSqlParameterBean;
+import com.dattack.dbping.beans.SqlParameterBeanVisitor;
 import com.dattack.dbping.beans.SqlStatementBean;
+import com.dattack.jtoolbox.exceptions.DattackNestableRuntimeException;
 import com.dattack.jtoolbox.jdbc.JDBCUtils;
 import org.apache.commons.lang.exception.NestableException;
 import org.slf4j.Logger;
@@ -40,11 +44,11 @@ import java.util.List;
  * @author cvarela
  * @since 0.2
  */
-public class ExecutablePreparedStatement extends ExecutableStatement {
+public class ExecutablePreparedStatement extends ExecutableStatement implements SqlParameterBeanVisitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutablePreparedStatement.class);
 
-    private final List<PreparedStatementParameter> parameterList = new ArrayList<>();
+    private final List<AbstractPreparedStatementParameter<?>> parameterList = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -55,11 +59,33 @@ public class ExecutablePreparedStatement extends ExecutableStatement {
     public ExecutablePreparedStatement(SqlStatementBean bean) throws IOException {
         super(bean);
 
-        for (SqlParameterBean parameterBean : bean.getParameterList()) {
-            parameterList.add(new PreparedStatementParameter(parameterBean));
+        for (AbstractSqlParameterBean parameterBean : bean.getParameterList()) {
+            try {
+                parameterBean.accept(this);
+            } catch (DattackNestableRuntimeException e) {
+                throw (IOException) e.getCause(); // TODO: improve it
+            }
         }
 
-        parameterList.sort(Comparator.comparingInt(PreparedStatementParameter::getIndex));
+        parameterList.sort(Comparator.comparingInt(AbstractPreparedStatementParameter::getOrder));
+    }
+
+    @Override
+    public void visit(SimpleAbstractSqlParameterBean bean) {
+        try {
+            parameterList.add(new SimplePreparedStatementParameter(bean));
+        } catch (IOException e) {
+            throw new DattackNestableRuntimeException(e);
+        }
+    }
+
+    @Override
+    public void visit(ClusterAbstractSqlParameterBean bean) {
+        try {
+            parameterList.add(new ClusterPreparedStatementParameter(bean));
+        } catch (IOException e) {
+            throw new DattackNestableRuntimeException(e);
+        }
     }
 
     @Override
@@ -74,6 +100,8 @@ public class ExecutablePreparedStatement extends ExecutableStatement {
 
         try (Connection connection = context.getConnection()) {
 
+            populateClientInfo(connection);
+
             // sets the connection time
             context.getLogEntryBuilder().connect();
 
@@ -87,7 +115,30 @@ public class ExecutablePreparedStatement extends ExecutableStatement {
         }
     }
 
+    private void setClientInfo(final Connection connection, final String key, final String value) {
+        try {
+            connection.setClientInfo(key, value);
+        } catch (SQLException e) {
+            LOGGER.warn(e.getMessage());
+        }
+    }
+
+    private void populateClientInfo(Connection connection) {
+        setClientInfo(connection, "OCSID.CLIENTID", "DBPING_ID");
+        setClientInfo(connection, "OCSID.MODULE", "DBPING");
+        setClientInfo(connection, "OCSID.ACTION", "TEST");
+    }
+
     public void execute(final ExecutionContext context, Connection connection) throws NestableException {
+
+        try {
+            System.out.println("Client info: " + connection.getClientInfo());
+            populateClientInfo(connection);
+            System.out.println("Database metadata OK");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         // prepare log for this execution
         context.getLogEntryBuilder() //
@@ -99,7 +150,7 @@ public class ExecutablePreparedStatement extends ExecutableStatement {
 
         try (PreparedStatement stmt = connection.prepareStatement(getBean().getSql())) {
             doExecute(context, stmt);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new NestableException(e);
         }
     }
@@ -108,12 +159,9 @@ public class ExecutablePreparedStatement extends ExecutableStatement {
 
         ResultSet resultSet = null;
         try {
+            LOGGER.info("Executing query {}", getBean().getSql());
             populatePreparedStatement(context, stmt);
-
-            // configure fetchSize
-            if (getBean().getFetchSize() > 0) {
-                stmt.setFetchSize(getBean().getFetchSize());
-            }
+            setFetchSize(stmt);
 
             boolean executeResult = stmt.execute();
 
@@ -126,7 +174,7 @@ public class ExecutablePreparedStatement extends ExecutableStatement {
             }
 
             // sets the total run time; then, writes to log
-            context.getLogWriter().write(context.getLogEntryBuilder().build());
+            writeResults(context);
         } catch (Exception e) {
             throw new NestableException(e);
         } finally {
@@ -140,44 +188,69 @@ public class ExecutablePreparedStatement extends ExecutableStatement {
 
         StringBuilder parametersComment = new StringBuilder();
 
-        for (PreparedStatementParameter parameter : parameterList) {
-            String value = parameter.getValue();
-            if (parameter.getIndex() > 1) {
+        int paramIndex = 1;
+        for (AbstractPreparedStatementParameter<?> parameter : parameterList) {
+
+            if (paramIndex > 1) {
                 parametersComment.append(",");
             }
-            parametersComment.append(" p").append(parameter.getIndex()).append(" = ").append(value);
-            switch (parameter.getType().toUpperCase()) {
-                case "INTEGER":
-                    statement.setInt(parameter.getIndex(), Integer.parseInt(value));
-                    break;
-                case "LONG":
-                    statement.setLong(parameter.getIndex(), Long.parseLong(value));
-                    break;
-                case "FLOAT":
-                    statement.setFloat(parameter.getIndex(), Float.parseFloat(value));
-                    break;
-                case "DOUBLE":
-                    statement.setDouble(parameter.getIndex(), Double.parseDouble(value));
-                    break;
-                case "TIME":
-                    statement.setTime(parameter.getIndex(), new java.sql.Time(parseDate(value,
-                            parameter.getFormat()).getTime()));
-                    break;
-                case "DATE":
-                    statement.setDate(parameter.getIndex(), new java.sql.Date(parseDate(value,
-                            parameter.getFormat()).getTime()));
-                    break;
-                case "TIMESTAMP":
-                    statement.setTimestamp(parameter.getIndex(),
-                            new java.sql.Timestamp(parseDate(value, parameter.getFormat()).getTime()));
-                    break;
-                case "STRING":
-                default:
-                    statement.setString(parameter.getIndex(), value);
+
+            if (parameter instanceof SimplePreparedStatementParameter) {
+                parametersComment.append(populatePreparedStatement(context, statement, paramIndex++,
+                        (SimplePreparedStatementParameter) parameter));
+            } else {
+                ClusterPreparedStatementParameter clusterParameter = (ClusterPreparedStatementParameter) parameter;
+                for (int iteration = 0; iteration < clusterParameter.getIterations(); iteration++) {
+                    String[] values = clusterParameter.getValue();
+                    for (SimplePreparedStatementParameter childParameter : clusterParameter.getParameterList()) {
+                        parametersComment.append(populatePreparedStatement(context, statement, paramIndex++,
+                                new SimplePreparedStatementParameter(childParameter.getBean(),
+                                        values[childParameter.getRef()])));
+                    }
+                }
             }
+
         }
 
         context.getLogEntryBuilder().withComment(parametersComment.toString());
+    }
+
+    private String populatePreparedStatement(final ExecutionContext context,
+                                             final PreparedStatement statement, int index,
+                                             final SimplePreparedStatementParameter parameter)
+            throws SQLException, ParseException {
+
+        String value = parameter.getValue();
+        switch (parameter.getType().toUpperCase()) {
+            case "INTEGER":
+                statement.setInt(index, Integer.parseInt(value));
+                break;
+            case "LONG":
+                statement.setLong(index, Long.parseLong(value));
+                break;
+            case "FLOAT":
+                statement.setFloat(index, Float.parseFloat(value));
+                break;
+            case "DOUBLE":
+                statement.setDouble(index, Double.parseDouble(value));
+                break;
+            case "TIME":
+                statement.setTime(index, new java.sql.Time(parseDate(value,
+                        parameter.getFormat()).getTime()));
+                break;
+            case "DATE":
+                statement.setDate(index, new java.sql.Date(parseDate(value, parameter.getFormat()).getTime()));
+                break;
+            case "TIMESTAMP":
+                statement.setTimestamp(index,
+                        new java.sql.Timestamp(parseDate(value, parameter.getFormat()).getTime()));
+                break;
+            case "STRING":
+            default:
+                statement.setString(index, value);
+        }
+
+        return " p" + index + " = " + value;
     }
 
     private Date parseDate(String value, String format) throws ParseException {

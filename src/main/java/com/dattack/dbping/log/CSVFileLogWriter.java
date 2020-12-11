@@ -136,16 +136,26 @@ public class CSVFileLogWriter implements LogWriter {
 
                     @Override
                     public void visit(final SqlScriptBean command) {
-                        csvBuilder.comment("  - " + command.getLabel() + ": ");
+                        try {
+                            csvBuilder.comment("  - " + command.getLabel() + ": ");
 
-                        for (final SqlStatementBean item : command.getStatementList()) {
-                            csvBuilder.comment("    |-- " + item.getLabel() + ": " + normalize(item.getSql()));
+                            for (final SqlStatementBean item : command.getStatementList()) {
+                                csvBuilder.comment("    |-- " + item.getLabel() + ": " + normalize(item.getSql()));
+                            }
+                        } catch (Exception e) {
+                            // TODO:
+                            LOGGER.error(e.getMessage(), e);
                         }
                     }
 
                     @Override
                     public void visit(final SqlStatementBean command) {
-                        csvBuilder.comment("  - " + command.getLabel() + ": " + normalize(command.getSql()));
+                        try {
+                            csvBuilder.comment("  - " + command.getLabel() + ": " + normalize(command.getSql()));
+                        } catch (Exception e) {
+                            // TODO:
+                            LOGGER.error(e.getMessage(), e);
+                        }
 
                     }
                 });

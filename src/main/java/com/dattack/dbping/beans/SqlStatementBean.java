@@ -15,10 +15,14 @@
  */
 package com.dattack.dbping.beans;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 
 /**
  * Bean representing a SQL statement.
@@ -42,11 +46,17 @@ public class SqlStatementBean implements SqlCommandBean {
     @XmlAttribute(name = "fetchSize", required = false)
     private int fetchSize = -1;
 
-    @XmlElement(name = "parameter", required = false, type = SqlParameterBean.class)
-    private List<SqlParameterBean> parameterList;
+    @XmlElements({ //
+            @XmlElement(name = "parameter", type = SimpleAbstractSqlParameterBean.class), //
+            @XmlElement(name = "cluster-parameter", type = ClusterAbstractSqlParameterBean.class) //
+    })
+    private List<AbstractSqlParameterBean> parameterList;
 
     @XmlAttribute(name = "forcePrepareStatement", required = false)
     private boolean forcePrepareStatement = true;
+
+    @XmlAttribute(name = "ignoreMetrics", required = false)
+    private boolean ignoreMetrics = false;
 
     public SqlStatementBean() {
         parameterList = new ArrayList<>();
@@ -66,9 +76,16 @@ public class SqlStatementBean implements SqlCommandBean {
      * Returns the sql statement.
      *
      * @return the sql statement
+     * @throws IOException when the content of the query is in a file and it is not possible to read from it
      */
-    public String getSql() {
+    public String getSql() throws IOException {
+        String fileProtocol = "file://";
+        if (sql.trim().startsWith(fileProtocol)) {
+            String path = sql.trim().substring(fileProtocol.length());
+            sql = new String(Files.readAllBytes(Paths.get(path)));
+        }
         return sql;
+
     }
 
     /**
@@ -95,7 +112,7 @@ public class SqlStatementBean implements SqlCommandBean {
      *
      * @return the list of parameters used by this statement
      */
-    public List<SqlParameterBean> getParameterList() {
+    public List<AbstractSqlParameterBean> getParameterList() {
         return parameterList;
     }
 
@@ -106,5 +123,16 @@ public class SqlStatementBean implements SqlCommandBean {
      */
     public boolean isForcePrepareStatement() {
         return forcePrepareStatement;
+    }
+
+    /**
+     * returns True when the metrics obtained by executing this sentence should not be written in the result file;
+     * otherwise, returns False.
+     *
+     * @return True when the metrics obtained by executing this sentence should not be written in the result file;
+     * otherwise, returns False
+     */
+    public boolean isIgnoreMetrics() {
+        return ignoreMetrics;
     }
 }

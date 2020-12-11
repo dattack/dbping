@@ -88,7 +88,7 @@ public abstract class SqlCommandProvider implements SqlCommandVisitor {
 
             executableCommandList.add(executableScript);
         } catch (final Exception e) {
-            LOGGER.warn(e.getMessage());
+            LOGGER.warn(e.getMessage(), e);
         }
     }
 
@@ -97,7 +97,7 @@ public abstract class SqlCommandProvider implements SqlCommandVisitor {
         try {
             executableCommandList.add(createExecutableStatement(bean));
         } catch (final Exception e) {
-            LOGGER.warn(e.getMessage());
+            LOGGER.warn(e.getMessage(), e);
         }
     }
 

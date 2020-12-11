@@ -15,8 +15,9 @@
  */
 package com.dattack.dbping.beans;
 
-import java.io.Serializable;
+import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Configuration of a parameter that can be used with a PreparedStatement.
@@ -24,40 +25,31 @@ import javax.xml.bind.annotation.XmlAttribute;
  * @author cvarela
  * @since 0.2
  */
-public class SqlParameterBean implements Serializable {
+public class ClusterAbstractSqlParameterBean extends AbstractSqlParameterBean {
 
-    @XmlAttribute(name = "index", required = true)
-    private int index;
+    @XmlAttribute(name = "iterations")
+    private int iterations = 1;
 
-    @XmlAttribute(name = "type", required = true)
-    private String type;
-
-    @XmlAttribute(name = "value", required = false)
-    private String value;
-
-    @XmlAttribute(name = "file", required = false)
+    @XmlAttribute(name = "file", required = true)
     private String file;
 
-    @XmlAttribute(name = "format", required = false)
-    private String format;
+    @XmlElement(name = "parameter", required = true)
+    private List<SimpleAbstractSqlParameterBean> parameterList;
 
-    public String getValue() {
-        return value;
+    public int getIterations() {
+        return iterations;
     }
 
-    public int getIndex() {
-        return index;
-    }
-
-    public String getFormat() {
-        return format;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getFile() {
+    public final String getFile() {
         return file;
+    }
+
+    public List<SimpleAbstractSqlParameterBean> getParameterList() {
+        return parameterList;
+    }
+
+    @Override
+    public void accept(SqlParameterBeanVisitor visitor) {
+        visitor.visit(this);
     }
 }
