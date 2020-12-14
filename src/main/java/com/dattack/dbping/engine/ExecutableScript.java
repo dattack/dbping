@@ -15,18 +15,13 @@
  */
 package com.dattack.dbping.engine;
 
-import com.dattack.dbping.beans.PingTaskBean;
 import com.dattack.dbping.beans.SqlScriptBean;
-import com.dattack.dbping.log.LogWriter;
-import org.apache.commons.configuration.AbstractConfiguration;
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.lang.StringUtils;
+import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
-import javax.sql.DataSource;
 
 /**
  * An ordered list of SQL statements to be executed one after the other. All operations use the same connection but
@@ -79,12 +74,13 @@ public class ExecutableScript implements ExecutableCommand {
 
             executableStatementList.forEach(s -> {
                 try {
-                    ExecutionContext delegableContext = context;
+                    ExecutionContext delegateContext = new ExecutionContext(context);
+                    delegateContext.getConfiguration().setProperty(ExecutionContext.PARENT_NAME_PROPERTY,
+                            ConfigurationUtil.interpolate(bean.getLabel(), delegateContext.getConfiguration()));
                     if (!getBean().getContextBeanList().isEmpty()) {
-                        delegableContext = new ExecutionContext(context);
-                        delegableContext.set(getBean().getContextBeanList());
+                        delegateContext.set(getBean().getContextBeanList());
                     }
-                    s.execute(delegableContext, connection);
+                    s.execute(delegateContext, connection);
                 } catch (Exception e) {
                     log(context, e);
                 }

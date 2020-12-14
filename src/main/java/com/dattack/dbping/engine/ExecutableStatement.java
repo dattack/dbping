@@ -15,11 +15,9 @@
  */
 package com.dattack.dbping.engine;
 
-import com.dattack.dbping.beans.ContextBean;
 import com.dattack.dbping.beans.SqlStatementBean;
 import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import com.dattack.jtoolbox.jdbc.JDBCUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.NestableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +61,8 @@ public class ExecutableStatement implements ExecutableCommand {
 
         context.getLogEntryBuilder() //
                 .init() //
-                .withSqlLabel(getBean().getLabel()) //
                 .withIteration(context.getIteration()) //
-                .withSqlLabel(getBean().getLabel());
+                .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration()));
 
         try (Connection connection = context.getConnection()) {
 
@@ -93,9 +90,8 @@ public class ExecutableStatement implements ExecutableCommand {
 
         context.getLogEntryBuilder() //
                 .init() //
-                .withSqlLabel(getBean().getLabel()) //
                 .withIteration(context.getIteration()) //
-                .withSqlLabel(getBean().getLabel()) //
+                .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration())) //
                 .connect();
 
         try (Statement stmt = connection.createStatement()) {

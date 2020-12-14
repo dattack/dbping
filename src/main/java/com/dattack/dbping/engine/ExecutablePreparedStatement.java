@@ -15,11 +15,12 @@
  */
 package com.dattack.dbping.engine;
 
+import com.dattack.dbping.beans.AbstractSqlParameterBean;
 import com.dattack.dbping.beans.ClusterAbstractSqlParameterBean;
 import com.dattack.dbping.beans.SimpleAbstractSqlParameterBean;
-import com.dattack.dbping.beans.AbstractSqlParameterBean;
 import com.dattack.dbping.beans.SqlParameterBeanVisitor;
 import com.dattack.dbping.beans.SqlStatementBean;
+import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import com.dattack.jtoolbox.exceptions.DattackNestableRuntimeException;
 import com.dattack.jtoolbox.jdbc.JDBCUtils;
 import org.apache.commons.lang.exception.NestableException;
@@ -94,9 +95,8 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
         // prepare log for this execution
         context.getLogEntryBuilder() //
                 .init() //
-                .withSqlLabel(getBean().getLabel()) //
-                .withIteration(context.getIteration()) //
-                .withSqlLabel(getBean().getLabel());
+                .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration())) //
+                .withIteration(context.getIteration());
 
         try (Connection connection = context.getConnection()) {
 
@@ -136,9 +136,8 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
         // prepare log for this execution
         context.getLogEntryBuilder() //
                 .init() //
-                .withSqlLabel(getBean().getLabel()) //
+                .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration())) //
                 .withIteration(context.getIteration()) //
-                .withSqlLabel(getBean().getLabel())
                 .connect(); // connection already established so the connection-time must be zero
 
         try (PreparedStatement stmt = connection.prepareStatement(compileSql(context))) {

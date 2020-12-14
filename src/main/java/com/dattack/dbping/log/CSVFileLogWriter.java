@@ -20,9 +20,12 @@ import com.dattack.dbping.beans.SqlCommandVisitor;
 import com.dattack.dbping.beans.SqlScriptBean;
 import com.dattack.dbping.beans.SqlStatementBean;
 import com.dattack.dbping.engine.DataRow;
+import com.dattack.dbping.engine.ExecutionContext;
 import com.dattack.dbping.engine.LogEntry;
 import com.dattack.formats.csv.CSVStringBuilder;
+import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import com.dattack.jtoolbox.io.IOUtils;
+import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -128,6 +131,10 @@ public class CSVFileLogWriter implements LogWriter {
 
             int labelLength = 0;
             csvBuilder.comment(" SQL Sentences:");
+
+            BaseConfiguration configuration = new BaseConfiguration();
+            configuration.setProperty(ExecutionContext.PARENT_NAME_PROPERTY, header.getPingTaskBean().getName());
+
             for (final SqlCommandBean sentence : header.getPingTaskBean().getSqlStatementList()) {
 
                 labelLength = Math.max(labelLength, sentence.getLabel().length());
@@ -137,10 +144,14 @@ public class CSVFileLogWriter implements LogWriter {
                     @Override
                     public void visit(final SqlScriptBean command) {
                         try {
-                            csvBuilder.comment("  - " + command.getLabel() + ": ");
+                            String commandLabel = ConfigurationUtil.interpolate(command.getLabel(), configuration);
+                            csvBuilder.comment("  - " +  commandLabel + ": ");
+
+                            configuration.setProperty(ExecutionContext.PARENT_NAME_PROPERTY, commandLabel);
 
                             for (final SqlStatementBean item : command.getStatementList()) {
-                                csvBuilder.comment("    |-- " + item.getLabel() + ": " + normalize(item.getSql()));
+                                csvBuilder.comment("    |-- " + ConfigurationUtil.interpolate(item.getLabel(), configuration) +
+                                        ": " + normalize(item.getSql()));
                             }
                         } catch (Exception e) {
                             // TODO:
@@ -151,7 +162,8 @@ public class CSVFileLogWriter implements LogWriter {
                     @Override
                     public void visit(final SqlStatementBean command) {
                         try {
-                            csvBuilder.comment("  - " + command.getLabel() + ": " + normalize(command.getSql()));
+                            csvBuilder.comment("  - " + ConfigurationUtil.interpolate(command.getLabel(), configuration)
+                                    + ": " + normalize(command.getSql()));
                         } catch (Exception e) {
                             // TODO:
                             LOGGER.error(e.getMessage(), e);

@@ -20,7 +20,6 @@ import com.dattack.dbping.beans.PingTaskBean;
 import com.dattack.dbping.log.LogWriter;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -39,6 +38,8 @@ import javax.sql.DataSource;
 public final class ExecutionContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionContext.class);
+
+    public static final String PARENT_NAME_PROPERTY = "parent.name";
 
     private final DataSource dataSource;
     private final PingTaskBean pingTaskBean;
@@ -134,7 +135,7 @@ public final class ExecutionContext {
         list.forEach(x -> {
             if (test(x.getActivation())) {
                 getConfiguration().setProperty(x.getKey(), x.getValue());
-            } else if (StringUtils.isNotBlank(x.getUnset())) {
+            } else if (x.getUnset() != null) {
                 getConfiguration().setProperty(x.getKey(), x.getUnset());
             }
         });

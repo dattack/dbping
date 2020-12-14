@@ -54,6 +54,7 @@ class PingJob implements Runnable {
 
         ExecutionContext context = new ExecutionContext(pingTaskBean, dataSource, logWriter, configuration);
         context.set(pingTaskBean.getContextBeanList());
+        context.getConfiguration().setProperty(ExecutionContext.PARENT_NAME_PROPERTY, pingTaskBean.getName());
         LOGGER.info("Starting job: {}", context.getName());
 
         while (context.isAlive()) {
