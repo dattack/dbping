@@ -79,7 +79,8 @@ public final class PingEngine {
             final DbpingBean dbpingBean = DbpingParser.parse(file);
             for (final PingTaskBean pingTaskBean : dbpingBean.getTaskList()) {
 
-                if (taskNames != null && !taskNames.isEmpty() && !taskNames.contains(pingTaskBean.getName())) {
+                if (taskNames != null && !taskNames.isEmpty()
+                        && taskNames.stream().noneMatch(pingTaskBean.getName()::equalsIgnoreCase)) {
                     continue;
                 }
 
