@@ -31,6 +31,8 @@ import org.apache.commons.configuration.ConfigurationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
 import javax.sql.DataSource;
 
@@ -43,6 +45,8 @@ import javax.sql.DataSource;
 public final class PingEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PingEngine.class);
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 
     private static SqlCommandProvider getCommandProvider(final String clazzname) {
 
@@ -86,6 +90,8 @@ public final class PingEngine {
 
                 final CompositeConfiguration conf = new CompositeConfiguration();
                 conf.setProperty("task.name", pingTaskBean.getName());
+                conf.setProperty("now", DATE_FORMAT.format(new Date()));
+                conf.setProperty("datasource", pingTaskBean.getDatasource());
                 conf.addConfiguration(ConfigurationUtil.createEnvSystemConfiguration());
 
                 final DataSource dataSource = new JNDIDataSource(pingTaskBean.getDatasource());
