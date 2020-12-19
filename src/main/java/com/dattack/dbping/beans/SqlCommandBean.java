@@ -33,7 +33,7 @@ public abstract class SqlCommandBean implements Serializable {
         return contextBeanList == null ? Collections.emptyList() : contextBeanList;
     }
 
-    public abstract void accept(final SqlCommandVisitor visitor);
+    public abstract <T extends Throwable> void accept(final SqlCommandVisitor<T> visitor) throws T;
 
     /**
      * @return the label

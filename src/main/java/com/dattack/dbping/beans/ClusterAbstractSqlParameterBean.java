@@ -49,7 +49,7 @@ public class ClusterAbstractSqlParameterBean extends AbstractSqlParameterBean {
     }
 
     @Override
-    public void accept(SqlParameterBeanVisitor visitor) {
+    public <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T {
         visitor.visit(this);
     }
 }

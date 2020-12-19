@@ -105,7 +105,7 @@ public final class ExecutionContext {
      * Causes the current thread wait for the time indicated in {@link PingTaskBean#getTimeBetweenExecutions()}.
      */
     public void sleep() {
-        if (isAlive() && pingTaskBean.getTimeBetweenExecutions() > 0) {
+        if (hasMoreIterations() && pingTaskBean.getTimeBetweenExecutions() > 0) {
             synchronized (this) {
                 try {
                     wait(pingTaskBean.getTimeBetweenExecutions());
@@ -121,7 +121,7 @@ public final class ExecutionContext {
         return Thread.currentThread().getName() + "@" + pingTaskBean.getName();
     }
 
-    public boolean isAlive() {
+    public boolean hasMoreIterations() {
         return pingTaskBean.getExecutions() <= 0 || iteration < pingTaskBean.getExecutions();
     }
 

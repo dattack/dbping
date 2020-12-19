@@ -21,9 +21,9 @@ package com.dattack.dbping.beans;
  * @author cvarela
  * @since 0.1
  */
-public interface SqlCommandVisitor {
+public interface SqlCommandVisitor<T extends Throwable> {
 
-    void visit(final SqlScriptBean command);
+    void visit(final SqlScriptBean command) throws T;
 
-    void visit(final SqlStatementBean command);
+    void visit(final SqlStatementBean command) throws T;
 }

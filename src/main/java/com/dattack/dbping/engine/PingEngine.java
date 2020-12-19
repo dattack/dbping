@@ -31,6 +31,7 @@ import org.apache.commons.configuration.ConfigurationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
@@ -67,7 +68,7 @@ public final class PingEngine {
         return sentenceProvider;
     }
 
-    private void execute(final File file, final Set<String> taskNames) throws DattackParserException {
+    private void execute(final File file, final Set<String> taskNames) throws DattackParserException, IOException {
 
         if (file.isDirectory()) {
 
@@ -126,7 +127,7 @@ public final class PingEngine {
      * @throws DattackParserException when there is a problem reading any of the configuration files.
      */
     public void execute(final String[] filenames, final Set<String> taskNames)
-            throws DattackParserException {
+            throws DattackParserException, IOException {
 
         for (final String filename : filenames) {
             execute(new File(filename), taskNames);

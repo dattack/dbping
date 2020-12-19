@@ -15,16 +15,13 @@
  */
 package com.dattack.dbping.engine;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.dattack.dbping.beans.SqlCommandBean;
 import com.dattack.dbping.beans.SqlCommandVisitor;
 import com.dattack.dbping.beans.SqlScriptBean;
 import com.dattack.dbping.beans.SqlStatementBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Defines the methods to be implemented by the provider of the SQL-query executed by a ping job.
@@ -32,9 +29,7 @@ import org.slf4j.LoggerFactory;
  * @author cvarela
  * @since 0.1
  */
-public abstract class SqlCommandProvider implements SqlCommandVisitor {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SqlCommandProvider.class);
+public abstract class SqlCommandProvider implements SqlCommandVisitor<IOException> {
 
     private final List<ExecutableCommand> executableCommandList = new ArrayList<>();
 
@@ -50,7 +45,7 @@ public abstract class SqlCommandProvider implements SqlCommandVisitor {
      *
      * @param sqlList the list of sentences to be executed.
      */
-    final synchronized void setSentences(final List<SqlCommandBean> sqlList) {
+    final synchronized void setSentences(final List<SqlCommandBean> sqlList) throws IOException {
 
         executableCommandList.clear();
 
@@ -78,32 +73,24 @@ public abstract class SqlCommandProvider implements SqlCommandVisitor {
     }
 
     @Override
-    public void visit(final SqlScriptBean bean) {
+    public void visit(final SqlScriptBean bean) throws IOException {
 
-        try {
-            ExecutableScript executableScript = new ExecutableScript(bean);
-            for (SqlStatementBean statement : bean.getStatementList()) {
-                if (!statement.isSkip()) {
-                    executableScript.add(createExecutableStatement(statement));
-                }
+        ExecutableScript executableScript = new ExecutableScript(bean);
+        for (SqlStatementBean statement : bean.getStatementList()) {
+            if (!statement.isSkip()) {
+                executableScript.add(createExecutableStatement(statement));
             }
+        }
 
-            if (!executableScript.isEmpty()) {
-                executableCommandList.add(executableScript);
-            }
-        } catch (final Exception e) {
-            LOGGER.warn(e.getMessage(), e);
+        if (!executableScript.isEmpty()) {
+            executableCommandList.add(executableScript);
         }
     }
 
     @Override
-    public void visit(final SqlStatementBean bean) {
-        try {
-            if (!bean.isSkip()) {
-                executableCommandList.add(createExecutableStatement(bean));
-            }
-        } catch (final Exception e) {
-            LOGGER.warn(e.getMessage(), e);
+    public void visit(final SqlStatementBean bean) throws IOException {
+        if (!bean.isSkip()) {
+            executableCommandList.add(createExecutableStatement(bean));
         }
     }
 

@@ -17,6 +17,7 @@ package com.dattack.dbping.engine;
 
 import com.dattack.dbping.beans.ClusterAbstractSqlParameterBean;
 import com.dattack.dbping.beans.SimpleAbstractSqlParameterBean;
+import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import org.apache.commons.lang.StringUtils;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,7 +43,7 @@ public class ClusterPreparedStatementParameter extends AbstractPreparedStatement
      * @throws IOException if an error occurs when accessing the values of the parameter
      */
     public ClusterPreparedStatementParameter(final ClusterAbstractSqlParameterBean parameterBean) throws IOException {
-        super(parameterBean, loadValues(parameterBean));
+        super(parameterBean);
         this.parameterList = new ArrayList<>();
         for (SimpleAbstractSqlParameterBean childBean: parameterBean.getParameterList()) {
             parameterList.add(new SimplePreparedStatementParameter(childBean));
@@ -61,11 +62,12 @@ public class ClusterPreparedStatementParameter extends AbstractPreparedStatement
         return (ClusterAbstractSqlParameterBean) getParameterBean();
     }
 
-    private static List<String[]> loadValues(ClusterAbstractSqlParameterBean parameterBean) throws IOException {
+    protected List<String[]> loadValues(final ExecutionContext context) throws IOException {
 
         List<String[]> valueList = new ArrayList<>();
-        if (StringUtils.isNotBlank(parameterBean.getFile())) {
-            try (Stream<String> stream = Files.lines(Paths.get(parameterBean.getFile()))) {
+        if (StringUtils.isNotBlank(getBean().getFile())) {
+            try (Stream<String> stream = Files.lines(Paths.get(
+                    ConfigurationUtil.interpolate(getBean().getFile(), context.getConfiguration())))) {
                 stream.forEach((x) -> valueList.add(x.split(",")));
             }
         }

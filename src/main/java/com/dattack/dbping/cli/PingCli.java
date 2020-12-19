@@ -15,9 +15,8 @@
  */
 package com.dattack.dbping.cli;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
+import com.dattack.dbping.engine.PingEngine;
+import com.dattack.jtoolbox.exceptions.DattackParserException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -25,10 +24,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.configuration.ConfigurationException;
-
-import com.dattack.dbping.engine.PingEngine;
-import com.dattack.jtoolbox.exceptions.DattackParserException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * @author cvarela
@@ -90,8 +88,9 @@ public final class PingCli {
 
         } catch (@SuppressWarnings("unused") final ParseException e) {
             showUsage(options);
-        } catch (final DattackParserException e) {
+        } catch (final DattackParserException | IOException e) {
             System.err.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 

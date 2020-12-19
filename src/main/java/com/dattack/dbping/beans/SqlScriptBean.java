@@ -39,7 +39,7 @@ public class SqlScriptBean extends SqlCommandBean {
     private List<SqlStatementBean> statementList;
 
     @Override
-    public void accept(final SqlCommandVisitor visitor) {
+    public <T extends Throwable> void accept(final SqlCommandVisitor<T> visitor) throws T {
         visitor.visit(this);
     }
 
@@ -50,7 +50,7 @@ public class SqlScriptBean extends SqlCommandBean {
      */
     @Override
     public String getLabel() {
-        return label;
+        return BeanHelper.normalizeSql(label);
     }
 
     /**

@@ -16,7 +16,7 @@
 package com.dattack.dbping.engine;
 
 import com.dattack.dbping.beans.SqlCommandBean;
-import java.sql.SQLException;
+import com.dattack.dbping.engine.exceptions.ExecutableException;
 
 /**
  * Interface that must implement all commands to be executed within a PingJob.
@@ -28,5 +28,5 @@ public interface ExecutableCommand {
 
     SqlCommandBean getBean();
 
-    void execute(final ExecutionContext context);
+    void execute(final ExecutionContext context) throws ExecutableException;
 }

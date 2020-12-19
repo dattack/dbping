@@ -33,5 +33,5 @@ public abstract class AbstractSqlParameterBean implements Serializable {
         return order;
     }
 
-    public abstract void accept(SqlParameterBeanVisitor visitor);
+    public abstract <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T;
 }

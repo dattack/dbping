@@ -27,19 +27,19 @@ import javax.xml.bind.annotation.XmlElement;
  */
 public class SimpleAbstractSqlParameterBean extends AbstractSqlParameterBean {
 
-    @XmlAttribute(name = "type", required = true)
+    @XmlAttribute(required = true)
     private String type;
 
-    @XmlAttribute(name = "value")
+    @XmlAttribute
     private String value;
 
-    @XmlAttribute(name = "format")
+    @XmlAttribute
     private String format;
 
-    @XmlAttribute(name = "ref")
+    @XmlAttribute
     private int ref;
 
-    @XmlAttribute(name = "file", required = true)
+    @XmlAttribute(required = true)
     private String file;
 
     public final String getFile() {
@@ -47,7 +47,7 @@ public class SimpleAbstractSqlParameterBean extends AbstractSqlParameterBean {
     }
 
     @Override
-    public void accept(SqlParameterBeanVisitor visitor) {
+    public <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T {
         visitor.visit(this);
     }
 

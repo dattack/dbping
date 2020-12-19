@@ -64,7 +64,6 @@ public class ExecutableScript implements ExecutableCommand {
 
         context.getLogEntryBuilder() //
                 .init() //
-                .withSqlLabel(getBean().getLabel()) //
                 .withIteration(context.getIteration()) //
                 .withSqlLabel(getBean().getLabel());
 
@@ -95,6 +94,6 @@ public class ExecutableScript implements ExecutableCommand {
         context.getLogWriter().write(context.getLogEntryBuilder().withException(e).build());
         LOGGER.warn("Job error (Context: {}, Statement: {}'): {}", context.getName(), bean.getLabel(),
                 e.getMessage());
-
+        LOGGER.warn("Trace: ", e);
     }
 }

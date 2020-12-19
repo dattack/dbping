@@ -16,6 +16,7 @@
 package com.dattack.dbping.engine;
 
 import com.dattack.dbping.beans.AbstractSqlParameterBean;
+import com.dattack.dbping.engine.ExecutionContext;
 import java.io.IOException;
 import java.util.List;
 
@@ -29,19 +30,25 @@ import java.util.List;
 public abstract class AbstractPreparedStatementParameter<T> {
 
     private final AbstractSqlParameterBean parameterBean;
-    private final List<T> valueList;
+    private List<T> valueList;
     private int valueIndex;
 
     /**
      * Default constructor.
      *
      * @param parameterBean the bean containing the configuration of the parameter
-     * @param valueList the list of values
      */
-    public AbstractPreparedStatementParameter(final AbstractSqlParameterBean parameterBean, List<T> valueList) {
+    public AbstractPreparedStatementParameter(final AbstractSqlParameterBean parameterBean) {
         this.parameterBean = parameterBean;
-        this.valueList = valueList;
+        this.valueList = null;
         this.valueIndex = 0;
+    }
+
+    public AbstractPreparedStatementParameter(final AbstractSqlParameterBean parameterBean, final List<T> valueList) {
+        this.parameterBean = parameterBean;
+        this.valueList = null;
+        this.valueIndex = 0;
+        this.valueList = valueList;
     }
 
     protected final AbstractSqlParameterBean getParameterBean() {
@@ -58,7 +65,11 @@ public abstract class AbstractPreparedStatementParameter<T> {
      *
      * @return returns the next value to use within this parameter.
      */
-    public synchronized T getValue() {
+    public synchronized T getValue(ExecutionContext context) throws IOException {
+        if (valueList == null) {
+            valueList = loadValues(context);
+        }
+
         if (valueList.isEmpty()) {
             return null;
         }
@@ -69,4 +80,6 @@ public abstract class AbstractPreparedStatementParameter<T> {
 
         return valueList.get(valueIndex++);
     }
+
+    protected abstract List<T> loadValues(ExecutionContext context) throws IOException;
 }

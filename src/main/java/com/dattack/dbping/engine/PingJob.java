@@ -16,6 +16,7 @@
 package com.dattack.dbping.engine;
 
 import com.dattack.dbping.beans.PingTaskBean;
+import com.dattack.dbping.engine.exceptions.ExecutableException;
 import com.dattack.dbping.log.LogWriter;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.slf4j.Logger;
@@ -57,10 +58,14 @@ class PingJob implements Runnable {
         context.getConfiguration().setProperty(ExecutionContext.PARENT_NAME_PROPERTY, pingTaskBean.getName());
         LOGGER.info("Starting job: {}", context.getName());
 
-        while (context.isAlive()) {
-            final ExecutableCommand executableCommand = sentenceProvider.nextSql();
-            executableCommand.execute(new ExecutionContext(context));
-            context.sleep();
+        while (context.hasMoreIterations()) {
+            try {
+                final ExecutableCommand executableCommand = sentenceProvider.nextSql();
+                executableCommand.execute(new ExecutionContext(context));
+                context.sleep();
+            } catch (ExecutableException e) {
+                LOGGER.warn(String.format("Job %s:", context.getName()), e);
+            }
         }
 
         LOGGER.info("Job finished: {}", context.getName());

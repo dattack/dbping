@@ -15,7 +15,9 @@
  */
 package com.dattack.dbping.engine;
 
+import com.dattack.dbping.beans.BeanHelper;
 import com.dattack.dbping.beans.SqlStatementBean;
+import com.dattack.dbping.engine.exceptions.ExecutableException;
 import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import com.dattack.jtoolbox.jdbc.JDBCUtils;
 import org.apache.commons.lang.exception.NestableException;
@@ -49,15 +51,14 @@ public class ExecutableStatement implements ExecutableCommand {
     }
 
     protected String compileSql(final ExecutionContext context) throws IOException {
-
         context.set(bean.getContextBeanList());
-        String sql = ConfigurationUtil.interpolate(getBean().getSql(), context.getConfiguration());
+        String sql = BeanHelper.getPlainSql(bean.getSql(), context.getConfiguration());
         LOGGER.trace("Executing query {}", sql);
         return sql;
     }
 
     @Override
-    public void execute(final ExecutionContext context) {
+    public void execute(final ExecutionContext context) throws ExecutableException {
 
         context.getLogEntryBuilder() //
                 .init() //
@@ -74,8 +75,7 @@ public class ExecutableStatement implements ExecutableCommand {
 
         } catch (final Exception e) {
             context.getLogWriter().write(context.getLogEntryBuilder().withException(e).build());
-            LOGGER.warn("Job error (Context: {}, Statement: {}'): {}", context.getName(), bean.getLabel(),
-                    e.getMessage());
+            throw new ExecutableException(context.getName(), bean.getLabel(), bean.getSql(), e);
         }
     }
 
@@ -86,7 +86,7 @@ public class ExecutableStatement implements ExecutableCommand {
      * @param connection the connection to the database
      * @throws NestableException if an error occurs when collecting the metrics
      */
-    public void execute(final ExecutionContext context, Connection connection) throws NestableException {
+    public void execute(final ExecutionContext context, Connection connection) throws ExecutableException {
 
         context.getLogEntryBuilder() //
                 .init() //
@@ -96,8 +96,10 @@ public class ExecutableStatement implements ExecutableCommand {
 
         try (Statement stmt = connection.createStatement()) {
             doExecute(context, stmt);
-        } catch (Exception e) {
-            throw new NestableException(e);
+
+        } catch (SQLException | IOException e) {
+            context.getLogWriter().write(context.getLogEntryBuilder().withException(e).build());
+            throw new ExecutableException(context.getName(), bean.getLabel(), bean.getSql(), e);
         }
     }
 

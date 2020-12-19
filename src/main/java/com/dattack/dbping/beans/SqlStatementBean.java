@@ -15,11 +15,7 @@
  */
 package com.dattack.dbping.beans;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -35,16 +31,16 @@ public class SqlStatementBean extends SqlCommandBean {
 
     private static final long serialVersionUID = -5343761660462688691L;
 
-    @XmlElement(name = "sql", required = true)
+    @XmlElement(required = true)
     private String sql;
 
-    @XmlAttribute(name = "label", required = true)
+    @XmlAttribute(required = true)
     private String label;
 
-    @XmlAttribute(name = "weight")
+    @XmlAttribute
     private float weight = -1;
 
-    @XmlAttribute(name = "fetchSize")
+    @XmlAttribute
     private int fetchSize = -1;
 
     @XmlElements({ //
@@ -53,13 +49,13 @@ public class SqlStatementBean extends SqlCommandBean {
     })
     private List<AbstractSqlParameterBean> parameterList;
 
-    @XmlAttribute(name = "forcePrepareStatement")
+    @XmlAttribute
     private boolean forcePrepareStatement = true;
 
-    @XmlAttribute(name = "ignoreMetrics")
+    @XmlAttribute
     private boolean ignoreMetrics = false;
 
-    @XmlAttribute(name = "skip")
+    @XmlAttribute
     private boolean skip = false;
 
     public SqlStatementBean() {
@@ -67,29 +63,22 @@ public class SqlStatementBean extends SqlCommandBean {
     }
 
     @Override
-    public void accept(final SqlCommandVisitor visitor) {
+    public <T extends Throwable> void accept(final SqlCommandVisitor<T> visitor) throws T {
         visitor.visit(this);
     }
 
     @Override
     public String getLabel() {
-        return label;
+        return BeanHelper.normalizeSql(label);
     }
 
     /**
      * Returns the sql statement.
      *
      * @return the sql statement
-     * @throws IOException when the content of the query is in a file and it is not possible to read from it
      */
-    public String getSql() throws IOException {
-        String fileProtocol = "file://";
-        if (sql.trim().startsWith(fileProtocol)) {
-            String path = sql.trim().substring(fileProtocol.length());
-            sql = new String(Files.readAllBytes(Paths.get(path)));
-        }
-        return sql;
-
+    public String getSql() {
+        return BeanHelper.normalizeSql(sql);
     }
 
     /**

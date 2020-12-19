@@ -143,32 +143,27 @@ public class CSVFileLogWriter implements LogWriter {
 
                     @Override
                     public void visit(final SqlScriptBean command) {
-                        try {
-                            String commandLabel = ConfigurationUtil.interpolate(command.getLabel(), configuration);
-                            csvBuilder.comment("  - " +  commandLabel + ": ");
+                        String commandLabel = ConfigurationUtil.interpolate(command.getLabel(), configuration);
+                        csvBuilder.comment("  - " + commandLabel + ": ");
 
-                            configuration.setProperty(ExecutionContext.PARENT_NAME_PROPERTY, commandLabel);
+                        configuration.setProperty(ExecutionContext.PARENT_NAME_PROPERTY, commandLabel);
 
-                            for (final SqlStatementBean item : command.getStatementList()) {
-                                csvBuilder.comment("    |-- " + ConfigurationUtil.interpolate(item.getLabel(), configuration) +
-                                        ": " + normalize(item.getSql()));
-                            }
-                        } catch (Exception e) {
-                            // TODO:
-                            LOGGER.error(e.getMessage(), e);
+                        for (final SqlStatementBean item : command.getStatementList()) {
+                            addComment(item, true);
                         }
                     }
 
                     @Override
                     public void visit(final SqlStatementBean command) {
-                        try {
-                            csvBuilder.comment("  - " + ConfigurationUtil.interpolate(command.getLabel(), configuration)
-                                    + ": " + normalize(command.getSql()));
-                        } catch (Exception e) {
-                            // TODO:
-                            LOGGER.error(e.getMessage(), e);
-                        }
+                        addComment(command, false);
+                    }
 
+                    private void addComment(final SqlStatementBean item, boolean insideScript) {
+                        String sql = normalize(item.getSql());
+
+                        String pattern = insideScript ? "    |-- %s: %s" : "  - %s: %s";
+                        csvBuilder.comment(String.format(pattern,
+                                ConfigurationUtil.interpolate(item.getLabel(), configuration), sql));
                     }
                 });
             }

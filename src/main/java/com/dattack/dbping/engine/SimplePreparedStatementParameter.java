@@ -16,6 +16,7 @@
 package com.dattack.dbping.engine;
 
 import com.dattack.dbping.beans.SimpleAbstractSqlParameterBean;
+import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import org.apache.commons.lang.StringUtils;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,7 +43,7 @@ public class SimplePreparedStatementParameter extends AbstractPreparedStatementP
      * @throws IOException if an error occurs when accessing the values of the parameter
      */
     public SimplePreparedStatementParameter(final SimpleAbstractSqlParameterBean parameterBean) throws IOException {
-        super(parameterBean, loadValues(parameterBean));
+        super(parameterBean);
     }
 
     public SimplePreparedStatementParameter(final SimpleAbstractSqlParameterBean parameterBean, String... values) {
@@ -65,15 +66,16 @@ public class SimplePreparedStatementParameter extends AbstractPreparedStatementP
         return getBean().getType();
     }
 
-    private static List<String> loadValues(SimpleAbstractSqlParameterBean parameterBean) throws IOException {
+    protected List<String> loadValues(final ExecutionContext context) throws IOException {
 
         List<String> valueList = new ArrayList<>();
-        if (StringUtils.isNotBlank(parameterBean.getFile())) {
-            try (Stream<String> stream = Files.lines(Paths.get(parameterBean.getFile()))) {
+        if (StringUtils.isNotBlank(getBean().getFile())) {
+            try (Stream<String> stream = Files.lines(Paths.get(
+                    ConfigurationUtil.interpolate(getBean().getFile(), context.getConfiguration())))) {
                 stream.forEach(valueList::add);
             }
-        } else if (StringUtils.isNotBlank(parameterBean.getValue())) {
-            valueList.addAll(Arrays.stream(parameterBean.getValue().split(",")) //
+        } else if (StringUtils.isNotBlank(getBean().getValue())) {
+            valueList.addAll(Arrays.stream(getBean().getValue().split(",")) //
                     .map(String::trim).collect(Collectors.toList()));
         }
         return valueList;
