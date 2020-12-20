@@ -47,8 +47,6 @@ public final class PingEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PingEngine.class);
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-
     private static SqlCommandProvider getCommandProvider(final String clazzname) {
 
         SqlCommandProvider sentenceProvider = null;
@@ -82,6 +80,7 @@ public final class PingEngine {
         } else {
 
             final DbpingBean dbpingBean = DbpingParser.parse(file);
+            final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
             for (final PingTaskBean pingTaskBean : dbpingBean.getTaskList()) {
 
                 if (taskNames != null && !taskNames.isEmpty()
@@ -91,7 +90,7 @@ public final class PingEngine {
 
                 final CompositeConfiguration conf = new CompositeConfiguration();
                 conf.setProperty("task.name", pingTaskBean.getName());
-                conf.setProperty("now", DATE_FORMAT.format(new Date()));
+                conf.setProperty("now", dateFormat.format(new Date()));
                 conf.setProperty("datasource", pingTaskBean.getDatasource());
                 conf.addConfiguration(ConfigurationUtil.createEnvSystemConfiguration());
 

@@ -15,6 +15,7 @@
  */
 package com.dattack.dbping.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -29,14 +30,9 @@ public class SqlScriptBean extends SqlCommandBean {
 
     private static final long serialVersionUID = 5671689427608954154L;
 
-    @XmlAttribute(name = "label", required = true)
     private String label;
-
-    @XmlAttribute(name = "weight", required = false)
+    private List<SqlStatementBean> statementList = new ArrayList<>();
     private float weight = -1;
-
-    @XmlElement(name = "query", required = true, type = SqlStatementBean.class)
-    private List<SqlStatementBean> statementList;
 
     @Override
     public <T extends Throwable> void accept(final SqlCommandVisitor<T> visitor) throws T {
@@ -50,7 +46,27 @@ public class SqlScriptBean extends SqlCommandBean {
      */
     @Override
     public String getLabel() {
-        return BeanHelper.normalizeSql(label);
+        return BeanHelper.normalize(label);
+    }
+
+    @XmlAttribute(required = true)
+    public void setLabel(String label) {
+        this.label = BeanHelper.normalize(label);
+    }
+
+    /**
+     * Returns the weight assigned to this script.
+     *
+     * @return the weight assigned to this script
+     */
+    @Override
+    public float getWeight() {
+        return weight;
+    }
+
+    @XmlAttribute(name = "weight")
+    public void setWeight(float weight) {
+        this.weight = weight;
     }
 
     /**
@@ -62,13 +78,8 @@ public class SqlScriptBean extends SqlCommandBean {
         return statementList;
     }
 
-    /**
-     * Returns the weight assigned to this script.
-     *
-     * @return the weight assigned to this script
-     */
-    @Override
-    public float getWeight() {
-        return weight;
+    @XmlElement(name = "query", required = true, type = SqlStatementBean.class)
+    public void setStatementList(List<SqlStatementBean> statementList) {
+        this.statementList = statementList;
     }
 }

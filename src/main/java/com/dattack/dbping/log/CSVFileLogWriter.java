@@ -15,6 +15,7 @@
  */
 package com.dattack.dbping.log;
 
+import com.dattack.dbping.beans.BeanHelper;
 import com.dattack.dbping.beans.SqlCommandBean;
 import com.dattack.dbping.beans.SqlCommandVisitor;
 import com.dattack.dbping.beans.SqlScriptBean;
@@ -26,6 +27,7 @@ import com.dattack.formats.csv.CSVStringBuilder;
 import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import com.dattack.jtoolbox.io.IOUtils;
 import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -59,10 +61,6 @@ public class CSVFileLogWriter implements LogWriter {
     private final CSVStringBuilder csvBuilder;
     private final String filename;
 
-    private static String normalize(final String text) {
-        return text.replaceAll("\\s+", " ");
-    }
-
     public CSVFileLogWriter(final String filename) {
         this.filename = filename;
         this.csvBuilder = new CSVStringBuilder(new CSVConfigurationFactory().create());
@@ -94,13 +92,13 @@ public class CSVFileLogWriter implements LogWriter {
                     .append(entry.getTotalTime(), "%10d");
 
             if (entry.getException() != null) {
-                csvBuilder.append(normalize(entry.getException().getMessage()));
+                csvBuilder.append(BeanHelper.normalize(entry.getException().getMessage()));
             } else {
                 csvBuilder.append((String) null);
             }
 
             if (entry.getComment() != null) {
-                csvBuilder.comment(normalize(entry.getComment()), false, false);
+                csvBuilder.comment(BeanHelper.normalize(entry.getComment()), false, false);
             }
 
             csvBuilder.eol();
@@ -123,8 +121,8 @@ public class CSVFileLogWriter implements LogWriter {
             Collections.sort(keys);
 
             for (final String key : keys) {
-                csvBuilder.comment(" " + normalize(ObjectUtils.toString(key)) + ": " + //
-                        normalize(ObjectUtils.toString(header.getProperties().get(key))));
+                csvBuilder.comment(" " + BeanHelper.normalize(ObjectUtils.toString(key)) + ": " + //
+                        BeanHelper.normalize(ObjectUtils.toString(header.getProperties().get(key))));
             }
 
             csvBuilder.comment(" DataSource: " + header.getPingTaskBean().getDatasource());
@@ -132,8 +130,12 @@ public class CSVFileLogWriter implements LogWriter {
             int labelLength = 0;
             csvBuilder.comment(" SQL Sentences:");
 
-            BaseConfiguration configuration = new BaseConfiguration();
-            configuration.setProperty(ExecutionContext.PARENT_NAME_PROPERTY, header.getPingTaskBean().getName());
+            BaseConfiguration baseConfiguration = new BaseConfiguration();
+            baseConfiguration.setProperty(ExecutionContext.PARENT_NAME_PROPERTY, header.getPingTaskBean().getName());
+
+            CompositeConfiguration configuration = new CompositeConfiguration();
+            configuration.addConfiguration(ConfigurationUtil.createEnvSystemConfiguration());
+            configuration.addConfiguration(baseConfiguration);
 
             for (final SqlCommandBean sentence : header.getPingTaskBean().getSqlStatementList()) {
 
@@ -146,7 +148,7 @@ public class CSVFileLogWriter implements LogWriter {
                         String commandLabel = ConfigurationUtil.interpolate(command.getLabel(), configuration);
                         csvBuilder.comment("  - " + commandLabel + ": ");
 
-                        configuration.setProperty(ExecutionContext.PARENT_NAME_PROPERTY, commandLabel);
+                        baseConfiguration.setProperty(ExecutionContext.PARENT_NAME_PROPERTY, commandLabel);
 
                         for (final SqlStatementBean item : command.getStatementList()) {
                             addComment(item, true);
@@ -159,7 +161,12 @@ public class CSVFileLogWriter implements LogWriter {
                     }
 
                     private void addComment(final SqlStatementBean item, boolean insideScript) {
-                        String sql = normalize(item.getSql());
+                        String sql;
+                        try {
+                            sql = BeanHelper.getPlainSql(item.getSql(), configuration);
+                        } catch (IOException e) {
+                            sql = e.getMessage();
+                        }
 
                         String pattern = insideScript ? "    |-- %s: %s" : "  - %s: %s";
                         csvBuilder.comment(String.format(pattern,

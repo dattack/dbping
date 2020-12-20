@@ -31,36 +31,14 @@ public class SqlStatementBean extends SqlCommandBean {
 
     private static final long serialVersionUID = -5343761660462688691L;
 
-    @XmlElement(required = true)
-    private String sql;
-
-    @XmlAttribute(required = true)
-    private String label;
-
-    @XmlAttribute
-    private float weight = -1;
-
-    @XmlAttribute
     private int fetchSize = -1;
-
-    @XmlElements({ //
-            @XmlElement(name = "parameter", type = SimpleAbstractSqlParameterBean.class), //
-            @XmlElement(name = "cluster-parameter", type = ClusterAbstractSqlParameterBean.class) //
-    })
-    private List<AbstractSqlParameterBean> parameterList;
-
-    @XmlAttribute
-    private boolean forcePrepareStatement = true;
-
-    @XmlAttribute
     private boolean ignoreMetrics = false;
-
-    @XmlAttribute
+    private String label;
+    private List<AbstractSqlParameterBean> parameterList = new ArrayList<>();
     private boolean skip = false;
-
-    public SqlStatementBean() {
-        parameterList = new ArrayList<>();
-    }
+    private String sql;
+    private boolean usePrepareStmt = true;
+    private float weight = -1;
 
     @Override
     public <T extends Throwable> void accept(final SqlCommandVisitor<T> visitor) throws T {
@@ -69,16 +47,12 @@ public class SqlStatementBean extends SqlCommandBean {
 
     @Override
     public String getLabel() {
-        return BeanHelper.normalizeSql(label);
+        return BeanHelper.normalize(label);
     }
 
-    /**
-     * Returns the sql statement.
-     *
-     * @return the sql statement
-     */
-    public String getSql() {
-        return BeanHelper.normalizeSql(sql);
+    @XmlAttribute(required = true)
+    public void setLabel(final String label) {
+        this.label = label;
     }
 
     /**
@@ -91,6 +65,11 @@ public class SqlStatementBean extends SqlCommandBean {
         return weight;
     }
 
+    @XmlAttribute
+    public void setWeight(final float weight) {
+        this.weight = weight;
+    }
+
     /**
      * Returns the fetch size.
      *
@@ -98,6 +77,11 @@ public class SqlStatementBean extends SqlCommandBean {
      */
     public int getFetchSize() {
         return fetchSize;
+    }
+
+    @XmlAttribute
+    public void setFetchSize(final int fetchSize) {
+        this.fetchSize = fetchSize;
     }
 
     /**
@@ -109,13 +93,26 @@ public class SqlStatementBean extends SqlCommandBean {
         return parameterList;
     }
 
+    @XmlElements({ //
+            @XmlElement(name = "parameter", type = SimpleAbstractSqlParameterBean.class), //
+            @XmlElement(name = "cluster-parameter", type = ClusterAbstractSqlParameterBean.class) //
+    })
+    public void setParameterList(final List<AbstractSqlParameterBean> parameterList) {
+        this.parameterList = parameterList;
+    }
+
     /**
-     * Returns a boolean indicating whether a PreparedStatement should be used to execute this SQL statement.
+     * Returns the sql statement.
      *
-     * @return a boolean indicating whether a PreparedStatement should be used to execute this SQL statement.
+     * @return the sql statement
      */
-    public boolean isForcePrepareStatement() {
-        return forcePrepareStatement;
+    public String getSql() {
+        return sql;
+    }
+
+    @XmlElement(required = true)
+    public void setSql(final String sql) {
+        this.sql = BeanHelper.normalize(sql);
     }
 
     /**
@@ -129,6 +126,11 @@ public class SqlStatementBean extends SqlCommandBean {
         return ignoreMetrics;
     }
 
+    @XmlAttribute
+    public void setIgnoreMetrics(final boolean ignoreMetrics) {
+        this.ignoreMetrics = ignoreMetrics;
+    }
+
     /**
      * returns True when this sentence should be skipped.
      *
@@ -136,5 +138,24 @@ public class SqlStatementBean extends SqlCommandBean {
      */
     public boolean isSkip() {
         return skip;
+    }
+
+    @XmlAttribute
+    public void setSkip(final boolean skip) {
+        this.skip = skip;
+    }
+
+    /**
+     * Returns a boolean indicating whether a PreparedStatement should be used to execute this SQL statement.
+     *
+     * @return a boolean indicating whether a PreparedStatement should be used to execute this SQL statement.
+     */
+    public boolean isUsePrepareStatement() {
+        return usePrepareStmt;
+    }
+
+    @XmlAttribute
+    public void setUsePrepareStatement(final boolean usePrepareStmt) {
+        this.usePrepareStmt = usePrepareStmt;
     }
 }

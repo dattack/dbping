@@ -26,12 +26,16 @@ import javax.xml.bind.annotation.XmlAttribute;
  */
 public abstract class AbstractSqlParameterBean implements Serializable {
 
-    @XmlAttribute(name = "order", required = true)
     private int order;
+
+    public abstract <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T;
 
     public final int getOrder() {
         return order;
     }
 
-    public abstract <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T;
+    @XmlAttribute(required = true)
+    public void setOrder(int order) {
+        this.order = order;
+    }
 }

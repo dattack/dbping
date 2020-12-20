@@ -19,9 +19,9 @@ import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.lang.StringUtils;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Locale;
 
 /**
  * @author cvarela
@@ -35,19 +35,22 @@ public final class BeanHelper {
         // static class
     }
 
-    public static String normalizeSql(final String sql) {
-        return sql.replaceAll("\\s+", " ");
-    }
-
     public static String getPlainSql(final String sql, final AbstractConfiguration configuration) throws IOException {
 
         String code = ConfigurationUtil.interpolate(sql, configuration);
+
         if (StringUtils.startsWithIgnoreCase(StringUtils.trimToEmpty(code), FILE_PROTOCOL)) {
             String path = ConfigurationUtil.interpolate(sql.trim().substring(FILE_PROTOCOL.length()), configuration);
-            code = new String(Files.readAllBytes(Paths.get(path)));
+            code = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+
+            // interpolate SQL code
             code = ConfigurationUtil.interpolate(code, configuration);
         }
 
-        return normalizeSql(code);
+        return normalize(code);
+    }
+
+    public static String normalize(final String sql) {
+        return StringUtils.trimToEmpty(sql.replaceAll("\\s+", " "));
     }
 }

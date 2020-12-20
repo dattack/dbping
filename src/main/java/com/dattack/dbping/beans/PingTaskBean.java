@@ -16,9 +16,8 @@
 package com.dattack.dbping.beans;
 
 import java.io.Serializable;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
@@ -31,40 +30,16 @@ public class PingTaskBean implements Serializable {
 
     private static final long serialVersionUID = 3640559668991529501L;
 
-    @XmlAttribute(name = "name", required = true)
-    private String name;
-
-    @XmlAttribute(name = "threads", required = false)
-    private int threads;
-
-    @XmlAttribute(name = "executions", required = false)
-    private int executions;
-
-    @XmlAttribute(name = "timeBetweenExecutions", required = true)
-    private int timeBetweenExecutions;
-
-    @XmlAttribute(name = "datasource", required = true)
-    private String datasource;
-
-    @XmlAttribute(name = "maxRowsToDump", required = false)
-    private int maxRowsToDump;
-
-    @XmlElements({ @XmlElement(name = "query", type = SqlStatementBean.class),
-        @XmlElement(name = "script", type = SqlScriptBean.class) })
-    private List<SqlCommandBean> sqlStatementList;
-
-    @XmlElement(name = "log-file", type = String.class)
-    private String logFile;
-
-    @XmlElement(name = "command-provider", type = String.class)
     private String commandProvider;
-
-    @XmlElement(name = "context")
-    private List<ContextBean> contextBeanList;
-
-    public List<ContextBean> getContextBeanList() {
-        return contextBeanList == null ? Collections.emptyList() : contextBeanList;
-    }
+    private List<ContextBean> contextBeanList = new ArrayList<>();
+    private String datasource;
+    private int executions = -1;
+    private String logFile;
+    private int maxRowsToDump;
+    private String name;
+    private List<SqlCommandBean> sqlStatementList = new ArrayList<>();
+    private int threads = 1;
+    private int timeBetweenExecutions;
 
     /**
      * Returns the command provider.
@@ -73,6 +48,20 @@ public class PingTaskBean implements Serializable {
      */
     public String getCommandProvider() {
         return commandProvider;
+    }
+
+    @XmlElement(name = "command-provider")
+    public void setCommandProvider(String commandProvider) {
+        this.commandProvider = BeanHelper.normalize(commandProvider);
+    }
+
+    public List<ContextBean> getContextBeanList() {
+        return contextBeanList;
+    }
+
+    @XmlElement(name = "context")
+    public void setContextBeanList(List<ContextBean> contextBeanList) {
+        this.contextBeanList = contextBeanList;
     }
 
     /**
@@ -84,6 +73,11 @@ public class PingTaskBean implements Serializable {
         return datasource;
     }
 
+    @XmlAttribute(required = true)
+    public void setDatasource(String datasource) {
+        this.datasource = BeanHelper.normalize(datasource);
+    }
+
     /**
      * Returns the number of executions.
      *
@@ -91,6 +85,11 @@ public class PingTaskBean implements Serializable {
      */
     public int getExecutions() {
         return executions;
+    }
+
+    @XmlAttribute
+    public void setExecutions(int executions) {
+        this.executions = executions;
     }
 
     /**
@@ -102,6 +101,11 @@ public class PingTaskBean implements Serializable {
         return logFile;
     }
 
+    @XmlElement(name = "log-file")
+    public void setLogFile(String logFile) {
+        this.logFile = BeanHelper.normalize(logFile);
+    }
+
     /**
      * Returns the maximum number of rows to be written in the log file for each iteration.
      *
@@ -109,6 +113,11 @@ public class PingTaskBean implements Serializable {
      */
     public int getMaxRowsToDump() {
         return maxRowsToDump;
+    }
+
+    @XmlAttribute
+    public void setMaxRowsToDump(int maxRowsToDump) {
+        this.maxRowsToDump = Math.max(0, maxRowsToDump);
     }
 
     /**
@@ -120,6 +129,11 @@ public class PingTaskBean implements Serializable {
         return name;
     }
 
+    @XmlAttribute(required = true)
+    public void setName(String name) {
+        this.name = BeanHelper.normalize(name);
+    }
+
     /**
      * Returns the list of sentences to be executed.
      *
@@ -127,6 +141,12 @@ public class PingTaskBean implements Serializable {
      */
     public List<SqlCommandBean> getSqlStatementList() {
         return sqlStatementList;
+    }
+
+    @XmlElements({ @XmlElement(name = "query", type = SqlStatementBean.class),
+            @XmlElement(name = "script", type = SqlScriptBean.class) })
+    public void setSqlStatementList(List<SqlCommandBean> sqlStatementList) {
+        this.sqlStatementList = sqlStatementList;
     }
 
     /**
@@ -138,6 +158,11 @@ public class PingTaskBean implements Serializable {
         return threads;
     }
 
+    @XmlAttribute
+    public void setThreads(int threads) {
+        this.threads = Math.max(threads, 1);
+    }
+
     /**
      * Returns the waiting time between two consecutive iterations.
      *
@@ -145,5 +170,10 @@ public class PingTaskBean implements Serializable {
      */
     public int getTimeBetweenExecutions() {
         return timeBetweenExecutions;
+    }
+
+    @XmlAttribute(required = true)
+    public void setTimeBetweenExecutions(int timeBetweenExecutions) {
+        this.timeBetweenExecutions = timeBetweenExecutions;
     }
 }

@@ -15,9 +15,7 @@
  */
 package com.dattack.dbping.beans;
 
-import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Configuration of a parameter that can be used with a PreparedStatement.
@@ -27,43 +25,59 @@ import javax.xml.bind.annotation.XmlElement;
  */
 public class SimpleAbstractSqlParameterBean extends AbstractSqlParameterBean {
 
-    @XmlAttribute(required = true)
-    private String type;
-
-    @XmlAttribute
-    private String value;
-
-    @XmlAttribute
-    private String format;
-
-    @XmlAttribute
-    private int ref;
-
-    @XmlAttribute(required = true)
     private String file;
-
-    public final String getFile() {
-        return file;
-    }
+    private String format;
+    private int ref;
+    private String type;
+    private String value;
 
     @Override
     public <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T {
         visitor.visit(this);
     }
 
-    public String getValue() {
-        return value;
+    public final String getFile() {
+        return file;
+    }
+
+    @XmlAttribute
+    public void setFile(String file) {
+        this.file = BeanHelper.normalize(file);
     }
 
     public String getFormat() {
         return format;
     }
 
-    public String getType() {
-        return type;
+    @XmlAttribute
+    public void setFormat(String format) {
+        this.format = BeanHelper.normalize(format);
     }
 
     public int getRef() {
         return ref;
+    }
+
+    @XmlAttribute
+    public void setRef(int ref) {
+        this.ref = ref;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    @XmlAttribute(required = true)
+    public void setType(String type) {
+        this.type = BeanHelper.normalize(type);
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    @XmlAttribute
+    public void setValue(String value) {
+        this.value = BeanHelper.normalize(value);
     }
 }

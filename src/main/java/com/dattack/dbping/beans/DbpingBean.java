@@ -18,7 +18,6 @@ package com.dattack.dbping.beans;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -31,17 +30,17 @@ public class DbpingBean implements Serializable {
 
     private static final long serialVersionUID = 8398044544048577943L;
 
-    @XmlElement(name = "task", required = true, type = PingTaskBean.class)
-    private final List<PingTaskBean> taskList;
-
-    public DbpingBean() {
-        this.taskList = new ArrayList<>();
-    }
+    private List<PingTaskBean> taskList = new ArrayList<>();
 
     /**
      * @return the taskList
      */
     public List<PingTaskBean> getTaskList() {
         return taskList;
+    }
+
+    @XmlElement(name = "task", required = true, type = PingTaskBean.class)
+    public void setTaskList(List<PingTaskBean> taskList) {
+        this.taskList = taskList;
     }
 }

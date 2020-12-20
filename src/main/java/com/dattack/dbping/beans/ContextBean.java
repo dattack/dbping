@@ -33,31 +33,44 @@ import javax.xml.bind.annotation.XmlElements;
  */
 public class ContextBean implements Serializable {
 
-    @XmlAttribute(name = "key", required = true)
+    private String activation;
     private String key;
-
-    @XmlAttribute(name = "value", required = true)
+    private String unset;
     private String value;
 
-    @XmlAttribute(name = "activation")
-    private String activation;
+    public String getActivation() {
+        return activation;
+    }
 
-    @XmlAttribute(name = "unset")
-    private String unset;
+    @XmlAttribute
+    public void setActivation(String activation) {
+        this.activation = BeanHelper.normalize(activation);
+    }
 
     public String getKey() {
         return key;
+    }
+
+    @XmlAttribute(required = true)
+    public void setKey(String key) {
+        this.key = BeanHelper.normalize(key);
+    }
+
+    public String getUnset() {
+        return unset;
+    }
+
+    @XmlAttribute
+    public void setUnset(String unset) {
+        this.unset = BeanHelper.normalize(unset);
     }
 
     public String getValue() {
         return value;
     }
 
-    public String getActivation() {
-        return activation;
-    }
-
-    public String getUnset() {
-        return unset;
+    @XmlAttribute(required = true)
+    public void setValue(String value) {
+        this.value = BeanHelper.normalize(value);
     }
 }

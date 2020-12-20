@@ -15,6 +15,8 @@
  */
 package com.dattack.dbping.beans;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -27,29 +29,39 @@ import javax.xml.bind.annotation.XmlElement;
  */
 public class ClusterAbstractSqlParameterBean extends AbstractSqlParameterBean {
 
-    @XmlAttribute(name = "iterations")
-    private int iterations = 1;
-
-    @XmlAttribute(name = "file", required = true)
     private String file;
+    private int iterations = 1;
+    private List<SimpleAbstractSqlParameterBean> parameterList = new ArrayList<>();
 
-    @XmlElement(name = "parameter", required = true)
-    private List<SimpleAbstractSqlParameterBean> parameterList;
-
-    public int getIterations() {
-        return iterations;
+    @Override
+    public <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T {
+        visitor.visit(this);
     }
 
     public final String getFile() {
         return file;
     }
 
+    @XmlAttribute(required = true)
+    public void setFile(String file) {
+        this.file = BeanHelper.normalize(file);
+    }
+
+    public int getIterations() {
+        return iterations;
+    }
+
+    @XmlAttribute
+    public void setIterations(int iterations) {
+        this.iterations = Math.max(iterations, 1);
+    }
+
     public List<SimpleAbstractSqlParameterBean> getParameterList() {
         return parameterList;
     }
 
-    @Override
-    public <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T {
-        visitor.visit(this);
+    @XmlElement(name = "parameter", required = true)
+    public void setParameterList(List<SimpleAbstractSqlParameterBean> parameterList) {
+        this.parameterList = parameterList;
     }
 }
