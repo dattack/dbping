@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlAttribute;
  */
 public abstract class AbstractSqlParameterBean implements Serializable {
 
+    private static final long serialVersionUID = -6189064500896338334L;
+
     private int order;
 
     public abstract <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T;

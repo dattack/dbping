@@ -33,6 +33,8 @@ import javax.xml.bind.annotation.XmlElements;
  */
 public class ContextBean implements Serializable {
 
+    private static final long serialVersionUID = -1900734488693434419L;
+
     private String activation;
     private String key;
     private String unset;

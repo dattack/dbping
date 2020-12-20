@@ -23,6 +23,8 @@ import org.apache.commons.lang.exception.NestableException;
  */
 public class ExecutableException extends NestableException {
 
+    private static final long serialVersionUID = -4102634848673853593L;
+
     private final String taskName;
     private final String sqlLabel;
     private final String sqlCode;

@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlAttribute;
  */
 public class SimpleAbstractSqlParameterBean extends AbstractSqlParameterBean {
 
+    private static final long serialVersionUID = 144903240517619788L;
+
     private String file;
     private String format;
     private int ref;

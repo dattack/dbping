@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlElement;
  */
 public abstract class SqlCommandBean implements Serializable {
 
+    private static final long serialVersionUID = 6216650272101740792L;
+
     @XmlElement(name = "context")
     private List<ContextBean> contextBeanList;
 

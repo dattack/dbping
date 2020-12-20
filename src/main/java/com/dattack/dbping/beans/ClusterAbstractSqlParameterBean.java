@@ -29,6 +29,8 @@ import javax.xml.bind.annotation.XmlElement;
  */
 public class ClusterAbstractSqlParameterBean extends AbstractSqlParameterBean {
 
+    private static final long serialVersionUID = 6514464346366327811L;
+
     private String file;
     private int iterations = 1;
     private List<SimpleAbstractSqlParameterBean> parameterList = new ArrayList<>();
