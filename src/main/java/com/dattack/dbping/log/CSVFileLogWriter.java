@@ -141,7 +141,7 @@ public class CSVFileLogWriter implements LogWriter {
 
                 labelLength = Math.max(labelLength, sentence.getLabel().length());
 
-                sentence.accept(new SqlCommandVisitor() {
+                sentence.accept(new SqlCommandVisitor<RuntimeException>() {
 
                     @Override
                     public void visit(final SqlScriptBean command) {
