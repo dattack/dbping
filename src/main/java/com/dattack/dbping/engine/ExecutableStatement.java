@@ -75,8 +75,14 @@ public class ExecutableStatement implements ExecutableCommand {
 
         } catch (final Exception e) {
             context.getLogWriter().write(context.getLogEntryBuilder().withException(e).build());
-            throw new ExecutableException(context.getName(), bean.getLabel(), bean.getSql(), e);
+            throwException(context, e);
         }
+    }
+
+    protected void throwException(final ExecutionContext context, final Exception e) throws ExecutableException {
+        throw new ExecutableException(context.getName(), getBean().getLabel(),
+                BeanHelper.normalize(getBean().getSql()),
+                e);
     }
 
     /**
@@ -92,6 +98,7 @@ public class ExecutableStatement implements ExecutableCommand {
                 .init() //
                 .withIteration(context.getIteration()) //
                 .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration())) //
+                .withConnectionId(connection.hashCode()) //
                 .connect();
 
         try (Statement stmt = connection.createStatement()) {
@@ -99,7 +106,7 @@ public class ExecutableStatement implements ExecutableCommand {
 
         } catch (SQLException | IOException e) {
             context.getLogWriter().write(context.getLogEntryBuilder().withException(e).build());
-            throw new ExecutableException(context.getName(), bean.getLabel(), bean.getSql(), e);
+            throwException(context, e);
         }
     }
 

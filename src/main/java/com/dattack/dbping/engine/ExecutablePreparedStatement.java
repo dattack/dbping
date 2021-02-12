@@ -16,6 +16,7 @@
 package com.dattack.dbping.engine;
 
 import com.dattack.dbping.beans.AbstractSqlParameterBean;
+import com.dattack.dbping.beans.BeanHelper;
 import com.dattack.dbping.beans.ClusterAbstractSqlParameterBean;
 import com.dattack.dbping.beans.SimpleAbstractSqlParameterBean;
 import com.dattack.dbping.beans.SqlParameterBeanVisitor;
@@ -28,8 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -106,7 +105,7 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
             }
         } catch (final Exception e) {
             context.getLogWriter().write(context.getLogEntryBuilder().withException(e).build());
-            throw new ExecutableException(context.getName(), getBean().getLabel(), getBean().getSql(), e);
+            throwException(context, e);
         }
     }
 
@@ -133,6 +132,7 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
                 .init() //
                 .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration())) //
                 .withIteration(context.getIteration()) //
+                .withConnectionId(connection.hashCode()) //
                 .connect(); // connection already established so the connection-time must be zero
 
         try {
@@ -143,12 +143,14 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
                 throw new ExecutableException(context.getName(), getBean().getLabel(), sql, e);
             }
         } catch (IOException e) {
-            throw new ExecutableException(context.getName(), getBean().getLabel(), getBean().getSql(), e);
+            throwException(context, e);
         }
     }
 
     private void doExecute(final ExecutionContext context, PreparedStatement stmt) throws SQLException,
             ParseException, IOException {
+
+        context.getLogEntryBuilder().withConnectionId(stmt.getConnection().hashCode());
 
         ResultSet resultSet = null;
         try {
@@ -246,23 +248,7 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
 
     private static class ParameterRecorder {
 
-        private static final MessageDigest digest = getMessageDigest();
-
         private final StringBuilder log;
-
-        private static MessageDigest getMessageDigest() {
-            MessageDigest result;
-            try {
-                result = MessageDigest.getInstance("SHA3-256");
-            } catch (NoSuchAlgorithmException e) {
-                try {
-                    result = MessageDigest.getInstance("SHA-256");
-                } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
-                    result = null;
-                }
-            }
-            return result;
-        }
 
         private ParameterRecorder() {
             this.log = new StringBuilder();
@@ -273,14 +259,8 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
         }
 
         private String getHash() {
-            String result;
-            if (digest == null) {
-                result = "";
-            } else {
-                byte[] hash = digest.digest(getLog().getBytes(StandardCharsets.UTF_8));
-                result = bytesToHex(hash);
-            }
-            return result;
+            //return bytesToHex(getLog().replaceAll("\\W", "").getBytes(StandardCharsets.UTF_8));
+            return getLog().replaceAll("\\W", "");
         }
 
         private static String bytesToHex(byte[] bytes) {

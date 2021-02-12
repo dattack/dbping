@@ -112,7 +112,7 @@ public class SqlStatementBean extends SqlCommandBean {
 
     @XmlElement(required = true)
     public void setSql(final String sql) {
-        this.sql = BeanHelper.normalize(sql);
+        this.sql = sql;
     }
 
     /**

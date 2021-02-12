@@ -46,6 +46,7 @@ public class LogEntry implements Serializable {
     private final String threadName;
     private final List<DataRow> rowList;
     private final String comment;
+    private final int connectionId;
 
     public static final class LogEntryBuilder implements Serializable, Builder<LogEntry> {
 
@@ -65,6 +66,7 @@ public class LogEntry implements Serializable {
         private String threadName;
         private final long maxRowsToDump;
         private String comment;
+        private int connectionId;
 
         private List<DataRow> rowList;
 
@@ -212,6 +214,11 @@ public class LogEntry implements Serializable {
             this.totalTime = value;
             return this;
         }
+
+        public LogEntryBuilder withConnectionId(final int value) {
+            this.connectionId = value;
+            return this;
+        }
     }
 
     private LogEntry(final LogEntryBuilder builder) {
@@ -227,6 +234,7 @@ public class LogEntry implements Serializable {
         this.exception = builder.exception;
         this.rowList = new ArrayList<>(builder.rowList);
         this.comment = builder.comment;
+        this.connectionId = builder.connectionId;
     }
 
     public long getConnectionTime() {
@@ -276,4 +284,6 @@ public class LogEntry implements Serializable {
     public String getComment() {
         return comment;
     }
+
+    public int getConnectionId() { return connectionId; }
 }

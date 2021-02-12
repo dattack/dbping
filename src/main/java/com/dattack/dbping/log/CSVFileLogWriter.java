@@ -89,7 +89,8 @@ public class CSVFileLogWriter implements LogWriter {
                     .append(entry.getRows(), "%8d") //
                     .append(entry.getConnectionTime(), "%9d") //
                     .append(entry.getFirstRowTime(), "%9d") //
-                    .append(entry.getTotalTime(), "%10d");
+                    .append(entry.getTotalTime(), "%10d") //
+                    .append(entry.getConnectionId(), "%s");
 
             if (entry.getException() != null) {
                 csvBuilder.append(BeanHelper.normalize(entry.getException().getMessage()));
@@ -163,7 +164,7 @@ public class CSVFileLogWriter implements LogWriter {
                     private void addComment(final SqlStatementBean item, boolean insideScript) {
                         String sql;
                         try {
-                            sql = BeanHelper.getPlainSql(item.getSql(), configuration);
+                            sql = BeanHelper.normalize(BeanHelper.getPlainSql(item.getSql(), configuration));
                         } catch (IOException e) {
                             sql = e.getMessage();
                         }
@@ -189,6 +190,7 @@ public class CSVFileLogWriter implements LogWriter {
                     .append("conn-time", "%9s") //
                     .append("1row-time", "%9s") //
                     .append("total-time", "%10s") //
+                    .append("connection","%s" )
                     .append("message").eol();
 
             data = csvBuilder.toString();
