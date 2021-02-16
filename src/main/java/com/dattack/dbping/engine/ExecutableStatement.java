@@ -81,7 +81,7 @@ public class ExecutableStatement implements ExecutableCommand {
 
     protected void throwException(final ExecutionContext context, final Exception e) throws ExecutableException {
         throw new ExecutableException(context.getName(), getBean().getLabel(),
-                BeanHelper.normalize(getBean().getSql()),
+                BeanHelper.normalizeToEmpty(getBean().getSql()),
                 e);
     }
 

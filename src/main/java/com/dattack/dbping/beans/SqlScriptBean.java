@@ -46,12 +46,12 @@ public class SqlScriptBean extends SqlCommandBean {
      */
     @Override
     public String getLabel() {
-        return BeanHelper.normalize(label);
+        return label;
     }
 
     @XmlAttribute(required = true)
     public void setLabel(String label) {
-        this.label = BeanHelper.normalize(label);
+        this.label = BeanHelper.normalizeToEmpty(label);
     }
 
     /**

@@ -52,7 +52,7 @@ public class PingTaskBean implements Serializable {
 
     @XmlElement(name = "command-provider")
     public void setCommandProvider(String commandProvider) {
-        this.commandProvider = BeanHelper.normalize(commandProvider);
+        this.commandProvider = BeanHelper.normalizeToEmpty(commandProvider);
     }
 
     public List<ContextBean> getContextBeanList() {
@@ -75,7 +75,7 @@ public class PingTaskBean implements Serializable {
 
     @XmlAttribute(required = true)
     public void setDatasource(String datasource) {
-        this.datasource = BeanHelper.normalize(datasource);
+        this.datasource = BeanHelper.normalizeToEmpty(datasource);
     }
 
     /**
@@ -103,7 +103,7 @@ public class PingTaskBean implements Serializable {
 
     @XmlElement(name = "log-file")
     public void setLogFile(String logFile) {
-        this.logFile = BeanHelper.normalize(logFile);
+        this.logFile = BeanHelper.normalizeToEmpty(logFile);
     }
 
     /**
@@ -131,7 +131,7 @@ public class PingTaskBean implements Serializable {
 
     @XmlAttribute(required = true)
     public void setName(String name) {
-        this.name = BeanHelper.normalize(name);
+        this.name = BeanHelper.normalizeToEmpty(name);
     }
 
     /**

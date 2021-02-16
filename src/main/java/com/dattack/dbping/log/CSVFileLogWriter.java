@@ -93,13 +93,13 @@ public class CSVFileLogWriter implements LogWriter {
                     .append(entry.getConnectionId(), "%s");
 
             if (entry.getException() != null) {
-                csvBuilder.append(BeanHelper.normalize(entry.getException().getMessage()));
+                csvBuilder.append(BeanHelper.normalizeToEmpty(entry.getException().getMessage()));
             } else {
                 csvBuilder.append((String) null);
             }
 
             if (entry.getComment() != null) {
-                csvBuilder.comment(BeanHelper.normalize(entry.getComment()), false, false);
+                csvBuilder.comment(BeanHelper.normalizeToEmpty(entry.getComment()), false, false);
             }
 
             csvBuilder.eol();
@@ -122,8 +122,8 @@ public class CSVFileLogWriter implements LogWriter {
             Collections.sort(keys);
 
             for (final String key : keys) {
-                csvBuilder.comment(" " + BeanHelper.normalize(ObjectUtils.toString(key)) + ": " + //
-                        BeanHelper.normalize(ObjectUtils.toString(header.getProperties().get(key))));
+                csvBuilder.comment(" " + BeanHelper.normalizeToEmpty(ObjectUtils.toString(key)) + ": " + //
+                        BeanHelper.normalizeToEmpty(ObjectUtils.toString(header.getProperties().get(key))));
             }
 
             csvBuilder.comment(" DataSource: " + header.getPingTaskBean().getDatasource());
@@ -164,7 +164,7 @@ public class CSVFileLogWriter implements LogWriter {
                     private void addComment(final SqlStatementBean item, boolean insideScript) {
                         String sql;
                         try {
-                            sql = BeanHelper.normalize(BeanHelper.getPlainSql(item.getSql(), configuration));
+                            sql = BeanHelper.normalizeToEmpty(BeanHelper.getPlainSql(item.getSql(), configuration));
                         } catch (IOException e) {
                             sql = e.getMessage();
                         }

@@ -16,7 +16,6 @@
 package com.dattack.dbping.engine;
 
 import com.dattack.dbping.beans.AbstractSqlParameterBean;
-import com.dattack.dbping.beans.BeanHelper;
 import com.dattack.dbping.beans.ClusterAbstractSqlParameterBean;
 import com.dattack.dbping.beans.SimpleAbstractSqlParameterBean;
 import com.dattack.dbping.beans.SqlParameterBeanVisitor;
@@ -28,7 +27,6 @@ import com.dattack.jtoolbox.jdbc.JDBCUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

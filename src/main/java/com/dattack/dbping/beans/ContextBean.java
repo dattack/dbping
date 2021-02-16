@@ -15,15 +15,8 @@
  */
 package com.dattack.dbping.beans;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
 
 /**
  * Bean representing a key/value context parameter.
@@ -46,7 +39,7 @@ public class ContextBean implements Serializable {
 
     @XmlAttribute
     public void setActivation(String activation) {
-        this.activation = BeanHelper.normalize(activation);
+        this.activation = BeanHelper.normalizeToEmpty(activation);
     }
 
     public String getKey() {
@@ -55,7 +48,7 @@ public class ContextBean implements Serializable {
 
     @XmlAttribute(required = true)
     public void setKey(String key) {
-        this.key = BeanHelper.normalize(key);
+        this.key = BeanHelper.normalizeToEmpty(key);
     }
 
     public String getUnset() {
@@ -64,7 +57,7 @@ public class ContextBean implements Serializable {
 
     @XmlAttribute
     public void setUnset(String unset) {
-        this.unset = BeanHelper.normalize(unset);
+        this.unset = BeanHelper.normalizeToEmpty(unset);
     }
 
     public String getValue() {
@@ -73,6 +66,6 @@ public class ContextBean implements Serializable {
 
     @XmlAttribute(required = true)
     public void setValue(String value) {
-        this.value = BeanHelper.normalize(value);
+        this.value = BeanHelper.normalizeToEmpty(value);
     }
 }

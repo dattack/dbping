@@ -16,7 +16,6 @@
 package com.dattack.dbping.beans;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -46,7 +45,7 @@ public class ClusterAbstractSqlParameterBean extends AbstractSqlParameterBean {
 
     @XmlAttribute(required = true)
     public void setFile(String file) {
-        this.file = BeanHelper.normalize(file);
+        this.file = BeanHelper.normalizeToEmpty(file);
     }
 
     public int getIterations() {

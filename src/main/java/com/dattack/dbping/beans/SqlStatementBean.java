@@ -47,7 +47,7 @@ public class SqlStatementBean extends SqlCommandBean {
 
     @Override
     public String getLabel() {
-        return BeanHelper.normalize(label);
+        return BeanHelper.normalizeToEmpty(label);
     }
 
     @XmlAttribute(required = true)
@@ -112,7 +112,7 @@ public class SqlStatementBean extends SqlCommandBean {
 
     @XmlElement(required = true)
     public void setSql(final String sql) {
-        this.sql = sql;
+        this.sql = BeanHelper.normalizeToEmpty(sql);
     }
 
     /**

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 /**
  * @author cvarela
@@ -47,10 +48,13 @@ public final class BeanHelper {
             code = ConfigurationUtil.interpolate(code, configuration);
         }
 
-        return normalize(code);
+        return normalizeToEmpty(code);
     }
 
-    public static String normalize(final String sql) {
+    public static String normalizeToEmpty(final String sql) {
+        if (Objects.isNull(sql)) {
+            return "";
+        }
         return StringUtils.trimToEmpty(sql.replaceAll("\\s+", " "));
     }
 }
