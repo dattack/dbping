@@ -45,7 +45,7 @@ import java.util.List;
  * @author cvarela
  * @since 0.2
  */
-public class ExecutablePreparedStatement extends ExecutableStatement implements SqlParameterBeanVisitor<IOException> {
+public class ExecutablePreparedStatement extends AbstractExecutableStatement<PreparedStatement> implements SqlParameterBeanVisitor<IOException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutablePreparedStatement.class);
 
@@ -137,7 +137,7 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
             String sql = compileSql(context);
             try (PreparedStatement stmt = connection.prepareStatement(sql)) {
                 doExecute(context, stmt);
-            } catch (SQLException | ParseException | IOException e) {
+            } catch (SQLException | IOException e) {
                 throw new ExecutableException(context.getName(), getBean().getLabel(), sql, e);
             }
         } catch (IOException e) {
@@ -145,31 +145,72 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
         }
     }
 
-    private void doExecute(final ExecutionContext context, PreparedStatement stmt) throws SQLException,
+    protected void prepare(ExecutionContext context, PreparedStatement stmt) throws SQLException,
+            IOException {
+        try {
+            populatePreparedStatement(context, stmt);
+        } catch (ParseException e) {
+            throw new SQLException(e);
+        }
+    }
+
+    protected void addBatch(ExecutionContext context, PreparedStatement stmt) throws SQLException {
+        stmt.addBatch();
+    }
+
+    protected boolean executeStatement(ExecutionContext context, PreparedStatement stmt) throws SQLException {
+        return stmt.execute();
+    }
+
+    private void doExecuteXX(final ExecutionContext context, PreparedStatement stmt) throws SQLException,
             ParseException, IOException {
 
         context.getLogEntryBuilder().withConnectionId(stmt.getConnection().hashCode());
 
-        ResultSet resultSet = null;
-        try {
-            populatePreparedStatement(context, stmt);
-            setFetchSize(stmt);
+        int iteration = 1;
+        int batchSize = 0;
+        boolean batchMode = false;
+        do {
+            ResultSet resultSet = null;
+            try {
+                populatePreparedStatement(context, stmt);
+                setFetchSize(stmt);
 
-            boolean executeResult = stmt.execute();
+                if (getBean().getBatchSize() > 1 || getBean().getBatchSize() < 0) {
+                    stmt.addBatch();
+                    batchSize++;
+                    batchMode = true;
 
-            if (executeResult) {
-                resultSet = stmt.getResultSet();
-                while (resultSet.next()) {
-                    // sets the time for the first row
-                    context.getLogEntryBuilder().addRow(resultSet);
+                    if (getBean().getBatchSize() > 1 && (batchSize % getBean().getBatchSize() == 0)) {
+                        stmt.executeBatch();
+                        stmt.clearBatch();
+                        batchMode = false;
+                    }
+
+                } else {
+
+                    boolean executeResult = stmt.execute();
+
+                    if (executeResult) {
+                        resultSet = stmt.getResultSet();
+                        while (resultSet.next()) {
+                            // sets the time for the first row
+                            context.getLogEntryBuilder().addRow(resultSet);
+                        }
+                    }
                 }
-            }
 
-            // sets the total run time; then, writes to log
-            writeResults(context);
-        } finally {
-            JDBCUtils.closeQuietly(resultSet);
+            } finally {
+                JDBCUtils.closeQuietly(resultSet);
+            }
+        } while (iteration++ < getBean().getRepeats());
+
+        if (batchMode) {
+            stmt.executeBatch();
         }
+
+        // sets the total run time; then, writes to log
+        writeResults(context);
     }
 
     private void populatePreparedStatement(final ExecutionContext context,
@@ -257,16 +298,7 @@ public class ExecutablePreparedStatement extends ExecutableStatement implements 
         }
 
         private String getHash() {
-            //return bytesToHex(getLog().replaceAll("\\W", "").getBytes(StandardCharsets.UTF_8));
             return getLog().replaceAll("\\W", "");
-        }
-
-        private static String bytesToHex(byte[] bytes) {
-            StringBuilder sb = new StringBuilder();
-            for (byte b : bytes) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
         }
 
         private String getLog() {

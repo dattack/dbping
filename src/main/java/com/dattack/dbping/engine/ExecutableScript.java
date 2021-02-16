@@ -36,13 +36,13 @@ public class ExecutableScript implements ExecutableCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutableScript.class);
 
     public SqlScriptBean bean;
-    private final List<ExecutableStatement> executableStatementList = new ArrayList<>();
+    private final List<AbstractExecutableStatement<?>> executableStatementList = new ArrayList<>();
 
     public ExecutableScript(SqlScriptBean bean) {
         this.bean = bean;
     }
 
-    public void add(final ExecutableStatement item) {
+    public void add(final AbstractExecutableStatement<?> item) {
         this.executableStatementList.add(item);
     }
 

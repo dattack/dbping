@@ -15,17 +15,13 @@
  */
 package com.dattack.dbping.engine;
 
-import com.dattack.dbping.beans.BeanHelper;
 import com.dattack.dbping.beans.SqlStatementBean;
 import com.dattack.dbping.engine.exceptions.ExecutableException;
 import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
-import com.dattack.jtoolbox.jdbc.JDBCUtils;
-import org.apache.commons.lang.exception.NestableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -35,26 +31,12 @@ import java.sql.Statement;
  * @author cvarela
  * @since 0.2
  */
-public class ExecutableStatement implements ExecutableCommand {
+public class ExecutableStatement extends AbstractExecutableStatement<Statement> implements ExecutableCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutableStatement.class);
 
-    private final SqlStatementBean bean;
-
     public ExecutableStatement(SqlStatementBean bean) {
-        this.bean = bean;
-    }
-
-    @Override
-    public SqlStatementBean getBean() {
-        return bean;
-    }
-
-    protected String compileSql(final ExecutionContext context) throws IOException {
-        context.set(bean.getContextBeanList());
-        String sql = BeanHelper.getPlainSql(bean.getSql(), context.getConfiguration());
-        LOGGER.trace("Executing query {}", sql);
-        return sql;
+        super(bean);
     }
 
     @Override
@@ -76,13 +58,8 @@ public class ExecutableStatement implements ExecutableCommand {
         } catch (final Exception e) {
             context.getLogWriter().write(context.getLogEntryBuilder().withException(e).build());
             throwException(context, e);
+            LOGGER.warn("Error executing statement ({}): {}", getBean().getLabel(), e.getMessage());
         }
-    }
-
-    protected void throwException(final ExecutionContext context, final Exception e) throws ExecutableException {
-        throw new ExecutableException(context.getName(), getBean().getLabel(),
-                BeanHelper.normalizeToEmpty(getBean().getSql()),
-                e);
     }
 
     /**
@@ -90,7 +67,7 @@ public class ExecutableStatement implements ExecutableCommand {
      *
      * @param context    the execution context
      * @param connection the connection to the database
-     * @throws NestableException if an error occurs when collecting the metrics
+     * @throws ExecutableException if an error occurs when collecting the metrics
      */
     public void execute(final ExecutionContext context, Connection connection) throws ExecutableException {
 
@@ -110,37 +87,15 @@ public class ExecutableStatement implements ExecutableCommand {
         }
     }
 
-    private void doExecute(final ExecutionContext context, Statement stmt) throws SQLException, IOException {
-
-        setFetchSize(stmt);
-
-        ResultSet resultSet = null;
-        try {
-            boolean executeResult = stmt.execute(compileSql(context));
-
-            if (executeResult) {
-                resultSet = stmt.getResultSet();
-                while (resultSet.next()) {
-                    context.getLogEntryBuilder().addRow(resultSet);
-                }
-            }
-
-            // sets the total time
-            writeResults(context);
-        } finally {
-            JDBCUtils.closeQuietly(resultSet);
-        }
+    protected void prepare(ExecutionContext context, Statement stmt) {
+        // ignore
     }
 
-    protected final void setFetchSize(final Statement stmt) throws SQLException {
-        if (bean.getFetchSize() > 0) {
-            stmt.setFetchSize(bean.getFetchSize());
-        }
+    protected void addBatch(ExecutionContext context, Statement stmt) throws IOException, SQLException {
+        stmt.addBatch(compileSql(context));
     }
 
-    protected final void writeResults(final ExecutionContext context) {
-        if (!getBean().isIgnoreMetrics()) {
-            context.getLogWriter().write(context.getLogEntryBuilder().build());
-        }
+    protected boolean executeStatement(ExecutionContext context, Statement stmt) throws IOException, SQLException {
+        return stmt.execute(compileSql(context));
     }
 }

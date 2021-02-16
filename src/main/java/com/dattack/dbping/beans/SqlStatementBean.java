@@ -39,6 +39,8 @@ public class SqlStatementBean extends SqlCommandBean {
     private String sql;
     private boolean usePrepareStmt = true;
     private float weight = -1;
+    private int repeats = 1;
+    private int batchSize = 1;
 
     @Override
     public <T extends Throwable> void accept(final SqlCommandVisitor<T> visitor) throws T {
@@ -68,6 +70,24 @@ public class SqlStatementBean extends SqlCommandBean {
     @XmlAttribute
     public void setWeight(final float weight) {
         this.weight = weight;
+    }
+
+    @XmlAttribute
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public int getRepeats() {
+        return repeats;
+    }
+
+    @XmlAttribute
+    public void setRepeats(int repeats) {
+        this.repeats = repeats;
     }
 
     /**
