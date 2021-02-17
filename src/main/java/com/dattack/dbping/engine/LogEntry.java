@@ -64,20 +64,10 @@ public class LogEntry implements Serializable {
         private long eventTime;
         private String taskName;
         private String threadName;
-        private final long maxRowsToDump;
         private String comment;
         private int connectionId;
 
         private List<DataRow> rowList;
-
-        public LogEntryBuilder() {
-            this(0);
-        }
-
-        public LogEntryBuilder(final long maxRowsToDump) {
-            init();
-            this.maxRowsToDump = Math.max(0, maxRowsToDump);
-        }
 
         /**
          * Adds a new {@link DataRow} from a ResultSet.
@@ -87,7 +77,7 @@ public class LogEntry implements Serializable {
          * @throws SQLException
          *             if an database error occurs
          */
-        public void addRow(final ResultSet resultSet) throws SQLException {
+        public void addRow(final ResultSet resultSet, final long maxRowsToDump) throws SQLException {
 
             incrRows();
             if (maxRowsToDump > rows) {

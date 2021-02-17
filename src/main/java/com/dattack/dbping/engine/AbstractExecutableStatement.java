@@ -95,7 +95,7 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
                         resultSet = stmt.getResultSet();
                         while (resultSet.next()) {
                             // sets the time for the first row
-                            context.getLogEntryBuilder().addRow(resultSet);
+                            context.getLogEntryBuilder().addRow(resultSet, getBean().getMaxRowsToDump());
                         }
                     }
                 }

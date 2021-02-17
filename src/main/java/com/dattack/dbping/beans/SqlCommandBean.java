@@ -18,6 +18,7 @@ package com.dattack.dbping.beans;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
@@ -30,6 +31,7 @@ public abstract class SqlCommandBean implements Serializable {
 
     @XmlElement(name = "context")
     private List<ContextBean> contextBeanList;
+    private int maxRowsToDump;
 
     public List<ContextBean> getContextBeanList() {
         return contextBeanList == null ? Collections.emptyList() : contextBeanList;
@@ -46,4 +48,19 @@ public abstract class SqlCommandBean implements Serializable {
      * @return the weight
      */
     public abstract float getWeight();
+
+    /**
+     * Returns the maximum number of rows to be written in the log file for each iteration.
+     *
+     * @return the maxRowsToDump
+     */
+    public int getMaxRowsToDump() {
+        return maxRowsToDump;
+    }
+
+    @XmlAttribute
+    public void setMaxRowsToDump(int maxRowsToDump) {
+        this.maxRowsToDump = Math.max(0, maxRowsToDump);
+    }
+
 }

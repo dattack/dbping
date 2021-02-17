@@ -35,7 +35,6 @@ public class PingTaskBean implements Serializable {
     private String datasource;
     private int executions = -1;
     private String logFile;
-    private int maxRowsToDump;
     private String name;
     private List<SqlCommandBean> sqlStatementList = new ArrayList<>();
     private int threads = 1;
@@ -104,20 +103,6 @@ public class PingTaskBean implements Serializable {
     @XmlElement(name = "log-file")
     public void setLogFile(String logFile) {
         this.logFile = BeanHelper.normalizeToEmpty(logFile);
-    }
-
-    /**
-     * Returns the maximum number of rows to be written in the log file for each iteration.
-     *
-     * @return the maxRowsToDump
-     */
-    public int getMaxRowsToDump() {
-        return maxRowsToDump;
-    }
-
-    @XmlAttribute
-    public void setMaxRowsToDump(int maxRowsToDump) {
-        this.maxRowsToDump = Math.max(0, maxRowsToDump);
     }
 
     /**

@@ -72,7 +72,7 @@ public final class ExecutionContext {
         this.logWriter = logWriter;
         this.configuration = configuration;
         final String threadName = Thread.currentThread().getName();
-        this.logEntryBuilder = new LogEntry.LogEntryBuilder(pingTaskBean.getMaxRowsToDump()) //
+        this.logEntryBuilder = new LogEntry.LogEntryBuilder() //
                 .withTaskName(pingTaskBean.getName()) //
                 .withThreadName(threadName);
     }
