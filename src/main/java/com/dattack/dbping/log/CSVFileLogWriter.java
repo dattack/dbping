@@ -90,7 +90,7 @@ public class CSVFileLogWriter implements LogWriter {
                     .append(entry.getConnectionTime(), "%9d") //
                     .append(entry.getFirstRowTime(), "%9d") //
                     .append(entry.getTotalTime(), "%10d") //
-                    .append(entry.getConnectionId(), "%s");
+                    .append(Integer.toHexString(entry.getConnectionId()), "%s");
 
             if (entry.getException() != null) {
                 csvBuilder.append(BeanHelper.normalizeToEmpty(entry.getException().getMessage()));
