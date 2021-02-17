@@ -15,10 +15,7 @@
  */
 package com.dattack.dbping.beans;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Configuration of a parameter that can be used with a PreparedStatement.
@@ -26,13 +23,15 @@ import javax.xml.bind.annotation.XmlElement;
  * @author cvarela
  * @since 0.2
  */
-public class ClusterAbstractSqlParameterBean extends AbstractSqlParameterBean {
+public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
 
-    private static final long serialVersionUID = 6514464346366327811L;
+    private static final long serialVersionUID = 144903240517619788L;
 
     private String file;
-    private int iterations = 1;
-    private List<SimpleAbstractSqlParameterBean> parameterList = new ArrayList<>();
+    private String format;
+    private int ref;
+    private String type;
+    private String value;
 
     @Override
     public <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T {
@@ -43,26 +42,44 @@ public class ClusterAbstractSqlParameterBean extends AbstractSqlParameterBean {
         return file;
     }
 
-    @XmlAttribute(required = true)
+    @XmlAttribute
     public void setFile(String file) {
         this.file = BeanHelper.normalizeToEmpty(file);
     }
 
-    public int getIterations() {
-        return iterations;
+    public String getFormat() {
+        return format;
     }
 
     @XmlAttribute
-    public void setIterations(int iterations) {
-        this.iterations = Math.max(iterations, 1);
+    public void setFormat(String format) {
+        this.format = BeanHelper.normalizeToEmpty(format);
     }
 
-    public List<SimpleAbstractSqlParameterBean> getParameterList() {
-        return parameterList;
+    public int getRef() {
+        return ref;
     }
 
-    @XmlElement(name = "parameter", required = true)
-    public void setParameterList(List<SimpleAbstractSqlParameterBean> parameterList) {
-        this.parameterList = parameterList;
+    @XmlAttribute
+    public void setRef(int ref) {
+        this.ref = ref;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    @XmlAttribute(required = true)
+    public void setType(String type) {
+        this.type = BeanHelper.normalizeToEmpty(type);
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    @XmlAttribute
+    public void setValue(String value) {
+        this.value = BeanHelper.normalizeToEmpty(value);
     }
 }

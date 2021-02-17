@@ -16,7 +16,6 @@
 package com.dattack.dbping.engine;
 
 import com.dattack.dbping.beans.AbstractSqlParameterBean;
-import com.dattack.dbping.engine.ExecutionContext;
 import java.io.IOException;
 import java.util.List;
 
@@ -57,6 +56,10 @@ public abstract class AbstractPreparedStatementParameter<T> {
 
     public final int getOrder() {
         return parameterBean.getOrder();
+    }
+
+    public final int getIterations() {
+        return parameterBean.getIterations();
     }
 
     /**

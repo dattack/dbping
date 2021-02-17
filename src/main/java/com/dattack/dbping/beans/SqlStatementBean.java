@@ -114,8 +114,8 @@ public class SqlStatementBean extends SqlCommandBean {
     }
 
     @XmlElements({ //
-            @XmlElement(name = "parameter", type = SimpleAbstractSqlParameterBean.class), //
-            @XmlElement(name = "cluster-parameter", type = ClusterAbstractSqlParameterBean.class) //
+            @XmlElement(name = "parameter", type = SimpleSqlParameterBean.class), //
+            @XmlElement(name = "cluster-parameter", type = ClusterSqlParameterBean.class) //
     })
     public void setParameterList(final List<AbstractSqlParameterBean> parameterList) {
         this.parameterList = parameterList;

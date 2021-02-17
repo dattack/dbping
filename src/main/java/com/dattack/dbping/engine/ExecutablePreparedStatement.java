@@ -16,20 +16,18 @@
 package com.dattack.dbping.engine;
 
 import com.dattack.dbping.beans.AbstractSqlParameterBean;
-import com.dattack.dbping.beans.ClusterAbstractSqlParameterBean;
-import com.dattack.dbping.beans.SimpleAbstractSqlParameterBean;
+import com.dattack.dbping.beans.ClusterSqlParameterBean;
+import com.dattack.dbping.beans.SimpleSqlParameterBean;
 import com.dattack.dbping.beans.SqlParameterBeanVisitor;
 import com.dattack.dbping.beans.SqlStatementBean;
 import com.dattack.dbping.engine.exceptions.ExecutableException;
 import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import com.dattack.jtoolbox.exceptions.DattackNestableRuntimeException;
-import com.dattack.jtoolbox.jdbc.JDBCUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -72,12 +70,12 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
     }
 
     @Override
-    public void visit(SimpleAbstractSqlParameterBean bean) throws IOException {
+    public void visit(SimpleSqlParameterBean bean) throws IOException {
         parameterList.add(new SimplePreparedStatementParameter(bean));
     }
 
     @Override
-    public void visit(ClusterAbstractSqlParameterBean bean) throws IOException {
+    public void visit(ClusterSqlParameterBean bean) throws IOException {
         parameterList.add(new ClusterPreparedStatementParameter(bean));
     }
 
@@ -162,57 +160,6 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         return stmt.execute();
     }
 
-    private void doExecuteXX(final ExecutionContext context, PreparedStatement stmt) throws SQLException,
-            ParseException, IOException {
-
-        context.getLogEntryBuilder().withConnectionId(stmt.getConnection().hashCode());
-
-        int iteration = 1;
-        int batchSize = 0;
-        boolean batchMode = false;
-        do {
-            ResultSet resultSet = null;
-            try {
-                populatePreparedStatement(context, stmt);
-                setFetchSize(stmt);
-
-                if (getBean().getBatchSize() > 1 || getBean().getBatchSize() < 0) {
-                    stmt.addBatch();
-                    batchSize++;
-                    batchMode = true;
-
-                    if (getBean().getBatchSize() > 1 && (batchSize % getBean().getBatchSize() == 0)) {
-                        stmt.executeBatch();
-                        stmt.clearBatch();
-                        batchMode = false;
-                    }
-
-                } else {
-
-                    boolean executeResult = stmt.execute();
-
-                    if (executeResult) {
-                        resultSet = stmt.getResultSet();
-                        while (resultSet.next()) {
-                            // sets the time for the first row
-                            context.getLogEntryBuilder().addRow(resultSet);
-                        }
-                    }
-                }
-
-            } finally {
-                JDBCUtils.closeQuietly(resultSet);
-            }
-        } while (iteration++ < getBean().getRepeats());
-
-        if (batchMode) {
-            stmt.executeBatch();
-        }
-
-        // sets the total run time; then, writes to log
-        writeResults(context);
-    }
-
     private void populatePreparedStatement(final ExecutionContext context,
                                            final PreparedStatement statement)
             throws SQLException, ParseException, IOException {
@@ -223,8 +170,10 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         for (AbstractPreparedStatementParameter<?> parameter : parameterList) {
 
             if (parameter instanceof SimplePreparedStatementParameter) {
-                populatePreparedStatement(statement, paramIndex++, (SimplePreparedStatementParameter) parameter,
-                        parameterRecorder, context);
+                for (int iteration = 0; iteration < parameter.getIterations(); iteration++) {
+                    populatePreparedStatement(statement, paramIndex++, (SimplePreparedStatementParameter) parameter,
+                            parameterRecorder, context);
+                }
             } else {
                 ClusterPreparedStatementParameter clusterParameter = (ClusterPreparedStatementParameter) parameter;
                 for (int iteration = 0; iteration < clusterParameter.getIterations(); iteration++) {

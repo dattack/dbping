@@ -28,9 +28,19 @@ public abstract class AbstractSqlParameterBean implements Serializable {
 
     private static final long serialVersionUID = -6189064500896338334L;
 
+    private int iterations = 1;
     private int order;
 
     public abstract <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T;
+
+    public int getIterations() {
+        return iterations;
+    }
+
+    @XmlAttribute
+    public void setIterations(int iterations) {
+        this.iterations = Math.max(iterations, 1);
+    }
 
     public final int getOrder() {
         return order;

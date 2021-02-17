@@ -15,8 +15,8 @@
  */
 package com.dattack.dbping.engine;
 
-import com.dattack.dbping.beans.ClusterAbstractSqlParameterBean;
-import com.dattack.dbping.beans.SimpleAbstractSqlParameterBean;
+import com.dattack.dbping.beans.ClusterSqlParameterBean;
+import com.dattack.dbping.beans.SimpleSqlParameterBean;
 import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import org.apache.commons.lang.StringUtils;
 import java.io.IOException;
@@ -42,10 +42,10 @@ public class ClusterPreparedStatementParameter extends AbstractPreparedStatement
      * @param parameterBean the bean containing the configuration of the parameter
      * @throws IOException if an error occurs when accessing the values of the parameter
      */
-    public ClusterPreparedStatementParameter(final ClusterAbstractSqlParameterBean parameterBean) throws IOException {
+    public ClusterPreparedStatementParameter(final ClusterSqlParameterBean parameterBean) throws IOException {
         super(parameterBean);
         this.parameterList = new ArrayList<>();
-        for (SimpleAbstractSqlParameterBean childBean: parameterBean.getParameterList()) {
+        for (SimpleSqlParameterBean childBean: parameterBean.getParameterList()) {
             parameterList.add(new SimplePreparedStatementParameter(childBean));
         }
     }
@@ -54,12 +54,8 @@ public class ClusterPreparedStatementParameter extends AbstractPreparedStatement
         return parameterList;
     }
 
-    public final int getIterations() {
-        return getBean().getIterations();
-    }
-
-    public ClusterAbstractSqlParameterBean getBean() {
-        return (ClusterAbstractSqlParameterBean) getParameterBean();
+    public ClusterSqlParameterBean getBean() {
+        return (ClusterSqlParameterBean) getParameterBean();
     }
 
     protected List<String[]> loadValues(final ExecutionContext context) throws IOException {

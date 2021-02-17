@@ -15,7 +15,7 @@
  */
 package com.dattack.dbping.engine;
 
-import com.dattack.dbping.beans.SimpleAbstractSqlParameterBean;
+import com.dattack.dbping.beans.SimpleSqlParameterBean;
 import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import org.apache.commons.lang.StringUtils;
 import java.io.IOException;
@@ -42,16 +42,16 @@ public class SimplePreparedStatementParameter extends AbstractPreparedStatementP
      * @param parameterBean the bean containing the configuration of the parameter
      * @throws IOException if an error occurs when accessing the values of the parameter
      */
-    public SimplePreparedStatementParameter(final SimpleAbstractSqlParameterBean parameterBean) throws IOException {
+    public SimplePreparedStatementParameter(final SimpleSqlParameterBean parameterBean) throws IOException {
         super(parameterBean);
     }
 
-    public SimplePreparedStatementParameter(final SimpleAbstractSqlParameterBean parameterBean, String... values) {
+    public SimplePreparedStatementParameter(final SimpleSqlParameterBean parameterBean, String... values) {
         super(parameterBean, Arrays.asList(values));
     }
 
-    public SimpleAbstractSqlParameterBean getBean() {
-        return (SimpleAbstractSqlParameterBean) super.getParameterBean();
+    public SimpleSqlParameterBean getBean() {
+        return (SimpleSqlParameterBean) super.getParameterBean();
     }
 
     public final String getFormat() {

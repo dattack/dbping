@@ -15,7 +15,10 @@
  */
 package com.dattack.dbping.beans;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Configuration of a parameter that can be used with a PreparedStatement.
@@ -23,15 +26,12 @@ import javax.xml.bind.annotation.XmlAttribute;
  * @author cvarela
  * @since 0.2
  */
-public class SimpleAbstractSqlParameterBean extends AbstractSqlParameterBean {
+public class ClusterSqlParameterBean extends AbstractSqlParameterBean {
 
-    private static final long serialVersionUID = 144903240517619788L;
+    private static final long serialVersionUID = 6514464346366327811L;
 
     private String file;
-    private String format;
-    private int ref;
-    private String type;
-    private String value;
+    private List<SimpleSqlParameterBean> parameterList = new ArrayList<>();
 
     @Override
     public <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T {
@@ -42,44 +42,17 @@ public class SimpleAbstractSqlParameterBean extends AbstractSqlParameterBean {
         return file;
     }
 
-    @XmlAttribute
+    @XmlAttribute(required = true)
     public void setFile(String file) {
         this.file = BeanHelper.normalizeToEmpty(file);
     }
 
-    public String getFormat() {
-        return format;
+    public List<SimpleSqlParameterBean> getParameterList() {
+        return parameterList;
     }
 
-    @XmlAttribute
-    public void setFormat(String format) {
-        this.format = BeanHelper.normalizeToEmpty(format);
-    }
-
-    public int getRef() {
-        return ref;
-    }
-
-    @XmlAttribute
-    public void setRef(int ref) {
-        this.ref = ref;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    @XmlAttribute(required = true)
-    public void setType(String type) {
-        this.type = BeanHelper.normalizeToEmpty(type);
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    @XmlAttribute
-    public void setValue(String value) {
-        this.value = BeanHelper.normalizeToEmpty(value);
+    @XmlElement(name = "parameter", required = true)
+    public void setParameterList(List<SimpleSqlParameterBean> parameterList) {
+        this.parameterList = parameterList;
     }
 }

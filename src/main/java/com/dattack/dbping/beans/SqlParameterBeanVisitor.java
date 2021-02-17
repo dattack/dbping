@@ -23,7 +23,7 @@ package com.dattack.dbping.beans;
  */
 public interface SqlParameterBeanVisitor<T extends Throwable> {
 
-    void visit(final SimpleAbstractSqlParameterBean bean) throws T;
+    void visit(final SimpleSqlParameterBean bean) throws T;
 
-    void visit(final ClusterAbstractSqlParameterBean bean) throws T;
+    void visit(final ClusterSqlParameterBean bean) throws T;
 }
