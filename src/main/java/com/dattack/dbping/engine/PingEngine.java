@@ -15,25 +15,23 @@
  */
 package com.dattack.dbping.engine;
 
-import com.dattack.dbping.beans.DbpingBean;
-import com.dattack.dbping.beans.DbpingParser;
 import com.dattack.dbping.beans.PingTaskBean;
 import com.dattack.dbping.log.CSVFileLogWriter;
 import com.dattack.dbping.log.LogHeader;
 import com.dattack.dbping.log.LogWriter;
 import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import com.dattack.jtoolbox.exceptions.DattackParserException;
-import com.dattack.jtoolbox.io.FilesystemUtils;
 import com.dattack.jtoolbox.jdbc.JNDIDataSource;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.sql.DataSource;
 
@@ -66,53 +64,33 @@ public final class PingEngine {
         return sentenceProvider;
     }
 
-    private void execute(final File file, final Set<String> taskNames) throws DattackParserException, IOException {
+    private void execute(PingTaskBean pingTaskBean) throws IOException {
 
-        if (file.isDirectory()) {
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 
-            final File[] files = file.listFiles(FilesystemUtils.createFilenameFilterByExtension("xml"));
-            if (files != null) {
-                for (final File child : files) {
-                    execute(child, taskNames);
-                }
-            }
+        final CompositeConfiguration conf = new CompositeConfiguration();
+        conf.setProperty("task.name", pingTaskBean.getName());
+        conf.setProperty("now", dateFormat.format(new Date()));
+        conf.setProperty("datasource", pingTaskBean.getDatasource());
+        conf.addConfiguration(ConfigurationUtil.createEnvSystemConfiguration());
 
-        } else {
+        final DataSource dataSource = new JNDIDataSource(pingTaskBean.getDatasource());
 
-            final DbpingBean dbpingBean = DbpingParser.parse(file);
-            final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-            for (final PingTaskBean pingTaskBean : dbpingBean.getTaskList()) {
+        final SqlCommandProvider commandProvider = getCommandProvider(pingTaskBean.getCommandProvider());
+        commandProvider.setSentences(pingTaskBean.getSqlStatementList());
 
-                if (taskNames != null && !taskNames.isEmpty()
-                        && taskNames.stream().noneMatch(pingTaskBean.getName()::equalsIgnoreCase)) {
-                    continue;
-                }
+        final LogWriter logWriter = new CSVFileLogWriter(
+                ConfigurationUtil.interpolate(pingTaskBean.getLogFile(), conf));
 
-                final CompositeConfiguration conf = new CompositeConfiguration();
-                conf.setProperty("task.name", pingTaskBean.getName());
-                conf.setProperty("now", dateFormat.format(new Date()));
-                conf.setProperty("datasource", pingTaskBean.getDatasource());
-                conf.addConfiguration(ConfigurationUtil.createEnvSystemConfiguration());
+        final LogHeader logHeader = new LogHeader(pingTaskBean);
+        logWriter.write(logHeader);
 
-                final DataSource dataSource = new JNDIDataSource(pingTaskBean.getDatasource());
+        if (commandProvider.getSize() > 0) {
+            for (int i = 0; i < pingTaskBean.getThreads(); i++) {
+                BaseConfiguration copy = new BaseConfiguration();
+                ConfigurationUtils.copy(conf, copy);
 
-                final SqlCommandProvider commandProvider = getCommandProvider(pingTaskBean.getCommandProvider());
-                commandProvider.setSentences(pingTaskBean.getSqlStatementList());
-
-                final LogWriter logWriter = new CSVFileLogWriter(
-                        ConfigurationUtil.interpolate(pingTaskBean.getLogFile(), conf));
-
-                final LogHeader logHeader = new LogHeader(pingTaskBean);
-                logWriter.write(logHeader);
-
-                if (commandProvider.getSize() > 0) {
-                    for (int i = 0; i < pingTaskBean.getThreads(); i++) {
-                        BaseConfiguration copy = new BaseConfiguration();
-                        ConfigurationUtils.copy(conf, copy);
-
-                        new Thread(new PingJob(pingTaskBean, dataSource, commandProvider, logWriter, copy)).start();
-                    }
-                }
+                new Thread(new PingJob(pingTaskBean, dataSource, commandProvider, logWriter, copy)).start();
             }
         }
     }
@@ -128,8 +106,12 @@ public final class PingEngine {
     public void execute(final String[] filenames, final Set<String> taskNames)
             throws DattackParserException, IOException {
 
-        for (final String filename : filenames) {
-            execute(new File(filename), taskNames);
+        PingTaskSelector selector = new PingTaskSelector();
+        Map<String, List<PingTaskBean>> map = selector.filter(filenames, taskNames);
+        for (List<PingTaskBean> list: map.values()) {
+            for (PingTaskBean bean: list) {
+                execute(bean);
+            }
         }
     }
 }

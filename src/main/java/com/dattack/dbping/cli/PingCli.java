@@ -15,7 +15,9 @@
  */
 package com.dattack.dbping.cli;
 
+import com.dattack.dbping.beans.PingTaskBean;
 import com.dattack.dbping.engine.PingEngine;
+import com.dattack.dbping.engine.PingTaskSelector;
 import com.dattack.jtoolbox.exceptions.DattackParserException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -25,8 +27,14 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author cvarela
@@ -38,6 +46,8 @@ public final class PingCli {
     private static final String LONG_FILE_OPTION = "file";
     private static final String TASK_NAME_OPTION = "t";
     private static final String LONG_TASK_NAME_OPTION = "task";
+    private static final String LIST_OPTION = "l";
+    private static final String LONG_LIST_OPTION = "list";
 
     private static Options createOptions() {
 
@@ -59,7 +69,35 @@ public final class PingCli {
                 .desc("the name of the task to execute") //
                 .build());
 
+        options.addOption(Option.builder(LIST_OPTION) //
+                .required(false) //
+                .longOpt(LONG_LIST_OPTION) //
+                .hasArg(false) //
+                .desc("list the name of the tasks contained in the configuration file") //
+                .build());
+
         return options;
+    }
+
+    private static void list(final String[] filenames, final Set<String> taskNames) {
+
+        PingTaskSelector selector = new PingTaskSelector();
+        HashMap<String, List<PingTaskBean>> map = selector.filter(filenames, taskNames);
+
+        List<String> keys = new ArrayList<>(map.keySet());
+        Collections.sort(keys);
+
+        System.out.println("TASKS LIST");
+
+        for (String key: keys) {
+            System.out.format("%n- %s%n", key);
+            List<PingTaskBean> tasks = map.get(key);
+            Collections.sort(tasks, Comparator.comparing(PingTaskBean::getName));
+
+            for (PingTaskBean bean: tasks) {
+                System.out.format("    - %s%n", bean.getName());
+            }
+        }
     }
 
     /**
@@ -83,8 +121,12 @@ public final class PingCli {
                 hs = new HashSet<>(Arrays.asList(taskNames));
             }
 
-            final PingEngine ping = new PingEngine();
-            ping.execute(filenames, hs);
+            if (cmd.hasOption(LIST_OPTION)) {
+                list(filenames, hs);
+            } else {
+                final PingEngine ping = new PingEngine();
+                ping.execute(filenames, hs);
+            }
 
         } catch (@SuppressWarnings("unused") final ParseException e) {
             showUsage(options);
