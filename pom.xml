@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.dattack</groupId>
         <artifactId>parent</artifactId>
-        <version>3</version>
+        <version>5-SNAPSHOT</version>
     </parent>
     <artifactId>dbping</artifactId>
     <version>0.2-SNAPSHOT</version>
