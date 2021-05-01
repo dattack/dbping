@@ -67,7 +67,10 @@ public abstract class AbstractPreparedStatementParameter<T> {
      * Returns the next value to use within this parameter. If the parameter supports multiple values, each
      * invocation of this method will return a different value using a Round-Robin algorithm.
      *
+     * @param context the execution context
+     *
      * @return returns the next value to use within this parameter.
+     * @throws IOException if an I/O error occurs opening the configuration file
      */
     public synchronized T getValue(final ExecutionContext context) throws IOException {
         if (Objects.isNull(valueList)) {

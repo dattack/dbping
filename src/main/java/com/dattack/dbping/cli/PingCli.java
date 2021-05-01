@@ -31,9 +31,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -82,7 +82,7 @@ public final class PingCli {
     private static void list(final String[] filenames, final Set<String> taskNames) {
 
         PingTaskSelector selector = new PingTaskSelector();
-        HashMap<String, List<PingTaskBean>> map = selector.filter(filenames, taskNames);
+        Map<String, List<PingTaskBean>> map = selector.filter(filenames, taskNames);
 
         List<String> keys = new ArrayList<>(map.keySet());
         Collections.sort(keys);

@@ -74,6 +74,7 @@ public class LogEntry implements Serializable {
          *
          * @param resultSet
          *            the ResultSet that contains the data
+         * @param maxRowsToDump the maximum number of rows to write into the log
          * @throws SQLException
          *             if an database error occurs
          */

@@ -102,6 +102,7 @@ public final class PingEngine {
      * @param filenames paths in which to start the search. These paths can be files or directories.
      * @param taskNames the set of task names. It can be empty or null.
      * @throws DattackParserException when there is a problem reading any of the configuration files.
+     * @throws IOException if an I/O error occurs when executing
      */
     public void execute(final String[] filenames, final Set<String> taskNames)
             throws DattackParserException, IOException {

@@ -64,6 +64,7 @@ public final class ExecutionContext {
      * @param pingTaskBean the task to be executed
      * @param dataSource   the data source that provides the connections
      * @param logWriter    the log in which to write the metrics obtained
+     * @param configuration the execution configuration
      */
     public ExecutionContext(final PingTaskBean pingTaskBean, final DataSource dataSource, final LogWriter logWriter,
                             AbstractConfiguration configuration) {

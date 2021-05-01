@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.sql.DataSource;
 
@@ -86,13 +87,14 @@ public final class PingTaskSelector {
     }
 
     /**
-     * Searches in the indicated files for those tasks whose name coincides with one of the indicated ones. If the
+     * Searches in the indicated files for those tasks whose name matches with one of the indicated ones. If the
      * list of task names is empty then it will select all the tasks that are configured in the provided files.
      *
      * @param filenames paths in which to start the search. These paths can be files or directories.
      * @param taskNames the set of task names. It can be empty or null.
+     * @return a map containing the tasks that match the searched ones
      */
-    public HashMap<String, List<PingTaskBean>> filter(final String[] filenames, final Set<String> taskNames) {
+    public Map<String, List<PingTaskBean>> filter(final String[] filenames, final Set<String> taskNames) {
 
         HashMap<String, List<PingTaskBean>> map = new HashMap<>();
         for (final String filename : filenames) {
