@@ -15,9 +15,14 @@
  */
 package com.dattack.dbping.engine;
 
+import com.dattack.dbping.beans.AbstractSqlParameterBean;
 import com.dattack.dbping.beans.BeanHelper;
+import com.dattack.dbping.beans.ClusterSqlParameterBean;
+import com.dattack.dbping.beans.SimpleSqlParameterBean;
+import com.dattack.dbping.beans.SqlParameterBeanVisitor;
 import com.dattack.dbping.beans.SqlStatementBean;
 import com.dattack.dbping.engine.exceptions.ExecutableException;
+import com.dattack.jtoolbox.exceptions.DattackNestableRuntimeException;
 import com.dattack.jtoolbox.jdbc.JDBCUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +31,12 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Abstract SQL statement executable.
@@ -33,14 +44,24 @@ import java.sql.Statement;
  * @author cvarela
  * @since 0.2
  */
-public abstract class AbstractExecutableStatement<T extends Statement> implements ExecutableCommand {
+public abstract class AbstractExecutableStatement<T extends Statement> implements ExecutableCommand, SqlParameterBeanVisitor<IOException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractExecutableStatement.class);
 
     private final SqlStatementBean bean;
+    private final List<AbstractPreparedStatementParameter<?>> parameterList = new ArrayList<>();
 
-    public AbstractExecutableStatement(SqlStatementBean bean) {
+    public AbstractExecutableStatement(SqlStatementBean bean) throws IOException {
         this.bean = bean;
+        for (AbstractSqlParameterBean parameterBean : bean.getParameterList()) {
+            try {
+                parameterBean.accept(this);
+            } catch (DattackNestableRuntimeException e) {
+                throw (IOException) e.getCause(); // TODO: improve it
+            }
+        }
+
+        parameterList.sort(Comparator.comparingInt(AbstractPreparedStatementParameter::getOrder));
     }
 
     @Override
@@ -53,6 +74,18 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
         String sql = BeanHelper.getPlainSql(bean.getSql(), context.getConfiguration());
         LOGGER.trace("Executing query {}", sql);
         return sql;
+    }
+
+
+
+    @Override
+    public void visit(SimpleSqlParameterBean bean) throws IOException {
+        parameterList.add(new SimplePreparedStatementParameter(bean));
+    }
+
+    @Override
+    public void visit(ClusterSqlParameterBean bean) throws IOException {
+        parameterList.add(new ClusterPreparedStatementParameter(bean));
     }
 
     protected final void throwException(final ExecutionContext context, final Exception e) throws ExecutableException {
@@ -113,7 +146,49 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
         writeResults(context);
     }
 
-    protected abstract void prepare(ExecutionContext context, T stmt) throws IOException, SQLException;
+    private void prepare(ExecutionContext context, T stmt) throws SQLException,
+            IOException {
+        try {
+            populateStatement(context, stmt);
+        } catch (ParseException e) {
+            throw new SQLException(e);
+        }
+    }
+
+    private void populateStatement(final ExecutionContext context, final T statement)
+            throws SQLException, ParseException, IOException {
+
+        ParameterRecorder parameterRecorder = new ParameterRecorder();
+
+        int paramIndex = 1;
+        for (AbstractPreparedStatementParameter<?> parameter : parameterList) {
+
+            if (parameter instanceof SimplePreparedStatementParameter) {
+                for (int iteration = 0; iteration < parameter.getIterations(); iteration++) {
+                    populateStatement(statement, paramIndex++, (SimplePreparedStatementParameter) parameter,
+                            parameterRecorder, context);
+                }
+            } else {
+                ClusterPreparedStatementParameter clusterParameter = (ClusterPreparedStatementParameter) parameter;
+                for (int iteration = 0; iteration < clusterParameter.getIterations(); iteration++) {
+                    String[] values = clusterParameter.getValue(context);
+                    for (SimplePreparedStatementParameter childParameter : clusterParameter.getParameterList()) {
+                        populateStatement(statement, paramIndex++,
+                                new SimplePreparedStatementParameter(childParameter.getBean(),
+                                        values[childParameter.getRef()]), parameterRecorder, context);
+                    }
+                }
+            }
+        }
+
+        context.getLogEntryBuilder().withComment(parameterRecorder.getHash() + parameterRecorder.getLog());
+    }
+
+    protected abstract void populateStatement(final T statement, int index,
+                                     final SimplePreparedStatementParameter parameter,
+                                     final ParameterRecorder parameterRecorder,
+                                     final ExecutionContext context)
+            throws SQLException, ParseException, IOException;
 
     protected abstract void addBatch(ExecutionContext context, T stmt) throws IOException, SQLException;
 
@@ -128,6 +203,32 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
     protected final void writeResults(final ExecutionContext context) {
         if (!getBean().isIgnoreMetrics()) {
             context.getLogWriter().write(context.getLogEntryBuilder().build());
+        }
+    }
+
+    protected Date parseDate(String value, String format) throws ParseException {
+        SimpleDateFormat parser = new SimpleDateFormat(format);
+        return parser.parse(value);
+    }
+
+    protected static class ParameterRecorder {
+
+        private final StringBuilder log;
+
+        private ParameterRecorder() {
+            this.log = new StringBuilder();
+        }
+
+        protected void save(int index, String value) {
+            log.append(" p").append(index).append("=").append(value);
+        }
+
+        private String getHash() {
+            return getLog().replaceAll("\\W", "");
+        }
+
+        private String getLog() {
+            return log.toString();
         }
     }
 }

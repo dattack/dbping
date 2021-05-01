@@ -31,11 +31,13 @@ import java.sql.Statement;
  * @author cvarela
  * @since 0.2
  */
-public class ExecutableStatement extends AbstractExecutableStatement<Statement> implements ExecutableCommand {
+public final class ExecutableStatement extends AbstractExecutableStatement<Statement> implements ExecutableCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutableStatement.class);
 
-    public ExecutableStatement(SqlStatementBean bean) {
+    private static final ThreadLocal<String> sqlThreadLocal = new ThreadLocal<>();
+
+    public ExecutableStatement(final SqlStatementBean bean) throws IOException {
         super(bean);
     }
 
@@ -52,6 +54,7 @@ public class ExecutableStatement extends AbstractExecutableStatement<Statement> 
             context.getLogEntryBuilder().connect();
 
             try (Statement stmt = connection.createStatement()) {
+                sqlThreadLocal.set(compileSql(context));
                 doExecute(context, stmt);
             }
 
@@ -69,7 +72,7 @@ public class ExecutableStatement extends AbstractExecutableStatement<Statement> 
      * @param connection the connection to the database
      * @throws ExecutableException if an error occurs when collecting the metrics
      */
-    public void execute(final ExecutionContext context, Connection connection) throws ExecutableException {
+    public void execute(final ExecutionContext context, final Connection connection) throws ExecutableException {
 
         context.getLogEntryBuilder() //
                 .init() //
@@ -79,6 +82,7 @@ public class ExecutableStatement extends AbstractExecutableStatement<Statement> 
                 .connect();
 
         try (Statement stmt = connection.createStatement()) {
+            sqlThreadLocal.set(compileSql(context));
             doExecute(context, stmt);
 
         } catch (SQLException | IOException e) {
@@ -87,15 +91,25 @@ public class ExecutableStatement extends AbstractExecutableStatement<Statement> 
         }
     }
 
-    protected void prepare(ExecutionContext context, Statement stmt) {
-        // ignore
+    @Override
+    protected void populateStatement(final Statement statement, final int index,
+                                     final SimplePreparedStatementParameter parameter,
+                                     final ParameterRecorder parameterRecorder, final ExecutionContext context)
+            throws IOException {
+
+        String value = parameter.getValue(context);
+        sqlThreadLocal.set(sqlThreadLocal.get().replaceFirst("\\?", value));
+        parameterRecorder.save(index, value);
     }
 
-    protected void addBatch(ExecutionContext context, Statement stmt) throws IOException, SQLException {
-        stmt.addBatch(compileSql(context));
+    protected void addBatch(final ExecutionContext context, final Statement stmt) throws SQLException {
+        stmt.addBatch(sqlThreadLocal.get());
     }
 
-    protected boolean executeStatement(ExecutionContext context, Statement stmt) throws IOException, SQLException {
-        return stmt.execute(compileSql(context));
+    protected boolean executeStatement(final ExecutionContext context, final Statement stmt) throws IOException,
+            SQLException {
+
+        LOGGER.trace("Executing statement: {}", sqlThreadLocal.get());
+        return stmt.execute(sqlThreadLocal.get());
     }
 }

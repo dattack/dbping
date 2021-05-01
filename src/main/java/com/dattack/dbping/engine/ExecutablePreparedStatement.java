@@ -15,14 +15,10 @@
  */
 package com.dattack.dbping.engine;
 
-import com.dattack.dbping.beans.AbstractSqlParameterBean;
-import com.dattack.dbping.beans.ClusterSqlParameterBean;
-import com.dattack.dbping.beans.SimpleSqlParameterBean;
-import com.dattack.dbping.beans.SqlParameterBeanVisitor;
 import com.dattack.dbping.beans.SqlStatementBean;
 import com.dattack.dbping.engine.exceptions.ExecutableException;
 import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
-import com.dattack.jtoolbox.exceptions.DattackNestableRuntimeException;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
@@ -30,11 +26,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
 
 /**
  * SQL statement executable in the database using a {@link PreparedStatement}. Before launching the execution it is
@@ -43,11 +34,9 @@ import java.util.List;
  * @author cvarela
  * @since 0.2
  */
-public class ExecutablePreparedStatement extends AbstractExecutableStatement<PreparedStatement> implements SqlParameterBeanVisitor<IOException> {
+public class ExecutablePreparedStatement extends AbstractExecutableStatement<PreparedStatement> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutablePreparedStatement.class);
-
-    private final List<AbstractPreparedStatementParameter<?>> parameterList = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -57,26 +46,6 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
      */
     public ExecutablePreparedStatement(SqlStatementBean bean) throws IOException {
         super(bean);
-
-        for (AbstractSqlParameterBean parameterBean : bean.getParameterList()) {
-            try {
-                parameterBean.accept(this);
-            } catch (DattackNestableRuntimeException e) {
-                throw (IOException) e.getCause(); // TODO: improve it
-            }
-        }
-
-        parameterList.sort(Comparator.comparingInt(AbstractPreparedStatementParameter::getOrder));
-    }
-
-    @Override
-    public void visit(SimpleSqlParameterBean bean) throws IOException {
-        parameterList.add(new SimplePreparedStatementParameter(bean));
-    }
-
-    @Override
-    public void visit(ClusterSqlParameterBean bean) throws IOException {
-        parameterList.add(new ClusterPreparedStatementParameter(bean));
     }
 
     @Override
@@ -109,14 +78,21 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         try {
             connection.setClientInfo(key, value);
         } catch (SQLException e) {
-            LOGGER.warn(e.getMessage());
+            LOGGER.warn(e.getMessage() + "[Key: " + key + ", Value: " + value + "]");
         }
     }
 
     private void populateClientInfo(Connection connection) {
-        setClientInfo(connection, "OCSID.CLIENTID", "DBPING_ID");
-        setClientInfo(connection, "OCSID.MODULE", "DBPING");
-        setClientInfo(connection, "OCSID.ACTION", "TEST");
+
+        try {
+            if (StringUtils.containsIgnoreCase(connection.getMetaData().getDriverName(), "oracle")) {
+                setClientInfo(connection, "OCSID.CLIENTID", "DBPING_ID");
+                setClientInfo(connection, "OCSID.MODULE", "DBPING");
+                setClientInfo(connection, "OCSID.ACTION", "TEST");
+            }
+        } catch (SQLException e) {
+            LOGGER.warn(e.getMessage());
+        }
     }
 
     public void execute(final ExecutionContext context, Connection connection) throws ExecutableException {
@@ -143,15 +119,6 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         }
     }
 
-    protected void prepare(ExecutionContext context, PreparedStatement stmt) throws SQLException,
-            IOException {
-        try {
-            populatePreparedStatement(context, stmt);
-        } catch (ParseException e) {
-            throw new SQLException(e);
-        }
-    }
-
     protected void addBatch(ExecutionContext context, PreparedStatement stmt) throws SQLException {
         stmt.addBatch();
     }
@@ -160,42 +127,13 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         return stmt.execute();
     }
 
-    private void populatePreparedStatement(final ExecutionContext context,
-                                           final PreparedStatement statement)
-            throws SQLException, ParseException, IOException {
-
-        ParameterRecorder parameterRecorder = new ParameterRecorder();
-
-        int paramIndex = 1;
-        for (AbstractPreparedStatementParameter<?> parameter : parameterList) {
-
-            if (parameter instanceof SimplePreparedStatementParameter) {
-                for (int iteration = 0; iteration < parameter.getIterations(); iteration++) {
-                    populatePreparedStatement(statement, paramIndex++, (SimplePreparedStatementParameter) parameter,
-                            parameterRecorder, context);
-                }
-            } else {
-                ClusterPreparedStatementParameter clusterParameter = (ClusterPreparedStatementParameter) parameter;
-                for (int iteration = 0; iteration < clusterParameter.getIterations(); iteration++) {
-                    String[] values = clusterParameter.getValue(context);
-                    for (SimplePreparedStatementParameter childParameter : clusterParameter.getParameterList()) {
-                        populatePreparedStatement(statement, paramIndex++,
-                                new SimplePreparedStatementParameter(childParameter.getBean(),
-                                        values[childParameter.getRef()]), parameterRecorder, context);
-                    }
-                }
-            }
-        }
-
-        context.getLogEntryBuilder().withComment(parameterRecorder.getHash() + parameterRecorder.getLog());
-    }
-
-    private void populatePreparedStatement(final PreparedStatement statement, int index,
+    protected void populateStatement(final PreparedStatement statement, int index,
                                            final SimplePreparedStatementParameter parameter,
                                            final ParameterRecorder parameterRecorder,
                                            final ExecutionContext context)
             throws SQLException, ParseException, IOException {
 
+        LOGGER.trace("Setting parameter values (index: {}, type: {})", index, parameter.getType());
         String value = parameter.getValue(context);
         switch (parameter.getType().toUpperCase()) {
             case "INTEGER":
@@ -211,15 +149,13 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
                 statement.setDouble(index, Double.parseDouble(value));
                 break;
             case "TIME":
-                statement.setTime(index, new java.sql.Time(parseDate(value,
-                        parameter.getFormat()).getTime()));
+                statement.setTime(index, new java.sql.Time(parseDate(value, parameter.getFormat()).getTime()));
                 break;
             case "DATE":
                 statement.setDate(index, new java.sql.Date(parseDate(value, parameter.getFormat()).getTime()));
                 break;
             case "TIMESTAMP":
-                statement.setTimestamp(index,
-                        new java.sql.Timestamp(parseDate(value, parameter.getFormat()).getTime()));
+                statement.setTimestamp(index, new java.sql.Timestamp(parseDate(value, parameter.getFormat()).getTime()));
                 break;
             case "STRING":
             default:
@@ -227,31 +163,5 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         }
 
         parameterRecorder.save(index, value);
-    }
-
-    private Date parseDate(String value, String format) throws ParseException {
-        SimpleDateFormat parser = new SimpleDateFormat(format);
-        return parser.parse(value);
-    }
-
-    private static class ParameterRecorder {
-
-        private final StringBuilder log;
-
-        private ParameterRecorder() {
-            this.log = new StringBuilder();
-        }
-
-        private void save(int index, String value) {
-            log.append(" p").append(index).append("=").append(value);
-        }
-
-        private String getHash() {
-            return getLog().replaceAll("\\W", "");
-        }
-
-        private String getLog() {
-            return log.toString();
-        }
     }
 }

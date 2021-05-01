@@ -37,7 +37,7 @@ public class SqlStatementBean extends SqlCommandBean {
     private List<AbstractSqlParameterBean> parameterList = new ArrayList<>();
     private boolean skip = false;
     private String sql;
-    private boolean usePrepareStmt = true;
+    private boolean usePreparedStmt = true;
     private float weight = -1;
     private int repeats = 1;
     private int batchSize = 1;
@@ -170,12 +170,12 @@ public class SqlStatementBean extends SqlCommandBean {
      *
      * @return a boolean indicating whether a PreparedStatement should be used to execute this SQL statement.
      */
-    public boolean isUsePrepareStatement() {
-        return usePrepareStmt;
+    public boolean isUsePreparedStatement() {
+        return usePreparedStmt;
     }
 
     @XmlAttribute
     public void setUsePrepareStatement(final boolean usePrepareStmt) {
-        this.usePrepareStmt = usePrepareStmt;
+        this.usePreparedStmt = usePrepareStmt;
     }
 }

@@ -94,9 +94,10 @@ public abstract class SqlCommandProvider implements SqlCommandVisitor<IOExceptio
         }
     }
 
-    private AbstractExecutableStatement createExecutableStatement(final SqlStatementBean bean) throws IOException {
-        AbstractExecutableStatement statement;
-        if (bean.isUsePrepareStatement() || !bean.getParameterList().isEmpty()) {
+    private AbstractExecutableStatement<?> createExecutableStatement(final SqlStatementBean bean) throws IOException {
+
+        AbstractExecutableStatement<?> statement;
+        if (bean.isUsePreparedStatement()) {
             statement = new ExecutablePreparedStatement(bean);
         } else {
             statement = new ExecutableStatement(bean);

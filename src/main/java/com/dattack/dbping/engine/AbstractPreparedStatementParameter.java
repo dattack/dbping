@@ -18,9 +18,11 @@ package com.dattack.dbping.engine;
 import com.dattack.dbping.beans.AbstractSqlParameterBean;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A parameter that can be substituted in a PreparedStatement. If the parameter supports multiple values,each access
+ * A parameter that can be substituted in a Statement. If the parameter supports multiple values,each access
  * to the parameter will get a different value using a Round-Robin algorithm.
  *
  * @author cvarela
@@ -30,7 +32,7 @@ public abstract class AbstractPreparedStatementParameter<T> {
 
     private final AbstractSqlParameterBean parameterBean;
     private List<T> valueList;
-    private int valueIndex;
+    private final AtomicInteger valueIndex;
 
     /**
      * Default constructor.
@@ -39,14 +41,13 @@ public abstract class AbstractPreparedStatementParameter<T> {
      */
     public AbstractPreparedStatementParameter(final AbstractSqlParameterBean parameterBean) {
         this.parameterBean = parameterBean;
+        this.valueIndex = new AtomicInteger(0);
         this.valueList = null;
-        this.valueIndex = 0;
     }
 
     public AbstractPreparedStatementParameter(final AbstractSqlParameterBean parameterBean, final List<T> valueList) {
         this.parameterBean = parameterBean;
-        this.valueList = null;
-        this.valueIndex = 0;
+        this.valueIndex = new AtomicInteger(0);
         this.valueList = valueList;
     }
 
@@ -68,8 +69,8 @@ public abstract class AbstractPreparedStatementParameter<T> {
      *
      * @return returns the next value to use within this parameter.
      */
-    public synchronized T getValue(ExecutionContext context) throws IOException {
-        if (valueList == null) {
+    public synchronized T getValue(final ExecutionContext context) throws IOException {
+        if (Objects.isNull(valueList)) {
             valueList = loadValues(context);
         }
 
@@ -77,12 +78,9 @@ public abstract class AbstractPreparedStatementParameter<T> {
             return null;
         }
 
-        if (valueIndex >= valueList.size()) {
-            valueIndex = 0;
-        }
-
-        return valueList.get(valueIndex++);
+        int index = (valueIndex.getAndIncrement() % valueList.size());
+        return valueList.get(index);
     }
 
-    protected abstract List<T> loadValues(ExecutionContext context) throws IOException;
+    protected abstract List<T> loadValues(final ExecutionContext context) throws IOException;
 }
