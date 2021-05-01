@@ -16,7 +16,6 @@
 package com.dattack.dbping.log;
 
 import com.dattack.formats.csv.CSVConfiguration;
-import com.dattack.formats.csv.CSVConfiguration.CsvConfigurationBuilder;
 
 /**
  * @author cvarela
@@ -34,6 +33,6 @@ public class CSVConfigurationFactory {
     }
 
     public CSVConfiguration create() {
-        return new CsvConfigurationBuilder().withSeparator(separator).build();
+        return CSVConfiguration.custom().withSeparator(separator).build();
     }
 }
