@@ -31,7 +31,7 @@ public abstract class AbstractSqlParameterBean implements Serializable {
     private int iterations = 1;
     private int order;
 
-    public abstract <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T;
+    public abstract void accept(SqlParameterBeanVisitor visitor);
 
     public int getIterations() {
         return iterations;

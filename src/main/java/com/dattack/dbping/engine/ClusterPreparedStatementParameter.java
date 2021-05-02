@@ -40,9 +40,8 @@ public class ClusterPreparedStatementParameter extends AbstractPreparedStatement
      * Default constructor.
      *
      * @param parameterBean the bean containing the configuration of the parameter
-     * @throws IOException if an error occurs when accessing the values of the parameter
      */
-    public ClusterPreparedStatementParameter(final ClusterSqlParameterBean parameterBean) throws IOException {
+    public ClusterPreparedStatementParameter(final ClusterSqlParameterBean parameterBean) {
         super(parameterBean);
         this.parameterList = new ArrayList<>();
         for (SimpleSqlParameterBean childBean: parameterBean.getParameterList()) {

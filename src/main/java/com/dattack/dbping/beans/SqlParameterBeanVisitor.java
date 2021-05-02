@@ -21,9 +21,9 @@ package com.dattack.dbping.beans;
  * @author cvarela
  * @since 0.2
  */
-public interface SqlParameterBeanVisitor<T extends Throwable> {
+public interface SqlParameterBeanVisitor {
 
-    void visit(final SimpleSqlParameterBean bean) throws T;
+    void visit(final SimpleSqlParameterBean bean);
 
-    void visit(final ClusterSqlParameterBean bean) throws T;
+    void visit(final ClusterSqlParameterBean bean);
 }

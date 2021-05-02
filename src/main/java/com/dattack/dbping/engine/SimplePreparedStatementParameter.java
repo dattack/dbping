@@ -40,9 +40,8 @@ public class SimplePreparedStatementParameter extends AbstractPreparedStatementP
      * Default constructor.
      *
      * @param parameterBean the bean containing the configuration of the parameter
-     * @throws IOException if an error occurs when accessing the values of the parameter
      */
-    public SimplePreparedStatementParameter(final SimpleSqlParameterBean parameterBean) throws IOException {
+    public SimplePreparedStatementParameter(final SimpleSqlParameterBean parameterBean) {
         super(parameterBean);
     }
 

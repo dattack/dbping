@@ -22,7 +22,6 @@ import com.dattack.dbping.beans.SimpleSqlParameterBean;
 import com.dattack.dbping.beans.SqlParameterBeanVisitor;
 import com.dattack.dbping.beans.SqlStatementBean;
 import com.dattack.dbping.engine.exceptions.ExecutableException;
-import com.dattack.jtoolbox.exceptions.DattackNestableRuntimeException;
 import com.dattack.jtoolbox.jdbc.JDBCUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,21 +43,18 @@ import java.util.List;
  * @author cvarela
  * @since 0.2
  */
-public abstract class AbstractExecutableStatement<T extends Statement> implements ExecutableCommand, SqlParameterBeanVisitor<IOException> {
+public abstract class AbstractExecutableStatement<T extends Statement> implements ExecutableCommand,
+        SqlParameterBeanVisitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractExecutableStatement.class);
 
     private final SqlStatementBean bean;
     private final List<AbstractPreparedStatementParameter<?>> parameterList = new ArrayList<>();
 
-    public AbstractExecutableStatement(SqlStatementBean bean) throws IOException {
+    public AbstractExecutableStatement(SqlStatementBean bean) {
         this.bean = bean;
         for (AbstractSqlParameterBean parameterBean : bean.getParameterList()) {
-            try {
-                parameterBean.accept(this);
-            } catch (DattackNestableRuntimeException e) {
-                throw (IOException) e.getCause(); // TODO: improve it
-            }
+            parameterBean.accept(this);
         }
 
         parameterList.sort(Comparator.comparingInt(AbstractPreparedStatementParameter::getOrder));
@@ -77,14 +73,13 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
     }
 
 
-
     @Override
-    public void visit(SimpleSqlParameterBean bean) throws IOException {
+    public void visit(SimpleSqlParameterBean bean) {
         parameterList.add(new SimplePreparedStatementParameter(bean));
     }
 
     @Override
-    public void visit(ClusterSqlParameterBean bean) throws IOException {
+    public void visit(ClusterSqlParameterBean bean) {
         parameterList.add(new ClusterPreparedStatementParameter(bean));
     }
 
@@ -185,9 +180,9 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
     }
 
     protected abstract void populateStatement(final T statement, int index,
-                                     final SimplePreparedStatementParameter parameter,
-                                     final ParameterRecorder parameterRecorder,
-                                     final ExecutionContext context)
+                                              final SimplePreparedStatementParameter parameter,
+                                              final ParameterRecorder parameterRecorder,
+                                              final ExecutionContext context)
             throws SQLException, ParseException, IOException;
 
     protected abstract void addBatch(ExecutionContext context, T stmt) throws IOException, SQLException;

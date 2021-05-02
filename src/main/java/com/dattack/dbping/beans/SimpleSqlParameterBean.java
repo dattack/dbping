@@ -34,7 +34,7 @@ public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
     private String value;
 
     @Override
-    public <T extends Throwable> void accept(SqlParameterBeanVisitor<T> visitor) throws T {
+    public void accept(SqlParameterBeanVisitor visitor) {
         visitor.visit(this);
     }
 
