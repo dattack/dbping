@@ -50,7 +50,7 @@ public class SqlScriptBean extends SqlCommandBean {
     }
 
     @XmlAttribute(required = true)
-    public void setLabel(String label) {
+    public void setLabel(final String label) {
         this.label = BeanHelper.normalizeToEmpty(label);
     }
 
@@ -65,7 +65,7 @@ public class SqlScriptBean extends SqlCommandBean {
     }
 
     @XmlAttribute(name = "weight")
-    public void setWeight(float weight) {
+    public void setWeight(final float weight) {
         this.weight = weight;
     }
 
@@ -79,7 +79,7 @@ public class SqlScriptBean extends SqlCommandBean {
     }
 
     @XmlElement(name = "query", required = true, type = SqlStatementBean.class)
-    public void setStatementList(List<SqlStatementBean> statementList) {
+    public void setStatementList(final List<SqlStatementBean> statementList) {
         this.statementList = statementList;
     }
 }

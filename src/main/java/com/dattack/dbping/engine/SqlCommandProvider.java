@@ -49,7 +49,7 @@ public abstract class SqlCommandProvider implements SqlCommandVisitor<IOExceptio
 
         executableCommandList.clear();
 
-        for (SqlCommandBean bean : sqlList) {
+        for (final SqlCommandBean bean : sqlList) {
             bean.accept(this);
         }
 
@@ -75,8 +75,8 @@ public abstract class SqlCommandProvider implements SqlCommandVisitor<IOExceptio
     @Override
     public void visit(final SqlScriptBean bean) throws IOException {
 
-        ExecutableScript executableScript = new ExecutableScript(bean);
-        for (SqlStatementBean statement : bean.getStatementList()) {
+        final ExecutableScript executableScript = new ExecutableScript(bean);
+        for (final SqlStatementBean statement : bean.getStatementList()) {
             if (!statement.isSkip()) {
                 executableScript.add(createExecutableStatement(statement));
             }

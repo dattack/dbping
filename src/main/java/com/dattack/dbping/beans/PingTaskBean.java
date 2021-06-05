@@ -50,7 +50,7 @@ public class PingTaskBean implements Serializable {
     }
 
     @XmlElement(name = "command-provider")
-    public void setCommandProvider(String commandProvider) {
+    public void setCommandProvider(final String commandProvider) {
         this.commandProvider = BeanHelper.normalizeToEmpty(commandProvider);
     }
 
@@ -59,7 +59,7 @@ public class PingTaskBean implements Serializable {
     }
 
     @XmlElement(name = "context")
-    public void setContextBeanList(List<ContextBean> contextBeanList) {
+    public void setContextBeanList(final List<ContextBean> contextBeanList) {
         this.contextBeanList = contextBeanList;
     }
 
@@ -73,7 +73,7 @@ public class PingTaskBean implements Serializable {
     }
 
     @XmlAttribute(required = true)
-    public void setDatasource(String datasource) {
+    public void setDatasource(final String datasource) {
         this.datasource = BeanHelper.normalizeToEmpty(datasource);
     }
 
@@ -87,7 +87,7 @@ public class PingTaskBean implements Serializable {
     }
 
     @XmlAttribute
-    public void setExecutions(int executions) {
+    public void setExecutions(final int executions) {
         this.executions = executions;
     }
 
@@ -101,7 +101,7 @@ public class PingTaskBean implements Serializable {
     }
 
     @XmlElement(name = "log-file")
-    public void setLogFile(String logFile) {
+    public void setLogFile(final String logFile) {
         this.logFile = BeanHelper.normalizeToEmpty(logFile);
     }
 
@@ -115,7 +115,7 @@ public class PingTaskBean implements Serializable {
     }
 
     @XmlAttribute(required = true)
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = BeanHelper.normalizeToEmpty(name);
     }
 
@@ -130,7 +130,7 @@ public class PingTaskBean implements Serializable {
 
     @XmlElements({ @XmlElement(name = "query", type = SqlStatementBean.class),
             @XmlElement(name = "script", type = SqlScriptBean.class) })
-    public void setSqlStatementList(List<SqlCommandBean> sqlStatementList) {
+    public void setSqlStatementList(final List<SqlCommandBean> sqlStatementList) {
         this.sqlStatementList = sqlStatementList;
     }
 
@@ -144,7 +144,7 @@ public class PingTaskBean implements Serializable {
     }
 
     @XmlAttribute
-    public void setThreads(int threads) {
+    public void setThreads(final int threads) {
         this.threads = Math.max(threads, 1);
     }
 
@@ -158,7 +158,7 @@ public class PingTaskBean implements Serializable {
     }
 
     @XmlAttribute(required = true)
-    public void setTimeBetweenExecutions(int timeBetweenExecutions) {
+    public void setTimeBetweenExecutions(final int timeBetweenExecutions) {
         this.timeBetweenExecutions = timeBetweenExecutions;
     }
 }

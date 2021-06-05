@@ -38,7 +38,7 @@ public class ExecutableScript implements ExecutableCommand {
     public SqlScriptBean bean;
     private final List<AbstractExecutableStatement<?>> executableStatementList = new ArrayList<>();
 
-    public ExecutableScript(SqlScriptBean bean) {
+    public ExecutableScript(final SqlScriptBean bean) {
         this.bean = bean;
     }
 
@@ -73,7 +73,7 @@ public class ExecutableScript implements ExecutableCommand {
 
             executableStatementList.forEach(s -> {
                 try {
-                    ExecutionContext delegateContext = new ExecutionContext(context);
+                    final ExecutionContext delegateContext = new ExecutionContext(context);
                     delegateContext.getConfiguration().setProperty(ExecutionContext.PARENT_NAME_PROPERTY,
                             ConfigurationUtil.interpolate(bean.getLabel(), delegateContext.getConfiguration()));
                     if (!getBean().getContextBeanList().isEmpty()) {
@@ -90,7 +90,7 @@ public class ExecutableScript implements ExecutableCommand {
         }
     }
 
-    private void log(ExecutionContext context, Exception e) {
+    private void log(final ExecutionContext context, final Exception e) {
         context.getLogWriter().write(context.getLogEntryBuilder().withException(e).build());
         LOGGER.warn("Job error (Context: {}, Statement: {}'): {}", context.getName(), bean.getLabel(),
                 e.getMessage());

@@ -44,7 +44,7 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
      * @param bean the configuration object
      * @throws IOException if an error occurs when reading parameter values
      */
-    public ExecutablePreparedStatement(SqlStatementBean bean) throws IOException {
+    public ExecutablePreparedStatement(final SqlStatementBean bean) throws IOException {
         super(bean);
     }
 
@@ -64,7 +64,7 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
             // sets the connection time
             context.getLogEntryBuilder().connect();
 
-            String sql = compileSql(context);
+            final String sql = compileSql(context);
             try (PreparedStatement stmt = connection.prepareStatement(sql)) {
                 doExecute(context, stmt);
             }
@@ -82,7 +82,7 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         }
     }
 
-    private void populateClientInfo(Connection connection) {
+    private void populateClientInfo(final Connection connection) {
 
         try {
             if (StringUtils.containsIgnoreCase(connection.getMetaData().getDriverName(), "oracle")) {
@@ -95,7 +95,7 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         }
     }
 
-    public void execute(final ExecutionContext context, Connection connection) throws ExecutableException {
+    public void execute(final ExecutionContext context, final Connection connection) throws ExecutableException {
 
         populateClientInfo(connection);
 
@@ -108,7 +108,7 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
                 .connect(); // connection already established so the connection-time must be zero
 
         try {
-            String sql = compileSql(context);
+            final String sql = compileSql(context);
             try (PreparedStatement stmt = connection.prepareStatement(sql)) {
                 doExecute(context, stmt);
             } catch (SQLException | IOException e) {
@@ -119,11 +119,11 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         }
     }
 
-    protected void addBatch(ExecutionContext context, PreparedStatement stmt) throws SQLException {
+    protected void addBatch(final ExecutionContext context, final PreparedStatement stmt) throws SQLException {
         stmt.addBatch();
     }
 
-    protected boolean executeStatement(ExecutionContext context, PreparedStatement stmt) throws SQLException {
+    protected boolean executeStatement(final ExecutionContext context, final PreparedStatement stmt) throws SQLException {
         return stmt.execute();
     }
 
@@ -134,7 +134,7 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
             throws SQLException, ParseException, IOException {
 
         LOGGER.trace("Setting parameter values (index: {}, type: {})", index, parameter.getType());
-        String value = parameter.getValue(context);
+        final String value = parameter.getValue(context);
         switch (parameter.getType().toUpperCase()) {
             case "INTEGER":
                 statement.setInt(index, Integer.parseInt(value));

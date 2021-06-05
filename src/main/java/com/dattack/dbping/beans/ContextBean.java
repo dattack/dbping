@@ -38,7 +38,7 @@ public class ContextBean implements Serializable {
     }
 
     @XmlAttribute
-    public void setActivation(String activation) {
+    public void setActivation(final String activation) {
         this.activation = BeanHelper.normalizeToEmpty(activation);
     }
 
@@ -47,7 +47,7 @@ public class ContextBean implements Serializable {
     }
 
     @XmlAttribute(required = true)
-    public void setKey(String key) {
+    public void setKey(final String key) {
         this.key = BeanHelper.normalizeToEmpty(key);
     }
 
@@ -56,7 +56,7 @@ public class ContextBean implements Serializable {
     }
 
     @XmlAttribute
-    public void setUnset(String unset) {
+    public void setUnset(final String unset) {
         this.unset = BeanHelper.normalizeToEmpty(unset);
     }
 
@@ -65,7 +65,7 @@ public class ContextBean implements Serializable {
     }
 
     @XmlAttribute(required = true)
-    public void setValue(String value) {
+    public void setValue(final String value) {
         this.value = BeanHelper.normalizeToEmpty(value);
     }
 }

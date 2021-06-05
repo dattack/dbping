@@ -40,7 +40,7 @@ public class SqlCommandWeightedRandomProvider extends SqlCommandProvider {
     }
 
     // the cumulative density function
-    private float[] cdf(List<SqlCommandBean> sentenceList) {
+    private float[] cdf(final List<SqlCommandBean> sentenceList) {
 
         float totalWeight = 0;
         for (final SqlCommandBean sentence : sentenceList) {
@@ -61,7 +61,7 @@ public class SqlCommandWeightedRandomProvider extends SqlCommandProvider {
     }
 
     @Override
-    protected void prepare(List<SqlCommandBean> sqlList) {
+    protected void prepare(final List<SqlCommandBean> sqlList) {
         this.cumulativeWeight = cdf(sqlList);
     }
 

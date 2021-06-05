@@ -64,7 +64,7 @@ public final class PingEngine {
         return sentenceProvider;
     }
 
-    private void execute(PingTaskBean pingTaskBean) throws IOException {
+    private void execute(final PingTaskBean pingTaskBean) throws IOException {
 
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 
@@ -87,7 +87,7 @@ public final class PingEngine {
 
         if (commandProvider.getSize() > 0) {
             for (int i = 0; i < pingTaskBean.getThreads(); i++) {
-                BaseConfiguration threadConfig = new BaseConfiguration();
+                final BaseConfiguration threadConfig = new BaseConfiguration();
                 threadConfig.copy(conf);
                 new Thread(new PingJob(pingTaskBean, dataSource, commandProvider, logWriter, threadConfig)).start();
             }
@@ -106,10 +106,10 @@ public final class PingEngine {
     public void execute(final String[] filenames, final Set<String> taskNames)
             throws DattackParserException, IOException {
 
-        PingTaskSelector selector = new PingTaskSelector();
-        Map<String, List<PingTaskBean>> map = selector.filter(filenames, taskNames);
-        for (List<PingTaskBean> list : map.values()) {
-            for (PingTaskBean bean : list) {
+        final PingTaskSelector selector = new PingTaskSelector();
+        final Map<String, List<PingTaskBean>> map = selector.filter(filenames, taskNames);
+        for (final List<PingTaskBean> list : map.values()) {
+            for (final PingTaskBean bean : list) {
                 execute(bean);
             }
         }

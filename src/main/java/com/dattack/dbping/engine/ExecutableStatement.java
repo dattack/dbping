@@ -97,7 +97,7 @@ public final class ExecutableStatement extends AbstractExecutableStatement<State
                                      final ParameterRecorder parameterRecorder, final ExecutionContext context)
             throws IOException {
 
-        String value = parameter.getValue(context);
+        final String value = parameter.getValue(context);
         sqlThreadLocal.set(sqlThreadLocal.get().replaceFirst("\\?", value));
         parameterRecorder.save(index, value);
     }

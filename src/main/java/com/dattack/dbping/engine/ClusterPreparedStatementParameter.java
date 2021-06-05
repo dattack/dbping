@@ -45,7 +45,7 @@ public class ClusterPreparedStatementParameter extends AbstractPreparedStatement
     public ClusterPreparedStatementParameter(final ClusterSqlParameterBean parameterBean) {
         super(parameterBean);
         this.parameterList = new ArrayList<>();
-        for (SimpleSqlParameterBean childBean : parameterBean.getParameterList()) {
+        for (final SimpleSqlParameterBean childBean : parameterBean.getParameterList()) {
             parameterList.add(new SimplePreparedStatementParameter(childBean));
         }
     }
@@ -60,7 +60,7 @@ public class ClusterPreparedStatementParameter extends AbstractPreparedStatement
 
     protected List<String[]> loadValues(final ExecutionContext context) throws IOException {
 
-        List<String[]> valueList = new ArrayList<>();
+        final List<String[]> valueList = new ArrayList<>();
         if (StringUtils.isNotBlank(getBean().getFile())) {
             try (Stream<String> stream = Files.lines(Paths.get(
                     ConfigurationUtil.interpolate(getBean().getFile(), context.getConfiguration())))) {

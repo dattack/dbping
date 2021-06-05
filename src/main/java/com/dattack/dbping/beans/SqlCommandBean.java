@@ -59,7 +59,7 @@ public abstract class SqlCommandBean implements Serializable {
     }
 
     @XmlAttribute
-    public void setMaxRowsToDump(int maxRowsToDump) {
+    public void setMaxRowsToDump(final int maxRowsToDump) {
         this.maxRowsToDump = Math.max(0, maxRowsToDump);
     }
 

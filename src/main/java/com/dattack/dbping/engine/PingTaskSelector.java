@@ -54,7 +54,7 @@ public final class PingTaskSelector {
 
     private HashMap<String, List<PingTaskBean>> filter(final File file, final Set<String> taskNames) {
 
-        HashMap<String, List<PingTaskBean>> map = new HashMap<>();
+        final HashMap<String, List<PingTaskBean>> map = new HashMap<>();
         if (file.isDirectory()) {
 
             final File[] files = file.listFiles(FilesystemUtils.createFilenameFilterByExtension("xml"));
@@ -68,7 +68,7 @@ public final class PingTaskSelector {
 
             try {
                 final DbpingBean dbpingBean = DbpingParser.parse(file);
-                List<PingTaskBean> list = new ArrayList<>();
+                final List<PingTaskBean> list = new ArrayList<>();
                 map.put(file.toString(), list);
                 for (final PingTaskBean pingTaskBean : dbpingBean.getTaskList()) {
 
@@ -96,7 +96,7 @@ public final class PingTaskSelector {
      */
     public Map<String, List<PingTaskBean>> filter(final String[] filenames, final Set<String> taskNames) {
 
-        HashMap<String, List<PingTaskBean>> map = new HashMap<>();
+        final HashMap<String, List<PingTaskBean>> map = new HashMap<>();
         for (final String filename : filenames) {
             map.putAll(filter(new File(filename), taskNames));
         }

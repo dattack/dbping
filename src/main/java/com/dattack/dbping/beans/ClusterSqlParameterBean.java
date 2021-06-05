@@ -34,7 +34,7 @@ public class ClusterSqlParameterBean extends AbstractSqlParameterBean {
     private List<SimpleSqlParameterBean> parameterList = new ArrayList<>();
 
     @Override
-    public void accept(SqlParameterBeanVisitor visitor) {
+    public void accept(final SqlParameterBeanVisitor visitor) {
         visitor.visit(this);
     }
 
@@ -43,7 +43,7 @@ public class ClusterSqlParameterBean extends AbstractSqlParameterBean {
     }
 
     @XmlAttribute(required = true)
-    public void setFile(String file) {
+    public void setFile(final String file) {
         this.file = BeanHelper.normalizeToEmpty(file);
     }
 
@@ -52,7 +52,7 @@ public class ClusterSqlParameterBean extends AbstractSqlParameterBean {
     }
 
     @XmlElement(name = "parameter", required = true)
-    public void setParameterList(List<SimpleSqlParameterBean> parameterList) {
+    public void setParameterList(final List<SimpleSqlParameterBean> parameterList) {
         this.parameterList = parameterList;
     }
 }

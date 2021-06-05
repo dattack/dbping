@@ -34,7 +34,7 @@ public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
     private String value;
 
     @Override
-    public void accept(SqlParameterBeanVisitor visitor) {
+    public void accept(final SqlParameterBeanVisitor visitor) {
         visitor.visit(this);
     }
 
@@ -43,7 +43,7 @@ public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
     }
 
     @XmlAttribute
-    public void setFile(String file) {
+    public void setFile(final String file) {
         this.file = BeanHelper.normalizeToEmpty(file);
     }
 
@@ -52,7 +52,7 @@ public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
     }
 
     @XmlAttribute
-    public void setFormat(String format) {
+    public void setFormat(final String format) {
         this.format = BeanHelper.normalizeToEmpty(format);
     }
 
@@ -61,7 +61,7 @@ public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
     }
 
     @XmlAttribute
-    public void setRef(int ref) {
+    public void setRef(final int ref) {
         this.ref = ref;
     }
 
@@ -70,7 +70,7 @@ public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
     }
 
     @XmlAttribute(required = true)
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = BeanHelper.normalizeToEmpty(type);
     }
 
@@ -79,7 +79,7 @@ public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
     }
 
     @XmlAttribute
-    public void setValue(String value) {
+    public void setValue(final String value) {
         this.value = BeanHelper.normalizeToEmpty(value);
     }
 }

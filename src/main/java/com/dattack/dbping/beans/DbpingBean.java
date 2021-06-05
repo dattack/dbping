@@ -40,7 +40,7 @@ public class DbpingBean implements Serializable {
     }
 
     @XmlElement(name = "task", required = true, type = PingTaskBean.class)
-    public void setTaskList(List<PingTaskBean> taskList) {
+    public void setTaskList(final List<PingTaskBean> taskList) {
         this.taskList = taskList;
     }
 }

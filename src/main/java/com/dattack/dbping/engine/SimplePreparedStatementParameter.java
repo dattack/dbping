@@ -45,7 +45,7 @@ public class SimplePreparedStatementParameter extends AbstractPreparedStatementP
         super(parameterBean);
     }
 
-    public SimplePreparedStatementParameter(final SimpleSqlParameterBean parameterBean, String... values) {
+    public SimplePreparedStatementParameter(final SimpleSqlParameterBean parameterBean, final String... values) {
         super(parameterBean, Arrays.asList(values));
     }
 
@@ -67,7 +67,7 @@ public class SimplePreparedStatementParameter extends AbstractPreparedStatementP
 
     protected List<String> loadValues(final ExecutionContext context) throws IOException {
 
-        List<String> valueList = new ArrayList<>();
+        final List<String> valueList = new ArrayList<>();
         if (StringUtils.isNotBlank(getBean().getFile())) {
             try (Stream<String> stream = Files.lines(Paths.get(
                     ConfigurationUtil.interpolate(getBean().getFile(), context.getConfiguration())))) {

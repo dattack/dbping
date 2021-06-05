@@ -131,10 +131,10 @@ public class CSVFileLogWriter implements LogWriter {
             int labelLength = 0;
             csvBuilder.comment(" SQL Sentences:");
 
-            BaseConfiguration baseConfiguration = new BaseConfiguration();
+            final BaseConfiguration baseConfiguration = new BaseConfiguration();
             baseConfiguration.setProperty(ExecutionContext.PARENT_NAME_PROPERTY, header.getPingTaskBean().getName());
 
-            CompositeConfiguration configuration = new CompositeConfiguration();
+            final CompositeConfiguration configuration = new CompositeConfiguration();
             configuration.addConfiguration(ConfigurationUtil.createEnvSystemConfiguration());
             configuration.addConfiguration(baseConfiguration);
 
@@ -146,7 +146,7 @@ public class CSVFileLogWriter implements LogWriter {
 
                     @Override
                     public void visit(final SqlScriptBean command) {
-                        String commandLabel = ConfigurationUtil.interpolate(command.getLabel(), configuration);
+                        final String commandLabel = ConfigurationUtil.interpolate(command.getLabel(), configuration);
                         csvBuilder.comment("  - " + commandLabel + ": ");
 
                         baseConfiguration.setProperty(ExecutionContext.PARENT_NAME_PROPERTY, commandLabel);
@@ -161,7 +161,7 @@ public class CSVFileLogWriter implements LogWriter {
                         addComment(command, false);
                     }
 
-                    private void addComment(final SqlStatementBean item, boolean insideScript) {
+                    private void addComment(final SqlStatementBean item, final boolean insideScript) {
                         String sql;
                         try {
                             sql = BeanHelper.normalizeToEmpty(BeanHelper.getPlainSql(item.getSql(), configuration));
@@ -169,7 +169,7 @@ public class CSVFileLogWriter implements LogWriter {
                             sql = e.getMessage();
                         }
 
-                        String pattern = insideScript ? "    |-- %s: %s" : "  - %s: %s";
+                        final String pattern = insideScript ? "    |-- %s: %s" : "  - %s: %s";
                         csvBuilder.comment(String.format(pattern,
                                 ConfigurationUtil.interpolate(item.getLabel(), configuration), sql));
                     }

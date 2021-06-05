@@ -98,7 +98,7 @@ public final class PingAnalyzerCli {
     }
 
     private static Instant parseInstant(final String txt) {
-        ZoneId timeZone = ZoneId.systemDefault();
+        final ZoneId timeZone = ZoneId.systemDefault();
         return LocalDateTime.parse(txt, DateTimeFormatter.ISO_DATE_TIME).atZone(timeZone).toInstant();
     }
 

@@ -38,7 +38,7 @@ public abstract class AbstractSqlParameterBean implements Serializable {
     }
 
     @XmlAttribute
-    public void setIterations(int iterations) {
+    public void setIterations(final int iterations) {
         this.iterations = Math.max(iterations, 1);
     }
 
@@ -47,7 +47,7 @@ public abstract class AbstractSqlParameterBean implements Serializable {
     }
 
     @XmlAttribute(required = true)
-    public void setOrder(int order) {
+    public void setOrder(final int order) {
         this.order = order;
     }
 }

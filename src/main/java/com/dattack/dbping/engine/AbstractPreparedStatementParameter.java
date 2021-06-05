@@ -81,7 +81,7 @@ public abstract class AbstractPreparedStatementParameter<T> {
             return null;
         }
 
-        int index = (valueIndex.getAndIncrement() % valueList.size());
+        final int index = (valueIndex.getAndIncrement() % valueList.size());
         return valueList.get(index);
     }
 

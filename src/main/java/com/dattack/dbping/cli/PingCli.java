@@ -81,20 +81,20 @@ public final class PingCli {
 
     private static void list(final String[] filenames, final Set<String> taskNames) {
 
-        PingTaskSelector selector = new PingTaskSelector();
-        Map<String, List<PingTaskBean>> map = selector.filter(filenames, taskNames);
+        final PingTaskSelector selector = new PingTaskSelector();
+        final Map<String, List<PingTaskBean>> map = selector.filter(filenames, taskNames);
 
-        List<String> keys = new ArrayList<>(map.keySet());
+        final List<String> keys = new ArrayList<>(map.keySet());
         Collections.sort(keys);
 
         System.out.println("TASKS LIST");
 
-        for (String key : keys) {
+        for (final String key : keys) {
             System.out.format("%n- %s%n", key);
-            List<PingTaskBean> tasks = map.get(key);
+            final List<PingTaskBean> tasks = map.get(key);
             Collections.sort(tasks, Comparator.comparing(PingTaskBean::getName));
 
-            for (PingTaskBean bean : tasks) {
+            for (final PingTaskBean bean : tasks) {
                 System.out.format("    - %s%n", bean.getName());
             }
         }

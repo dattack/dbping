@@ -73,7 +73,7 @@ public class SqlStatementBean extends SqlCommandBean {
     }
 
     @XmlAttribute
-    public void setBatchSize(int batchSize) {
+    public void setBatchSize(final int batchSize) {
         this.batchSize = batchSize;
     }
 
@@ -86,7 +86,7 @@ public class SqlStatementBean extends SqlCommandBean {
     }
 
     @XmlAttribute
-    public void setRepeats(int repeats) {
+    public void setRepeats(final int repeats) {
         this.repeats = repeats;
     }
 

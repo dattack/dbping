@@ -41,7 +41,8 @@ public final class BeanHelper {
         String code = ConfigurationUtil.interpolate(sql, configuration);
 
         if (StringUtils.startsWithIgnoreCase(StringUtils.trimToEmpty(code), FILE_PROTOCOL)) {
-            String path = ConfigurationUtil.interpolate(sql.trim().substring(FILE_PROTOCOL.length()), configuration);
+            final String path = ConfigurationUtil.interpolate(sql.trim().substring(FILE_PROTOCOL.length()),
+                    configuration);
             code = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
 
             // interpolate SQL code

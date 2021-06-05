@@ -51,9 +51,9 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
     private final SqlStatementBean bean;
     private final List<AbstractPreparedStatementParameter<?>> parameterList = new ArrayList<>();
 
-    public AbstractExecutableStatement(SqlStatementBean bean) {
+    public AbstractExecutableStatement(final SqlStatementBean bean) {
         this.bean = bean;
-        for (AbstractSqlParameterBean parameterBean : bean.getParameterList()) {
+        for (final AbstractSqlParameterBean parameterBean : bean.getParameterList()) {
             parameterBean.accept(this);
         }
 
@@ -67,19 +67,19 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
 
     protected final String compileSql(final ExecutionContext context) throws IOException {
         context.set(bean.getContextBeanList());
-        String sql = BeanHelper.getPlainSql(bean.getSql(), context.getConfiguration());
+        final String sql = BeanHelper.getPlainSql(bean.getSql(), context.getConfiguration());
         LOGGER.trace("Executing query {}", sql);
         return sql;
     }
 
 
     @Override
-    public void visit(SimpleSqlParameterBean bean) {
+    public void visit(final SimpleSqlParameterBean bean) {
         parameterList.add(new SimplePreparedStatementParameter(bean));
     }
 
     @Override
-    public void visit(ClusterSqlParameterBean bean) {
+    public void visit(final ClusterSqlParameterBean bean) {
         parameterList.add(new ClusterPreparedStatementParameter(bean));
     }
 
@@ -89,9 +89,10 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
                 e);
     }
 
-    public abstract void execute(final ExecutionContext context, Connection connection) throws ExecutableException;
+    public abstract void execute(final ExecutionContext context, final Connection connection)
+            throws ExecutableException;
 
-    protected void doExecute(final ExecutionContext context, T stmt) throws SQLException, IOException {
+    protected void doExecute(final ExecutionContext context, final T stmt) throws SQLException, IOException {
 
         context.getLogEntryBuilder().withConnectionId(stmt.getConnection().hashCode());
 
@@ -117,7 +118,7 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
 
                 } else {
 
-                    boolean executeResult = executeStatement(context, stmt);
+                    final boolean executeResult = executeStatement(context, stmt);
 
                     if (executeResult) {
                         resultSet = stmt.getResultSet();
@@ -141,7 +142,7 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
         writeResults(context);
     }
 
-    private void prepare(ExecutionContext context, T stmt) throws SQLException,
+    private void prepare(final ExecutionContext context, final T stmt) throws SQLException,
             IOException {
         try {
             populateStatement(context, stmt);
@@ -153,10 +154,10 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
     private void populateStatement(final ExecutionContext context, final T statement)
             throws SQLException, ParseException, IOException {
 
-        ParameterRecorder parameterRecorder = new ParameterRecorder();
+        final ParameterRecorder parameterRecorder = new ParameterRecorder();
 
         int paramIndex = 1;
-        for (AbstractPreparedStatementParameter<?> parameter : parameterList) {
+        for (final AbstractPreparedStatementParameter<?> parameter : parameterList) {
 
             if (parameter instanceof SimplePreparedStatementParameter) {
                 for (int iteration = 0; iteration < parameter.getIterations(); iteration++) {
@@ -164,10 +165,11 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
                             parameterRecorder, context);
                 }
             } else {
-                ClusterPreparedStatementParameter clusterParameter = (ClusterPreparedStatementParameter) parameter;
+                final ClusterPreparedStatementParameter clusterParameter =
+                        (ClusterPreparedStatementParameter) parameter;
                 for (int iteration = 0; iteration < clusterParameter.getIterations(); iteration++) {
-                    String[] values = clusterParameter.getValue(context);
-                    for (SimplePreparedStatementParameter childParameter : clusterParameter.getParameterList()) {
+                    final String[] values = clusterParameter.getValue(context);
+                    for (final SimplePreparedStatementParameter childParameter : clusterParameter.getParameterList()) {
                         populateStatement(statement, paramIndex++,
                                 new SimplePreparedStatementParameter(childParameter.getBean(),
                                         values[childParameter.getRef()]), parameterRecorder, context);
@@ -201,8 +203,8 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
         }
     }
 
-    protected Date parseDate(String value, String format) throws ParseException {
-        SimpleDateFormat parser = new SimpleDateFormat(format);
+    protected Date parseDate(final String value, final String format) throws ParseException {
+        final SimpleDateFormat parser = new SimpleDateFormat(format);
         return parser.parse(value);
     }
 
@@ -214,7 +216,7 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
             this.log = new StringBuilder();
         }
 
-        protected void save(int index, String value) {
+        protected void save(final int index, final String value) {
             log.append(" p").append(index).append("=").append(value);
         }
 

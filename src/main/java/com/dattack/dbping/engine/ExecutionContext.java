@@ -48,7 +48,7 @@ public final class ExecutionContext {
     private final AbstractConfiguration configuration;
     private long iteration = 0;
 
-    public ExecutionContext(ExecutionContext other) {
+    public ExecutionContext(final ExecutionContext other) {
         this.pingTaskBean = other.pingTaskBean;
         this.dataSource = other.dataSource;
         this.logWriter = other.logWriter;
@@ -67,7 +67,7 @@ public final class ExecutionContext {
      * @param configuration the execution configuration
      */
     public ExecutionContext(final PingTaskBean pingTaskBean, final DataSource dataSource, final LogWriter logWriter,
-                            AbstractConfiguration configuration) {
+                            final AbstractConfiguration configuration) {
         this.pingTaskBean = pingTaskBean;
         this.dataSource = dataSource;
         this.logWriter = logWriter;
@@ -126,7 +126,7 @@ public final class ExecutionContext {
         return pingTaskBean.getExecutions() <= 0 || iteration < pingTaskBean.getExecutions();
     }
 
-    public boolean test(String activation) {
+    public boolean test(final String activation) {
         return StringUtils.isBlank(activation)
                 || ("EVEN".equalsIgnoreCase(activation) && getIteration() % 2 == 0)
                 || ("ODD".equalsIgnoreCase(activation) && getIteration() % 2 != 0);

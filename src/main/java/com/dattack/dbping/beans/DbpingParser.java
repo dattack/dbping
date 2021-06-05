@@ -51,7 +51,7 @@ public final class DbpingParser {
         spf.setNamespaceAware(true);
         spf.setValidating(true);
 
-        try (final FileInputStream fileInputStream = new FileInputStream(file)) {
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
             final InputSource input = new InputSource(fileInputStream);
             final XMLReader xmlreader = spf.newSAXParser().getXMLReader();
             final Source source = new SAXSource(xmlreader, input);
