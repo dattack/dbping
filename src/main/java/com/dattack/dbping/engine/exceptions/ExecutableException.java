@@ -15,6 +15,7 @@
  */
 package com.dattack.dbping.engine.exceptions;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.exception.NestableException;
 
 /**
@@ -50,11 +51,10 @@ public class ExecutableException extends NestableException {
 
     @Override
     public String toString() {
-        return "ExecutableException{" +
-                "message='" + super.getMessage() + '\'' +
-                ", taskName='" + taskName + '\'' +
-                ", sqlLabel='" + sqlLabel + '\'' +
-                ", sqlCode='" + sqlCode + '\'' +
-                "} " + super.toString();
+        return new ToStringBuilder(this)
+                .append("taskName", taskName)
+                .append("sqlLabel", sqlLabel)
+                .append("sqlCode", sqlCode)
+                .toString();
     }
 }

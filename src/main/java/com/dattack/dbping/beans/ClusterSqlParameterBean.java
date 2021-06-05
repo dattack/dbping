@@ -34,7 +34,7 @@ public class ClusterSqlParameterBean extends AbstractSqlParameterBean {
     private List<SimpleSqlParameterBean> parameterList = new ArrayList<>();
 
     @Override
-    public void accept(SqlParameterBeanVisitor visitor){
+    public void accept(SqlParameterBeanVisitor visitor) {
         visitor.visit(this);
     }
 

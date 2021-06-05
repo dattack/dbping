@@ -139,8 +139,7 @@ public class SqlStatementBean extends SqlCommandBean {
      * returns True when the metrics obtained by executing this sentence should not be written in the result file;
      * otherwise, returns False.
      *
-     * @return True when the metrics obtained by executing this sentence should not be written in the result file;
-     * otherwise, returns False
+     * @return true if the metric is not to be written to the result file; otherwise returns false
      */
     public boolean isIgnoreMetrics() {
         return ignoreMetrics;

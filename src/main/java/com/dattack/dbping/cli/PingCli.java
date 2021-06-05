@@ -89,12 +89,12 @@ public final class PingCli {
 
         System.out.println("TASKS LIST");
 
-        for (String key: keys) {
+        for (String key : keys) {
             System.out.format("%n- %s%n", key);
             List<PingTaskBean> tasks = map.get(key);
             Collections.sort(tasks, Comparator.comparing(PingTaskBean::getName));
 
-            for (PingTaskBean bean: tasks) {
+            for (PingTaskBean bean : tasks) {
                 System.out.format("    - %s%n", bean.getName());
             }
         }

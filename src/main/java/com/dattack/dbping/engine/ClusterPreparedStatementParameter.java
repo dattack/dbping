@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 public class ClusterPreparedStatementParameter extends AbstractPreparedStatementParameter<String[]> {
 
     private List<SimplePreparedStatementParameter> parameterList;
+
     /**
      * Default constructor.
      *
@@ -44,7 +45,7 @@ public class ClusterPreparedStatementParameter extends AbstractPreparedStatement
     public ClusterPreparedStatementParameter(final ClusterSqlParameterBean parameterBean) {
         super(parameterBean);
         this.parameterList = new ArrayList<>();
-        for (SimpleSqlParameterBean childBean: parameterBean.getParameterList()) {
+        for (SimpleSqlParameterBean childBean : parameterBean.getParameterList()) {
             parameterList.add(new SimplePreparedStatementParameter(childBean));
         }
     }

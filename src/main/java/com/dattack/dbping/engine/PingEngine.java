@@ -108,8 +108,8 @@ public final class PingEngine {
 
         PingTaskSelector selector = new PingTaskSelector();
         Map<String, List<PingTaskBean>> map = selector.filter(filenames, taskNames);
-        for (List<PingTaskBean> list: map.values()) {
-            for (PingTaskBean bean: list) {
+        for (List<PingTaskBean> list : map.values()) {
+            for (PingTaskBean bean : list) {
                 execute(bean);
             }
         }

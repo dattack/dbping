@@ -190,7 +190,7 @@ public class CSVFileLogWriter implements LogWriter {
                     .append("conn-time", "%9s") //
                     .append("1row-time", "%9s") //
                     .append("total-time", "%10s") //
-                    .append("connection","%s" )
+                    .append("connection", "%s")
                     .append("message").eol();
 
             data = csvBuilder.toString();

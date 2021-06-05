@@ -276,5 +276,7 @@ public class LogEntry implements Serializable {
         return comment;
     }
 
-    public int getConnectionId() { return connectionId; }
+    public int getConnectionId() {
+        return connectionId;
+    }
 }

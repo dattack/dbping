@@ -155,7 +155,8 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
                 statement.setDate(index, new java.sql.Date(parseDate(value, parameter.getFormat()).getTime()));
                 break;
             case "TIMESTAMP":
-                statement.setTimestamp(index, new java.sql.Timestamp(parseDate(value, parameter.getFormat()).getTime()));
+                statement.setTimestamp(index, //
+                        new java.sql.Timestamp(parseDate(value, parameter.getFormat()).getTime()));
                 break;
             case "STRING":
             default:
