@@ -24,7 +24,6 @@ import com.dattack.jtoolbox.exceptions.DattackParserException;
 import com.dattack.jtoolbox.jdbc.JNDIDataSource;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.ConfigurationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;

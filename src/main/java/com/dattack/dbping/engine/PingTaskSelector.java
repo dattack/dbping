@@ -18,29 +18,17 @@ package com.dattack.dbping.engine;
 import com.dattack.dbping.beans.DbpingBean;
 import com.dattack.dbping.beans.DbpingParser;
 import com.dattack.dbping.beans.PingTaskBean;
-import com.dattack.dbping.log.CSVFileLogWriter;
-import com.dattack.dbping.log.LogHeader;
-import com.dattack.dbping.log.LogWriter;
-import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import com.dattack.jtoolbox.exceptions.DattackParserException;
 import com.dattack.jtoolbox.io.FilesystemUtils;
-import com.dattack.jtoolbox.jdbc.JNDIDataSource;
 import com.dattack.jtoolbox.util.CollectionUtils;
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.ConfigurationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.sql.DataSource;
 
 /**
  * Execution engine responsible for starting {@link PingJob}.

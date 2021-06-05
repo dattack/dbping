@@ -15,10 +15,6 @@
  */
 package com.dattack.dbping.engine;
 
-import java.util.List;
-
-import com.dattack.dbping.beans.SqlCommandBean;
-
 /**
  * Implements the round-robin strategy for SQL-sentence selection.
  *

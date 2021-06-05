@@ -15,10 +15,7 @@
  */
 package com.dattack.dbping.engine;
 
-import java.util.List;
 import java.util.Random;
-
-import com.dattack.dbping.beans.SqlCommandBean;
 
 /**
  * Selects a random query from the provided list.

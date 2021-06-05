@@ -15,26 +15,23 @@
  */
 package com.dattack.dbping.cli;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-
+import com.dattack.dbping.report.MetricName;
+import com.dattack.dbping.report.ReportContext;
+import com.dattack.dbping.report.Reporter;
+import com.dattack.jtoolbox.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.configuration.ConfigurationException;
-
-import com.dattack.dbping.report.MetricName;
-import com.dattack.dbping.report.ReportContext;
-import com.dattack.dbping.report.Reporter;
-import com.dattack.jtoolbox.util.TimeUtils;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author cvarela
