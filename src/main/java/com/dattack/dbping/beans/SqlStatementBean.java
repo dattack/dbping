@@ -175,7 +175,7 @@ public class SqlStatementBean extends SqlCommandBean {
     }
 
     @XmlAttribute
-    public void setUsePrepareStatement(final boolean usePrepareStmt) {
+    public void setUsePreparedStatement(final boolean usePrepareStmt) {
         this.usePreparedStmt = usePrepareStmt;
     }
 }
