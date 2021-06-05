@@ -87,10 +87,9 @@ public final class PingEngine {
 
         if (commandProvider.getSize() > 0) {
             for (int i = 0; i < pingTaskBean.getThreads(); i++) {
-                BaseConfiguration copy = new BaseConfiguration();
-                ConfigurationUtils.copy(conf, copy);
-
-                new Thread(new PingJob(pingTaskBean, dataSource, commandProvider, logWriter, copy)).start();
+                BaseConfiguration threadConfig = new BaseConfiguration();
+                threadConfig.copy(conf);
+                new Thread(new PingJob(pingTaskBean, dataSource, commandProvider, logWriter, threadConfig)).start();
             }
         }
     }
