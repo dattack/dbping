@@ -29,6 +29,8 @@ import com.dattack.formats.csv.CSVObject;
 import com.dattack.formats.csv.CSVReader;
 
 /**
+ * Class responsible for reading log files in CSV format.
+ *
  * @author cvarela
  * @since 0.1
  */
@@ -37,8 +39,8 @@ public class CSVFileLogReader implements LogReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CSVFileLogReader.class);
 
-    private final CSVReader reader;
-    private final CSVConfiguration configuration;
+    private final transient CSVReader reader;
+    private final transient CSVConfiguration configuration;
 
     public CSVFileLogReader(final File dataFile) {
         configuration = new CSVConfigurationFactory().create();
@@ -50,6 +52,7 @@ public class CSVFileLogReader implements LogReader {
         reader.close();
     }
 
+    // TODO: refactoring needed (PMD.AvoidSynchronizedAtMethodLevel)
     @Override
     public synchronized LogEntry next() throws IOException {
 
@@ -77,7 +80,6 @@ public class CSVFileLogReader implements LogReader {
                         .build();
             } catch (final ParseException e) {
                 LOGGER.warn(e.getMessage());
-                continue;
             }
         }
     }

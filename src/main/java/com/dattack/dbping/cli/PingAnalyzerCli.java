@@ -32,11 +32,15 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
+ * Starts the Analyzer CLI tool.
+ *
  * @author cvarela
  * @since 0.1
  */
+@SuppressWarnings({"PMD.SystemPrintln", "PMD.AvoidPrintStackTrace"})
 public final class PingAnalyzerCli {
 
     private static final String START_DATE_OPTION = "start_date";
@@ -53,6 +57,7 @@ public final class PingAnalyzerCli {
      * @param args
      *            the program arguments
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public static void main(final String[] args) {
 
         try {
@@ -123,7 +128,7 @@ public final class PingAnalyzerCli {
 
                 @Override
                 public boolean accept(final File dir, final String name) {
-                    return name.toLowerCase().endsWith(".log");
+                    return name.toLowerCase(Locale.getDefault()).endsWith(".log");
                 }
             };
 

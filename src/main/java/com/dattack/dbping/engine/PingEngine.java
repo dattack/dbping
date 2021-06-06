@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.sql.DataSource;
@@ -52,7 +53,7 @@ public final class PingEngine {
             try {
                 sentenceProvider = (SqlCommandProvider) Class.forName(clazzname).newInstance();
             } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                LOGGER.trace(String.format("Using default SqlSentenceProvider: %s", e.getMessage()));
+                LOGGER.trace("Using default SqlSentenceProvider: {}", e.getMessage());
                 // ignore
             }
         }
@@ -63,9 +64,10 @@ public final class PingEngine {
         return sentenceProvider;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private void execute(final PingTaskBean pingTaskBean) throws IOException {
 
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.getDefault());
 
         final CompositeConfiguration conf = new CompositeConfiguration();
         conf.setProperty("task.name", pingTaskBean.getName());

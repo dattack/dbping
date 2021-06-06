@@ -31,46 +31,7 @@ import java.util.List;
  */
 public abstract class SqlCommandProvider implements SqlCommandVisitor<IOException> {
 
-    private final List<ExecutableCommand> executableCommandList = new ArrayList<>();
-
-    /**
-     * Returns the next ExecutableCommand to execute.
-     *
-     * @return the next ExecutableCommand to execute
-     */
-    abstract ExecutableCommand nextSql();
-
-    /**
-     * Sets the list os sentences to be executed.
-     *
-     * @param sqlList the list of sentences to be executed.
-     */
-    final synchronized void setSentences(final List<SqlCommandBean> sqlList) throws IOException {
-
-        executableCommandList.clear();
-
-        for (final SqlCommandBean bean : sqlList) {
-            bean.accept(this);
-        }
-
-        prepare(sqlList);
-    }
-
-    protected void prepare(final List<SqlCommandBean> sqlList) {
-        // empty by default
-    }
-
-    protected final boolean isEmpty() {
-        return executableCommandList.isEmpty();
-    }
-
-    protected final ExecutableCommand getCommand(final int index) {
-        return executableCommandList.get(index);
-    }
-
-    protected final int getSize() {
-        return executableCommandList.size();
-    }
+    private final transient List<ExecutableCommand> executableCommandList = new ArrayList<>();
 
     @Override
     public void visit(final SqlScriptBean bean) throws IOException {
@@ -92,6 +53,48 @@ public abstract class SqlCommandProvider implements SqlCommandVisitor<IOExceptio
         if (!bean.isSkip()) {
             executableCommandList.add(createExecutableStatement(bean));
         }
+    }
+
+    protected final ExecutableCommand getCommand(final int index) {
+        return executableCommandList.get(index);
+    }
+
+    protected final int getSize() {
+        return executableCommandList.size();
+    }
+
+    protected final boolean isEmpty() {
+        return executableCommandList.isEmpty();
+    }
+
+    @SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
+    protected void prepare(final List<SqlCommandBean> sqlList) {
+        // empty by default
+    }
+
+    /**
+     * Returns the next ExecutableCommand to execute.
+     *
+     * @return the next ExecutableCommand to execute
+     */
+    /* package */ abstract ExecutableCommand nextSql();
+
+    /**
+     * Sets the list os sentences to be executed.
+     *
+     * @param sqlList the list of sentences to be executed.
+     */
+
+    // TODO: refactoring needed (PMD.AvoidSynchronizedAtMethodLevel)
+    /* package */ final synchronized void setSentences(final List<SqlCommandBean> sqlList) throws IOException {
+
+        executableCommandList.clear();
+
+        for (final SqlCommandBean bean : sqlList) {
+            bean.accept(this);
+        }
+
+        prepare(sqlList);
     }
 
     private AbstractExecutableStatement<?> createExecutableStatement(final SqlStatementBean bean) throws IOException {

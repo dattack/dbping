@@ -35,9 +35,9 @@ public final class ExecutableStatement extends AbstractExecutableStatement<State
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutableStatement.class);
 
-    private static final ThreadLocal<String> sqlThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<String> THREAD_LOCAL = new ThreadLocal<>();
 
-    public ExecutableStatement(final SqlStatementBean bean) throws IOException {
+    public ExecutableStatement(final SqlStatementBean bean) {
         super(bean);
     }
 
@@ -54,7 +54,7 @@ public final class ExecutableStatement extends AbstractExecutableStatement<State
             context.getLogEntryBuilder().connect();
 
             try (Statement stmt = connection.createStatement()) {
-                sqlThreadLocal.set(compileSql(context));
+                THREAD_LOCAL.set(compileSql(context));
                 doExecute(context, stmt);
             }
 
@@ -72,6 +72,7 @@ public final class ExecutableStatement extends AbstractExecutableStatement<State
      * @param connection the connection to the database
      * @throws ExecutableException if an error occurs when collecting the metrics
      */
+    @Override
     public void execute(final ExecutionContext context, final Connection connection) throws ExecutableException {
 
         context.getLogEntryBuilder() //
@@ -82,7 +83,7 @@ public final class ExecutableStatement extends AbstractExecutableStatement<State
                 .connect();
 
         try (Statement stmt = connection.createStatement()) {
-            sqlThreadLocal.set(compileSql(context));
+            THREAD_LOCAL.set(compileSql(context));
             doExecute(context, stmt);
 
         } catch (SQLException | IOException e) {
@@ -98,18 +99,18 @@ public final class ExecutableStatement extends AbstractExecutableStatement<State
             throws IOException {
 
         final String value = parameter.getValue(context);
-        sqlThreadLocal.set(sqlThreadLocal.get().replaceFirst("\\?", value));
+        THREAD_LOCAL.set(THREAD_LOCAL.get().replaceFirst("\\?", value));
         parameterRecorder.save(index, value);
     }
 
+    @Override
     protected void addBatch(final ExecutionContext context, final Statement stmt) throws SQLException {
-        stmt.addBatch(sqlThreadLocal.get());
+        stmt.addBatch(THREAD_LOCAL.get());
     }
 
-    protected boolean executeStatement(final ExecutionContext context, final Statement stmt) throws IOException,
-            SQLException {
-
-        LOGGER.trace("Executing statement: {}", sqlThreadLocal.get());
-        return stmt.execute(sqlThreadLocal.get());
+    @Override
+    protected boolean executeStatement(final ExecutionContext context, final Statement stmt) throws SQLException {
+        LOGGER.trace("Executing statement: {}", THREAD_LOCAL.get());
+        return stmt.execute(THREAD_LOCAL.get());
     }
 }

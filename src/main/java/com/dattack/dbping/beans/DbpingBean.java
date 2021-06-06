@@ -22,6 +22,20 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * Bean that maps to the root element of the configuration XML documents. Contains a list of {@link PingTaskBean}.
+ *
+ * <pre>{@code
+ * <dbping>
+ *     <task ...>
+ *           ...
+ *     </task>
+ *     ...
+ *     <task ...>
+ *           ...
+ *     </task>
+ * </dbping>
+ * }</pre>
+ *
  * @author cvarela
  * @since 0.1
  */
@@ -32,9 +46,6 @@ public class DbpingBean implements Serializable {
 
     private List<PingTaskBean> taskList = new ArrayList<>();
 
-    /**
-     * @return the taskList
-     */
     public List<PingTaskBean> getTaskList() {
         return taskList;
     }

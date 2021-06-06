@@ -19,11 +19,13 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author cvarela
  * @since 0.1
  */
+@SuppressWarnings("PMD.DataClass")
 public class ReportContext {
 
     private SimpleDateFormat dateFormat;
@@ -35,7 +37,7 @@ public class ReportContext {
     private final List<MetricName> metricNameList;
 
     public ReportContext() {
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         this.metricNameList = new ArrayList<MetricName>();
     }
 

@@ -41,12 +41,12 @@ public final class ExecutionContext {
 
     public static final String PARENT_NAME_PROPERTY = "parent.name";
 
-    private final DataSource dataSource;
-    private final PingTaskBean pingTaskBean;
+    private final transient DataSource dataSource;
+    private final transient PingTaskBean pingTaskBean;
     private final LogWriter logWriter;
     private final LogEntry.LogEntryBuilder logEntryBuilder;
     private final AbstractConfiguration configuration;
-    private long iteration = 0;
+    private transient long iteration;
 
     public ExecutionContext(final ExecutionContext other) {
         this.pingTaskBean = other.pingTaskBean;
@@ -76,6 +76,7 @@ public final class ExecutionContext {
         this.logEntryBuilder = new LogEntry.LogEntryBuilder() //
                 .withTaskName(pingTaskBean.getName()) //
                 .withThreadName(threadName);
+        this.iteration = 0;
     }
 
     public Connection getConnection() throws SQLException {
@@ -128,8 +129,8 @@ public final class ExecutionContext {
 
     public boolean test(final String activation) {
         return StringUtils.isBlank(activation)
-                || ("EVEN".equalsIgnoreCase(activation) && getIteration() % 2 == 0)
-                || ("ODD".equalsIgnoreCase(activation) && getIteration() % 2 != 0);
+                || "EVEN".equalsIgnoreCase(activation) && getIteration() % 2 == 0
+                || "ODD".equalsIgnoreCase(activation) && getIteration() % 2 != 0;
     }
 
     public void set(final List<ContextBean> list) {

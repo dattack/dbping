@@ -27,67 +27,43 @@ import javax.xml.bind.annotation.XmlElements;
  * @author cvarela
  * @since 0.1
  */
+@SuppressWarnings("PMD.DataClass")
 public class SqlStatementBean extends SqlCommandBean {
 
     private static final long serialVersionUID = -5343761660462688691L;
 
-    private int fetchSize = -1;
-    private boolean ignoreMetrics = false;
-    private String label;
-    private List<AbstractSqlParameterBean> parameterList = new ArrayList<>();
-    private boolean skip = false;
+    private int batchSize;
+    private int fetchSize;
+    private boolean ignoreMetrics;
+    private List<AbstractSqlParameterBean> parameterList;
+    private int repeats;
+    private boolean skip;
     private String sql;
-    private boolean usePreparedStmt = true;
-    private float weight = -1;
-    private int repeats = 1;
-    private int batchSize = 1;
+    private boolean usePreparedStatement;
+
+    public SqlStatementBean() {
+        super();
+        this.batchSize = 1;
+        this.fetchSize = -1;
+        this.ignoreMetrics = false;
+        this.parameterList = new ArrayList<>();
+        this.repeats = 1;
+        this.skip = false;
+        this.usePreparedStatement = true;
+    }
 
     @Override
     public <T extends Throwable> void accept(final SqlCommandVisitor<T> visitor) throws T {
         visitor.visit(this);
     }
 
-    @Override
-    public String getLabel() {
-        return BeanHelper.normalizeToEmpty(label);
-    }
-
-    @XmlAttribute(required = true)
-    public void setLabel(final String label) {
-        this.label = label;
-    }
-
-    /**
-     * Returns the weight assigned to this statement.
-     *
-     * @return the weight assigned to this statement
-     */
-    @Override
-    public float getWeight() {
-        return weight;
-    }
-
-    @XmlAttribute
-    public void setWeight(final float weight) {
-        this.weight = weight;
+    public int getBatchSize() {
+        return batchSize;
     }
 
     @XmlAttribute
     public void setBatchSize(final int batchSize) {
         this.batchSize = batchSize;
-    }
-
-    public int getBatchSize() {
-        return batchSize;
-    }
-
-    public int getRepeats() {
-        return repeats;
-    }
-
-    @XmlAttribute
-    public void setRepeats(final int repeats) {
-        this.repeats = repeats;
     }
 
     /**
@@ -114,11 +90,20 @@ public class SqlStatementBean extends SqlCommandBean {
     }
 
     @XmlElements({ //
-            @XmlElement(name = "parameter", type = SimpleSqlParameterBean.class), //
-            @XmlElement(name = "cluster-parameter", type = ClusterSqlParameterBean.class) //
+        @XmlElement(name = "parameter", type = SimpleSqlParameterBean.class), //
+        @XmlElement(name = "cluster-parameter", type = ClusterSqlParameterBean.class) //
     })
     public void setParameterList(final List<AbstractSqlParameterBean> parameterList) {
         this.parameterList = parameterList;
+    }
+
+    public int getRepeats() {
+        return repeats;
+    }
+
+    @XmlAttribute
+    public void setRepeats(final int repeats) {
+        this.repeats = repeats;
     }
 
     /**
@@ -170,11 +155,11 @@ public class SqlStatementBean extends SqlCommandBean {
      * @return a boolean indicating whether a PreparedStatement should be used to execute this SQL statement.
      */
     public boolean isUsePreparedStatement() {
-        return usePreparedStmt;
+        return usePreparedStatement;
     }
 
     @XmlAttribute
     public void setUsePreparedStatement(final boolean usePreparedStmt) {
-        this.usePreparedStmt = usePreparedStmt;
+        this.usePreparedStatement = usePreparedStmt;
     }
 }

@@ -25,9 +25,10 @@ import java.util.Random;
  */
 public class SqlCommandRandomProvider extends SqlCommandProvider {
 
-    private final Random randomGenerator;
+    private final transient Random randomGenerator;
 
     public SqlCommandRandomProvider() {
+        super();
         randomGenerator = new Random();
     }
 

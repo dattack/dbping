@@ -33,11 +33,11 @@ class PingJob implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PingJob.class);
 
-    private final PingTaskBean pingTaskBean;
-    private final DataSource dataSource;
-    private final SqlCommandProvider sentenceProvider;
-    private final LogWriter logWriter;
-    private final AbstractConfiguration configuration;
+    private final transient PingTaskBean pingTaskBean;
+    private final transient DataSource dataSource;
+    private final transient SqlCommandProvider sentenceProvider;
+    private final transient LogWriter logWriter;
+    private final transient AbstractConfiguration configuration;
 
     public PingJob(final PingTaskBean pingTaskBean, final DataSource dataSource,
                    final SqlCommandProvider sentenceProvider, final LogWriter logWriter,
@@ -51,6 +51,7 @@ class PingJob implements Runnable {
     }
 
     @Override
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public void run() {
 
         final ExecutionContext context = new ExecutionContext(pingTaskBean, dataSource, logWriter, configuration);

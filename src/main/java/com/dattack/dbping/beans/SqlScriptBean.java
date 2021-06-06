@@ -17,7 +17,6 @@ package com.dattack.dbping.beans;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
@@ -26,47 +25,16 @@ import javax.xml.bind.annotation.XmlElement;
  * @author cvarela
  * @since 0.1
  */
+@SuppressWarnings("PMD.DataClass")
 public class SqlScriptBean extends SqlCommandBean {
 
     private static final long serialVersionUID = 5671689427608954154L;
 
-    private String label;
     private List<SqlStatementBean> statementList = new ArrayList<>();
-    private float weight = -1;
 
     @Override
     public <T extends Throwable> void accept(final SqlCommandVisitor<T> visitor) throws T {
         visitor.visit(this);
-    }
-
-    /**
-     * Returns the label associated with the script.
-     *
-     * @return the label associated with the script
-     */
-    @Override
-    public String getLabel() {
-        return label;
-    }
-
-    @XmlAttribute(required = true)
-    public void setLabel(final String label) {
-        this.label = BeanHelper.normalizeToEmpty(label);
-    }
-
-    /**
-     * Returns the weight assigned to this script.
-     *
-     * @return the weight assigned to this script
-     */
-    @Override
-    public float getWeight() {
-        return weight;
-    }
-
-    @XmlAttribute(name = "weight")
-    public void setWeight(final float weight) {
-        this.weight = weight;
     }
 
     /**

@@ -25,10 +25,17 @@ import com.dattack.dbping.engine.LogEntry;
 import com.dattack.dbping.log.CSVFileLogReader;
 
 /**
+ * HTML report generator.
+ *
  * @author cvarela
  * @since 0.1
  */
-public class Reporter {
+@SuppressWarnings("PMD.ClassNamingConventions")
+public final class Reporter {
+
+    private Reporter() {
+        // utility class
+    }
 
     private static void createHtml(final PrintWriter writer, final String jsFile, final String logFile) {
 
@@ -56,6 +63,8 @@ public class Reporter {
         writer.println("</html>");
     }
 
+    // TODO: refactoring needed
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private static void createJs(final ReportContext context, final PrintWriter writer,
             final CSVFileLogReader logReader) throws IOException {
 
@@ -124,7 +133,6 @@ public class Reporter {
             writer.println(
                     String.format("groups.add({id: '%d', content: '%s', options: {drawPoints: {style: 'circle'}}});",
                             entryGroup.getId(), entryGroup.getName()));
-
         }
 
         writer.println("var container = document.getElementById('visualization');");

@@ -28,14 +28,15 @@ import com.dattack.dbping.beans.SqlCommandBean;
  */
 public class SqlCommandWeightedRandomProvider extends SqlCommandProvider {
 
-    private final Random randomGenerator;
-    private float[] cumulativeWeight;
+    private final transient Random randomGenerator;
+    private transient float[] cumulativeWeight;
 
     private static float norm(final float weight, final float sumWeight) {
         return weight / sumWeight;
     }
 
     public SqlCommandWeightedRandomProvider() {
+        super();
         this.randomGenerator = new Random();
     }
 

@@ -23,12 +23,14 @@ package com.dattack.dbping.engine;
  */
 public class SqlCommandRoundRobinProvider extends SqlCommandProvider {
 
-    private int index;
+    private transient int index;
 
     public SqlCommandRoundRobinProvider() {
+        super();
         index = 0;
     }
 
+    // TODO: refactoring needed (PMD.AvoidSynchronizedAtMethodLevel)
     @Override
     public synchronized ExecutableCommand nextSql() {
 

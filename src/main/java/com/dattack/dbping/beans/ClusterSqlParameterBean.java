@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlElement;
  * @author cvarela
  * @since 0.2
  */
+@SuppressWarnings("PMD.DataClass")
 public class ClusterSqlParameterBean extends AbstractSqlParameterBean {
 
     private static final long serialVersionUID = 6514464346366327811L;

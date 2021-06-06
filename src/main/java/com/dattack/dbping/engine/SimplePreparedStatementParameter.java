@@ -65,6 +65,7 @@ public class SimplePreparedStatementParameter extends AbstractPreparedStatementP
         return getBean().getType();
     }
 
+    @Override
     protected List<String> loadValues(final ExecutionContext context) throws IOException {
 
         final List<String> valueList = new ArrayList<>();

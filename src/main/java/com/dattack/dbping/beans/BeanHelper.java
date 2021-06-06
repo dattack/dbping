@@ -25,6 +25,8 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
+ * Utility class to adapt the values of Beans.
+ *
  * @author cvarela
  * @since 0.1
  */
@@ -36,13 +38,22 @@ public final class BeanHelper {
         // static class
     }
 
+    /**
+     * Replace variables at the indicated value. If the specified value is a URI of the form file://... it reads its
+     * content and will use it as the value to use.
+     *
+     * @param sql           the SQL code or URI to load
+     * @param configuration the configuration variables to be used
+     * @return the interpolated value or empty string when the specified value is null
+     * @throws IOException if an I/O error occurs when reading the URI
+     */
     public static String getPlainSql(final String sql, final AbstractConfiguration configuration) throws IOException {
 
         String code = ConfigurationUtil.interpolate(sql, configuration);
 
         if (StringUtils.startsWithIgnoreCase(StringUtils.trimToEmpty(code), FILE_PROTOCOL)) {
             final String path = ConfigurationUtil.interpolate(sql.trim().substring(FILE_PROTOCOL.length()),
-                    configuration);
+                configuration);
             code = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
 
             // interpolate SQL code
@@ -54,7 +65,7 @@ public final class BeanHelper {
 
     public static String normalizeToEmpty(final String sql) {
         if (Objects.isNull(sql)) {
-            return "";
+            return StringUtils.EMPTY;
         }
         return StringUtils.trimToEmpty(sql.replaceAll("\\s+", " "));
     }

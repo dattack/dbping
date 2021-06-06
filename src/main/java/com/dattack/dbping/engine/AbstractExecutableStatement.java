@@ -22,7 +22,6 @@ import com.dattack.dbping.beans.SimpleSqlParameterBean;
 import com.dattack.dbping.beans.SqlParameterBeanVisitor;
 import com.dattack.dbping.beans.SqlStatementBean;
 import com.dattack.dbping.engine.exceptions.ExecutableException;
-import com.dattack.jtoolbox.jdbc.JDBCUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
@@ -36,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Abstract SQL statement executable.
@@ -43,13 +43,14 @@ import java.util.List;
  * @author cvarela
  * @since 0.2
  */
+@SuppressWarnings("PMD.TooManyMethods")
 public abstract class AbstractExecutableStatement<T extends Statement> implements ExecutableCommand,
-        SqlParameterBeanVisitor {
+    SqlParameterBeanVisitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractExecutableStatement.class);
 
     private final SqlStatementBean bean;
-    private final List<AbstractPreparedStatementParameter<?>> parameterList = new ArrayList<>();
+    private final transient List<AbstractPreparedStatementParameter<?>> parameterList = new ArrayList<>();
 
     public AbstractExecutableStatement(final SqlStatementBean bean) {
         this.bean = bean;
@@ -60,18 +61,13 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
         parameterList.sort(Comparator.comparingInt(AbstractPreparedStatementParameter::getOrder));
     }
 
+    public abstract void execute(final ExecutionContext context, final Connection connection)
+        throws ExecutableException;
+
     @Override
     public final SqlStatementBean getBean() {
         return bean;
     }
-
-    protected final String compileSql(final ExecutionContext context) throws IOException {
-        context.set(bean.getContextBeanList());
-        final String sql = BeanHelper.getPlainSql(bean.getSql(), context.getConfiguration());
-        LOGGER.trace("Executing query {}", sql);
-        return sql;
-    }
-
 
     @Override
     public void visit(final SimpleSqlParameterBean bean) {
@@ -83,56 +79,51 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
         parameterList.add(new ClusterPreparedStatementParameter(bean));
     }
 
-    protected final void throwException(final ExecutionContext context, final Exception e) throws ExecutableException {
-        throw new ExecutableException(context.getName(), getBean().getLabel(),
-                BeanHelper.normalizeToEmpty(getBean().getSql()),
-                e);
+    protected abstract void addBatch(ExecutionContext context, T stmt) throws IOException, SQLException;
+
+    protected final String compileSql(final ExecutionContext context) throws IOException {
+        context.set(bean.getContextBeanList());
+        final String sql = BeanHelper.getPlainSql(bean.getSql(), context.getConfiguration());
+        LOGGER.trace("Executing query {}", sql);
+        return sql;
     }
 
-    public abstract void execute(final ExecutionContext context, final Connection connection)
-            throws ExecutableException;
-
+    // TODO: refactoring needed
     protected void doExecute(final ExecutionContext context, final T stmt) throws SQLException, IOException {
 
         context.getLogEntryBuilder().withConnectionId(stmt.getConnection().hashCode());
 
-        int iteration = 1;
         int batchSize = 0;
         boolean batchMode = false;
-        do {
-            ResultSet resultSet = null;
-            try {
-                setFetchSize(stmt);
-                prepare(context, stmt);
+        for (int iteration = 0; iteration < getBean().getRepeats(); iteration++) {
+            setFetchSize(stmt);
+            prepare(context, stmt);
 
-                if (getBean().getBatchSize() > 1 || getBean().getBatchSize() < 0) {
-                    addBatch(context, stmt);
-                    batchSize++;
-                    batchMode = true;
+            if (getBean().getBatchSize() > 1 || getBean().getBatchSize() < 0) {
+                addBatch(context, stmt);
+                batchSize++;
+                batchMode = true;
 
-                    if (getBean().getBatchSize() > 1 && (batchSize % getBean().getBatchSize() == 0)) {
-                        stmt.executeBatch();
-                        stmt.clearBatch();
-                        batchMode = false;
-                    }
+                if (getBean().getBatchSize() > 1 && (batchSize % getBean().getBatchSize() == 0)) {
+                    stmt.executeBatch();
+                    stmt.clearBatch();
+                    batchMode = false;
+                }
 
-                } else {
+            } else {
 
-                    final boolean executeResult = executeStatement(context, stmt);
+                final boolean executeResult = executeStatement(context, stmt);
 
-                    if (executeResult) {
-                        resultSet = stmt.getResultSet();
+                if (executeResult) {
+                    try (ResultSet resultSet = stmt.getResultSet()) {
                         while (resultSet.next()) {
                             // sets the time for the first row
                             context.getLogEntryBuilder().addRow(resultSet, getBean().getMaxRowsToDump());
                         }
                     }
                 }
-
-            } finally {
-                JDBCUtils.closeQuietly(resultSet);
             }
-        } while (iteration++ < getBean().getRepeats());
+        }
 
         if (batchMode) {
             stmt.executeBatch();
@@ -142,17 +133,31 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
         writeResults(context);
     }
 
-    private void prepare(final ExecutionContext context, final T stmt) throws SQLException,
-            IOException {
-        try {
-            populateStatement(context, stmt);
-        } catch (ParseException e) {
-            throw new SQLException(e);
-        }
+    protected abstract boolean executeStatement(ExecutionContext context, T stmt) throws IOException, SQLException;
+
+    protected Date parseDate(final String value, final String format) throws ParseException {
+        final SimpleDateFormat parser = new SimpleDateFormat(format, Locale.getDefault());
+        return parser.parse(value);
     }
 
-    private void populateStatement(final ExecutionContext context, final T statement)
-            throws SQLException, ParseException, IOException {
+    protected abstract void populateStatement(final T statement, int index,
+                                              final SimplePreparedStatementParameter parameter,
+                                              final ParameterRecorder parameterRecorder,
+                                              final ExecutionContext context)
+        throws SQLException, ParseException, IOException;
+
+    /* package */ final void throwException(final ExecutionContext context, final Exception e)
+        throws ExecutableException {
+
+        throw new ExecutableException(context.getName(), getBean().getLabel(),
+            BeanHelper.normalizeToEmpty(getBean().getSql()),
+            e);
+    }
+
+    // TODO: refactoring needed
+    @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "AccessorMethodGeneration"})
+    private void doPopulateStatement(final ExecutionContext context, final T statement)
+        throws SQLException, ParseException, IOException {
 
         final ParameterRecorder parameterRecorder = new ParameterRecorder();
 
@@ -162,17 +167,17 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
             if (parameter instanceof SimplePreparedStatementParameter) {
                 for (int iteration = 0; iteration < parameter.getIterations(); iteration++) {
                     populateStatement(statement, paramIndex++, (SimplePreparedStatementParameter) parameter,
-                            parameterRecorder, context);
+                        parameterRecorder, context);
                 }
             } else {
                 final ClusterPreparedStatementParameter clusterParameter =
-                        (ClusterPreparedStatementParameter) parameter;
+                    (ClusterPreparedStatementParameter) parameter;
                 for (int iteration = 0; iteration < clusterParameter.getIterations(); iteration++) {
                     final String[] values = clusterParameter.getValue(context);
                     for (final SimplePreparedStatementParameter childParameter : clusterParameter.getParameterList()) {
                         populateStatement(statement, paramIndex++,
-                                new SimplePreparedStatementParameter(childParameter.getBean(),
-                                        values[childParameter.getRef()]), parameterRecorder, context);
+                            new SimplePreparedStatementParameter(childParameter.getBean(),
+                                values[childParameter.getRef()]), parameterRecorder, context);
                     }
                 }
             }
@@ -181,43 +186,39 @@ public abstract class AbstractExecutableStatement<T extends Statement> implement
         context.getLogEntryBuilder().withComment(parameterRecorder.getHash() + parameterRecorder.getLog());
     }
 
-    protected abstract void populateStatement(final T statement, int index,
-                                              final SimplePreparedStatementParameter parameter,
-                                              final ParameterRecorder parameterRecorder,
-                                              final ExecutionContext context)
-            throws SQLException, ParseException, IOException;
+    private void prepare(final ExecutionContext context, final T stmt) throws SQLException,
+        IOException {
+        try {
+            doPopulateStatement(context, stmt);
+        } catch (ParseException e) {
+            throw new SQLException(e);
+        }
+    }
 
-    protected abstract void addBatch(ExecutionContext context, T stmt) throws IOException, SQLException;
-
-    protected abstract boolean executeStatement(ExecutionContext context, T stmt) throws IOException, SQLException;
-
-    protected final void setFetchSize(final Statement stmt) throws SQLException {
+    private void setFetchSize(final Statement stmt) throws SQLException {
         if (bean.getFetchSize() > 0) {
             stmt.setFetchSize(bean.getFetchSize());
         }
     }
 
-    protected final void writeResults(final ExecutionContext context) {
+    private void writeResults(final ExecutionContext context) {
         if (!getBean().isIgnoreMetrics()) {
             context.getLogWriter().write(context.getLogEntryBuilder().build());
         }
     }
 
-    protected Date parseDate(final String value, final String format) throws ParseException {
-        final SimpleDateFormat parser = new SimpleDateFormat(format);
-        return parser.parse(value);
-    }
-
     protected static class ParameterRecorder {
 
+        // TODO: refactoring to remove this suppress warning (PMD.AvoidStringBufferField)
+        @SuppressWarnings("PMD.AvoidStringBufferField")
         private final StringBuilder log;
 
-        private ParameterRecorder() {
+        /* package */ ParameterRecorder() {
             this.log = new StringBuilder();
         }
 
         protected void save(final int index, final String value) {
-            log.append(" p").append(index).append("=").append(value);
+            log.append(" p").append(index).append('=').append(value);
         }
 
         private String getHash() {

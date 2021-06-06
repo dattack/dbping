@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlAttribute;
  * @author cvarela
  * @since 0.2
  */
+@SuppressWarnings("PMD.DataClass")
 public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
 
     private static final long serialVersionUID = 144903240517619788L;

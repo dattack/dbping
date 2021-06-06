@@ -25,7 +25,6 @@ import com.dattack.dbping.engine.ExecutionContext;
 import com.dattack.dbping.engine.LogEntry;
 import com.dattack.formats.csv.CSVStringBuilder;
 import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
-import com.dattack.jtoolbox.io.IOUtils;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.lang.ObjectUtils;
@@ -33,14 +32,16 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class responsible for writing the collected metrics into the log file.
@@ -51,19 +52,28 @@ import java.util.List;
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class CSVFileLogWriter implements LogWriter {
 
+    private static final String DATE_FORMAT = "%-30s";
     private static final Logger LOGGER = LoggerFactory.getLogger(CSVFileLogWriter.class);
 
-    private static final String DATE_FORMAT = "%-30s";
-    private String taskNameFormat = "%s";
-    private String threadNameFormat = "%s";
-    private String labelFormat = "%s";
-
-    private final CSVStringBuilder csvBuilder;
-    private final String filename;
+    private final transient CSVStringBuilder csvBuilder;
+    private final transient String filename;
+    private transient String labelFormat = "%s";
+    private transient String taskNameFormat = "%s";
+    private transient String threadNameFormat = "%s";
 
     public CSVFileLogWriter(final String filename) {
         this.filename = filename;
         this.csvBuilder = new CSVStringBuilder(new CSVConfigurationFactory().create());
+    }
+
+    @Override
+    public void write(final LogHeader logHeader) {
+        doWrite(format(logHeader));
+    }
+
+    @Override
+    public void write(final LogEntry logEntry) {
+        doWrite(format(logEntry));
     }
 
     private void addDataRowList(final List<DataRow> list) {
@@ -77,40 +87,18 @@ public class CSVFileLogWriter implements LogWriter {
         }
     }
 
-    private String format(final LogEntry entry) {
+    // TODO: refactoring needed (PMD.AvoidSynchronizedAtMethodLevel)
+    private synchronized void doWrite(final String message) {
 
-        String data;
-        synchronized (csvBuilder) {
-            csvBuilder.append(new Date(entry.getEventTime())) //
-                    .append(StringUtils.trimToEmpty(entry.getTaskName()), taskNameFormat) //
-                    .append(StringUtils.trimToEmpty(entry.getThreadName()), threadNameFormat) //
-                    .append(entry.getIteration(), "%5d") //
-                    .append(StringUtils.trimToEmpty(entry.getSqlLabel()), labelFormat) //
-                    .append(entry.getRows(), "%8d") //
-                    .append(entry.getConnectionTime(), "%9d") //
-                    .append(entry.getFirstRowTime(), "%9d") //
-                    .append(entry.getTotalTime(), "%10d") //
-                    .append(Integer.toHexString(entry.getConnectionId()), "%s");
-
-            if (entry.getException() != null) {
-                csvBuilder.append(BeanHelper.normalizeToEmpty(entry.getException().getMessage()));
-            } else {
-                csvBuilder.append((String) null);
-            }
-
-            if (entry.getComment() != null) {
-                csvBuilder.comment(BeanHelper.normalizeToEmpty(entry.getComment()), false, false);
-            }
-
-            csvBuilder.eol();
-            addDataRowList(entry.getRowList());
-
-            data = csvBuilder.toString();
-            csvBuilder.clear();
+        try (OutputStream out = getOutputStream()) {
+            out.write(message.getBytes(StandardCharsets.UTF_8));
+        } catch (final IOException e) {
+            LOGGER.warn(e.getMessage());
         }
-        return data;
     }
 
+    // TODO: refactoring needed
+    @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.AccessorMethodGeneration"})
     private String format(final LogHeader header) {
 
         String data;
@@ -122,8 +110,8 @@ public class CSVFileLogWriter implements LogWriter {
             Collections.sort(keys);
 
             for (final String key : keys) {
-                csvBuilder.comment(" " + BeanHelper.normalizeToEmpty(ObjectUtils.toString(key)) + ": " + //
-                        BeanHelper.normalizeToEmpty(ObjectUtils.toString(header.getProperties().get(key))));
+                csvBuilder.comment(" " + BeanHelper.normalizeToEmpty(ObjectUtils.toString(key)) + ": " //
+                    + BeanHelper.normalizeToEmpty(ObjectUtils.toString(header.getProperties().get(key))));
             }
 
             csvBuilder.comment(" DataSource: " + header.getPingTaskBean().getDatasource());
@@ -171,7 +159,7 @@ public class CSVFileLogWriter implements LogWriter {
 
                         final String pattern = insideScript ? "    |-- %s: %s" : "  - %s: %s";
                         csvBuilder.comment(String.format(pattern,
-                                ConfigurationUtil.interpolate(item.getLabel(), configuration), sql));
+                            ConfigurationUtil.interpolate(item.getLabel(), configuration), sql));
                     }
                 });
             }
@@ -181,17 +169,17 @@ public class CSVFileLogWriter implements LogWriter {
             labelFormat = "%-" + Math.max(5, labelLength + 2) + "s";
 
             csvBuilder.comment() //
-                    .append(" date", DATE_FORMAT) //
-                    .append("task  ", taskNameFormat) //
-                    .append("thread  ", threadNameFormat) //
-                    .append("loop", "%5s") //
-                    .append("label", labelFormat) //
-                    .append("rows", "%8s") //
-                    .append("conn-time", "%9s") //
-                    .append("1row-time", "%9s") //
-                    .append("total-time", "%10s") //
-                    .append("connection", "%s")
-                    .append("message").eol();
+                .append(" date", DATE_FORMAT) //
+                .append("task  ", taskNameFormat) //
+                .append("thread  ", threadNameFormat) //
+                .append("loop", "%5s") //
+                .append("label", labelFormat) //
+                .append("rows", "%8s") //
+                .append("conn-time", "%9s") //
+                .append("1row-time", "%9s") //
+                .append("total-time", "%10s") //
+                .append("connection", "%s")
+                .append("message").eol();
 
             data = csvBuilder.toString();
             csvBuilder.clear();
@@ -199,7 +187,41 @@ public class CSVFileLogWriter implements LogWriter {
         return data;
     }
 
-    private FileOutputStream getOutputStream() throws FileNotFoundException {
+    private String format(final LogEntry entry) {
+
+        String data;
+        synchronized (csvBuilder) {
+            csvBuilder.append(new Date(entry.getEventTime())) //
+                .append(StringUtils.trimToEmpty(entry.getTaskName()), taskNameFormat) //
+                .append(StringUtils.trimToEmpty(entry.getThreadName()), threadNameFormat) //
+                .append(entry.getIteration(), "%5d") //
+                .append(StringUtils.trimToEmpty(entry.getSqlLabel()), labelFormat) //
+                .append(entry.getRows(), "%8d") //
+                .append(entry.getConnectionTime(), "%9d") //
+                .append(entry.getFirstRowTime(), "%9d") //
+                .append(entry.getTotalTime(), "%10d") //
+                .append(Integer.toHexString(entry.getConnectionId()), "%s");
+
+            if (Objects.isNull(entry.getException())) {
+                csvBuilder.append((String) null);
+            } else {
+                csvBuilder.append(BeanHelper.normalizeToEmpty(entry.getException().getMessage()));
+            }
+
+            if (entry.getComment() != null) {
+                csvBuilder.comment(BeanHelper.normalizeToEmpty(entry.getComment()), false, false);
+            }
+
+            csvBuilder.eol();
+            addDataRowList(entry.getRowList());
+
+            data = csvBuilder.toString();
+            csvBuilder.clear();
+        }
+        return data;
+    }
+
+    private OutputStream getOutputStream() throws IOException {
 
         final File file = new File(filename);
         if (!file.exists()) {
@@ -208,29 +230,7 @@ public class CSVFileLogWriter implements LogWriter {
                 LOGGER.warn("Unable to create directory: {}", parent);
             }
         }
-        return new FileOutputStream(file, true);
-    }
-
-    @Override
-    public void write(final LogEntry logEntry) {
-        write(format(logEntry));
-    }
-
-    @Override
-    public void write(final LogHeader logHeader) {
-        write(format(logHeader));
-    }
-
-    private synchronized void write(final String message) {
-
-        FileOutputStream out = null;
-        try {
-            out = getOutputStream();
-            out.write(message.getBytes(StandardCharsets.UTF_8));
-        } catch (final IOException e) {
-            LOGGER.warn(e.getMessage());
-        } finally {
-            IOUtils.closeQuietly(out);
-        }
+        return Files.newOutputStream(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE,
+            StandardOpenOption.APPEND);
     }
 }

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -46,7 +47,7 @@ public final class PingTaskSelector {
         if (file.isDirectory()) {
 
             final File[] files = file.listFiles(FilesystemUtils.createFilenameFilterByExtension("xml"));
-            if (files != null) {
+            if (Objects.nonNull(files)) {
                 for (final File child : files) {
                     map.putAll(filter(child, taskNames));
                 }
@@ -82,6 +83,7 @@ public final class PingTaskSelector {
      * @param taskNames the set of task names. It can be empty or null.
      * @return a map containing the tasks that match the searched ones
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public Map<String, List<PingTaskBean>> filter(final String[] filenames, final Set<String> taskNames) {
 
         final HashMap<String, List<PingTaskBean>> map = new HashMap<>();

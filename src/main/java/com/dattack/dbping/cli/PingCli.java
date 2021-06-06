@@ -37,9 +37,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Starts the DBPing CLI tool.
+ *
  * @author cvarela
  * @since 0.1
  */
+@SuppressWarnings({"PMD.SystemPrintln", "PMD.AvoidPrintStackTrace"})
 public final class PingCli {
 
     private static final String FILE_OPTION = "f";
@@ -48,6 +51,10 @@ public final class PingCli {
     private static final String LONG_TASK_NAME_OPTION = "task";
     private static final String LIST_OPTION = "l";
     private static final String LONG_LIST_OPTION = "list";
+
+    private PingCli() {
+        // utility class
+    }
 
     private static Options createOptions() {
 

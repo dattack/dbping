@@ -35,8 +35,8 @@ public class ExecutableScript implements ExecutableCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutableScript.class);
 
-    public SqlScriptBean bean;
-    private final List<AbstractExecutableStatement<?>> executableStatementList = new ArrayList<>();
+    private final transient SqlScriptBean bean;
+    private final transient List<AbstractExecutableStatement<?>> executableStatementList = new ArrayList<>();
 
     public ExecutableScript(final SqlScriptBean bean) {
         this.bean = bean;
@@ -60,6 +60,7 @@ public class ExecutableScript implements ExecutableCommand {
      *
      * @param context the execution context
      */
+    @Override
     public void execute(final ExecutionContext context) {
 
         context.getLogEntryBuilder() //

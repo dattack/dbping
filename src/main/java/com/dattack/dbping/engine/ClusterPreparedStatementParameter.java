@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  */
 public class ClusterPreparedStatementParameter extends AbstractPreparedStatementParameter<String[]> {
 
-    private List<SimplePreparedStatementParameter> parameterList;
+    private final List<SimplePreparedStatementParameter> parameterList;
 
     /**
      * Default constructor.
@@ -58,6 +58,7 @@ public class ClusterPreparedStatementParameter extends AbstractPreparedStatement
         return (ClusterSqlParameterBean) getParameterBean();
     }
 
+    @Override
     protected List<String[]> loadValues(final ExecutionContext context) throws IOException {
 
         final List<String[]> valueList = new ArrayList<>();

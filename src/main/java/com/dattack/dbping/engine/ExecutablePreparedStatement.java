@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.Locale;
 
 /**
  * SQL statement executable in the database using a {@link PreparedStatement}. Before launching the execution it is
@@ -42,9 +43,8 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
      * Default constructor.
      *
      * @param bean the configuration object
-     * @throws IOException if an error occurs when reading parameter values
      */
-    public ExecutablePreparedStatement(final SqlStatementBean bean) throws IOException {
+    public ExecutablePreparedStatement(final SqlStatementBean bean) {
         super(bean);
     }
 
@@ -53,9 +53,9 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
 
         // prepare log for this execution
         context.getLogEntryBuilder() //
-                .init() //
-                .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration())) //
-                .withIteration(context.getIteration());
+            .init() //
+            .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration())) //
+            .withIteration(context.getIteration());
 
         try (Connection connection = context.getConnection()) {
 
@@ -74,38 +74,18 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         }
     }
 
-    private void setClientInfo(final Connection connection, final String key, final String value) {
-        try {
-            connection.setClientInfo(key, value);
-        } catch (SQLException e) {
-            LOGGER.warn(e.getMessage() + "[Key: " + key + ", Value: " + value + "]");
-        }
-    }
-
-    private void populateClientInfo(final Connection connection) {
-
-        try {
-            if (StringUtils.containsIgnoreCase(connection.getMetaData().getDriverName(), "oracle")) {
-                setClientInfo(connection, "OCSID.CLIENTID", "DBPING_ID");
-                setClientInfo(connection, "OCSID.MODULE", "DBPING");
-                setClientInfo(connection, "OCSID.ACTION", "TEST");
-            }
-        } catch (SQLException e) {
-            LOGGER.warn(e.getMessage());
-        }
-    }
-
+    @Override
     public void execute(final ExecutionContext context, final Connection connection) throws ExecutableException {
 
         populateClientInfo(connection);
 
         // prepare log for this execution
         context.getLogEntryBuilder() //
-                .init() //
-                .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration())) //
-                .withIteration(context.getIteration()) //
-                .withConnectionId(connection.hashCode()) //
-                .connect(); // connection already established so the connection-time must be zero
+            .init() //
+            .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration())) //
+            .withIteration(context.getIteration()) //
+            .withConnectionId(connection.hashCode()) //
+            .connect(); // connection already established so the connection-time must be zero
 
         try {
             final String sql = compileSql(context);
@@ -119,23 +99,16 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         }
     }
 
-    protected void addBatch(final ExecutionContext context, final PreparedStatement stmt) throws SQLException {
-        stmt.addBatch();
-    }
-
-    protected boolean executeStatement(final ExecutionContext context, final PreparedStatement stmt) throws SQLException {
-        return stmt.execute();
-    }
-
-    protected void populateStatement(final PreparedStatement statement, int index,
-                                           final SimplePreparedStatementParameter parameter,
-                                           final ParameterRecorder parameterRecorder,
-                                           final ExecutionContext context)
-            throws SQLException, ParseException, IOException {
+    @Override
+    protected void populateStatement(final PreparedStatement statement, final int index,
+                                     final SimplePreparedStatementParameter parameter,
+                                     final ParameterRecorder parameterRecorder,
+                                     final ExecutionContext context)
+        throws SQLException, ParseException, IOException {
 
         LOGGER.trace("Setting parameter values (index: {}, type: {})", index, parameter.getType());
         final String value = parameter.getValue(context);
-        switch (parameter.getType().toUpperCase()) {
+        switch (parameter.getType().toUpperCase(Locale.getDefault())) {
             case "INTEGER":
                 statement.setInt(index, Integer.parseInt(value));
                 break;
@@ -156,13 +129,47 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
                 break;
             case "TIMESTAMP":
                 statement.setTimestamp(index, //
-                        new java.sql.Timestamp(parseDate(value, parameter.getFormat()).getTime()));
+                    new java.sql.Timestamp(parseDate(value, parameter.getFormat()).getTime()));
                 break;
             case "STRING":
             default:
                 statement.setString(index, value);
+                break;
         }
 
         parameterRecorder.save(index, value);
+    }
+
+    @Override
+    protected void addBatch(final ExecutionContext context, final PreparedStatement stmt) throws SQLException {
+        stmt.addBatch();
+    }
+
+    @Override
+    protected boolean executeStatement(final ExecutionContext context, final PreparedStatement stmt)
+        throws SQLException {
+
+        return stmt.execute();
+    }
+
+    private void populateClientInfo(final Connection connection) {
+
+        try {
+            if (StringUtils.containsIgnoreCase(connection.getMetaData().getDriverName(), "oracle")) {
+                setClientInfo(connection, "OCSID.CLIENTID", "DBPING_ID");
+                setClientInfo(connection, "OCSID.MODULE", "DBPING");
+                setClientInfo(connection, "OCSID.ACTION", "TEST");
+            }
+        } catch (SQLException e) {
+            LOGGER.warn(e.getMessage());
+        }
+    }
+
+    private void setClientInfo(final Connection connection, final String key, final String value) {
+        try {
+            connection.setClientInfo(key, value);
+        } catch (SQLException e) {
+            LOGGER.warn("{} [Key: {}, Value: {}]", e.getMessage(), key, value);
+        }
     }
 }

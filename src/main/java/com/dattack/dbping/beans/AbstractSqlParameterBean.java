@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlAttribute;
  * @author cvarela
  * @since 0.2
  */
+@SuppressWarnings("PMD.DataClass")
 public abstract class AbstractSqlParameterBean implements Serializable {
 
     private static final long serialVersionUID = -6189064500896338334L;

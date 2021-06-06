@@ -31,8 +31,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class AbstractPreparedStatementParameter<T> {
 
     private final AbstractSqlParameterBean parameterBean;
-    private List<T> valueList;
-    private final AtomicInteger valueIndex;
+    private final transient AtomicInteger valueIndex;
+    private transient List<T> valueList;
 
     /**
      * Default constructor.
@@ -42,7 +42,6 @@ public abstract class AbstractPreparedStatementParameter<T> {
     public AbstractPreparedStatementParameter(final AbstractSqlParameterBean parameterBean) {
         this.parameterBean = parameterBean;
         this.valueIndex = new AtomicInteger(0);
-        this.valueList = null;
     }
 
     public AbstractPreparedStatementParameter(final AbstractSqlParameterBean parameterBean, final List<T> valueList) {
@@ -51,16 +50,12 @@ public abstract class AbstractPreparedStatementParameter<T> {
         this.valueList = valueList;
     }
 
-    protected final AbstractSqlParameterBean getParameterBean() {
-        return parameterBean;
+    public final int getIterations() {
+        return parameterBean.getIterations();
     }
 
     public final int getOrder() {
         return parameterBean.getOrder();
-    }
-
-    public final int getIterations() {
-        return parameterBean.getIterations();
     }
 
     /**
@@ -68,10 +63,10 @@ public abstract class AbstractPreparedStatementParameter<T> {
      * invocation of this method will return a different value using a Round-Robin algorithm.
      *
      * @param context the execution context
-     *
      * @return returns the next value to use within this parameter.
      * @throws IOException if an I/O error occurs opening the configuration file
      */
+    // TODO: refactoring needed (PMD.AvoidSynchronizedAtMethodLevel)
     public synchronized T getValue(final ExecutionContext context) throws IOException {
         if (Objects.isNull(valueList)) {
             valueList = loadValues(context);
@@ -81,8 +76,12 @@ public abstract class AbstractPreparedStatementParameter<T> {
             return null;
         }
 
-        final int index = (valueIndex.getAndIncrement() % valueList.size());
+        final int index = valueIndex.getAndIncrement() % valueList.size();
         return valueList.get(index);
+    }
+
+    protected final AbstractSqlParameterBean getParameterBean() {
+        return parameterBean;
     }
 
     protected abstract List<T> loadValues(final ExecutionContext context) throws IOException;

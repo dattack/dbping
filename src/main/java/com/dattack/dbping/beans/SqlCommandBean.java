@@ -18,49 +18,73 @@ package com.dattack.dbping.beans;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
+ * Abstract class that executable commands inherit from.
+ *
  * @author cvarela
  * @since 0.1
  */
-public abstract class SqlCommandBean implements Serializable {
+public abstract class SqlCommandBean implements Serializable { //NOPMD
 
     private static final long serialVersionUID = 6216650272101740792L;
 
-    @XmlElement(name = "context")
     private List<ContextBean> contextBeanList;
+    private String label;
     private int maxRowsToDump;
+    private float weight;
 
-    public List<ContextBean> getContextBeanList() {
-        return contextBeanList == null ? Collections.emptyList() : contextBeanList;
+    public SqlCommandBean() {
+        this.contextBeanList = Collections.emptyList();
+        this.maxRowsToDump = 0;
+        this.weight = -1;
     }
 
     public abstract <T extends Throwable> void accept(final SqlCommandVisitor<T> visitor) throws T;
 
-    /**
-     * @return the label
-     */
-    public abstract String getLabel();
+    public final List<ContextBean> getContextBeanList() {
+        return contextBeanList;
+    }
 
-    /**
-     * @return the weight
-     */
-    public abstract float getWeight();
+    @XmlElement(name = "context")
+    public final void setContextBeanList(final List<ContextBean> contextBeanList) {
+        if (Objects.nonNull(contextBeanList)) {
+            this.contextBeanList = contextBeanList;
+        }
+    }
+
+    public final String getLabel() {
+        return BeanHelper.normalizeToEmpty(label);
+    }
+
+    @XmlAttribute(required = true)
+    public final void setLabel(final String label) {
+        this.label = label;
+    }
 
     /**
      * Returns the maximum number of rows to be written in the log file for each iteration.
      *
      * @return the maxRowsToDump
      */
-    public int getMaxRowsToDump() {
+    public final int getMaxRowsToDump() {
         return maxRowsToDump;
     }
 
     @XmlAttribute
-    public void setMaxRowsToDump(final int maxRowsToDump) {
+    public final void setMaxRowsToDump(final int maxRowsToDump) {
         this.maxRowsToDump = Math.max(0, maxRowsToDump);
     }
 
+    public float getWeight() {
+        return weight;
+    }
+
+    @XmlAttribute(name = "weight")
+    public void setWeight(final float weight) {
+        this.weight = weight;
+    }
 }
