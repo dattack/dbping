@@ -22,7 +22,6 @@ import com.dattack.dbping.beans.SqlScriptBean;
 import com.dattack.dbping.beans.SqlStatementBean;
 import com.dattack.dbping.engine.DataRow;
 import com.dattack.dbping.engine.ExecutionContext;
-import com.dattack.dbping.engine.LogEntry;
 import com.dattack.formats.csv.CSVStringBuilder;
 import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import org.apache.commons.configuration.BaseConfiguration;

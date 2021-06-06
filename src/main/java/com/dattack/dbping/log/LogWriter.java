@@ -15,8 +15,6 @@
  */
 package com.dattack.dbping.log;
 
-import com.dattack.dbping.engine.LogEntry;
-
 /**
  * @author cvarela
  * @since 0.1

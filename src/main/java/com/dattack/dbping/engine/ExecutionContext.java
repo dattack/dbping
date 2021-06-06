@@ -17,6 +17,7 @@ package com.dattack.dbping.engine;
 
 import com.dattack.dbping.beans.ContextBean;
 import com.dattack.dbping.beans.PingTaskBean;
+import com.dattack.dbping.log.LogEntry;
 import com.dattack.dbping.log.LogWriter;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.BaseConfiguration;

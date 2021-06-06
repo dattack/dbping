@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dattack.dbping.engine;
+package com.dattack.dbping.log;
 
+import com.dattack.dbping.engine.DataRow;
+import com.dattack.dbping.engine.ExecutableCommand;
 import com.dattack.jtoolbox.patterns.Builder;
 import java.io.Serializable;
 import java.sql.ResultSet;

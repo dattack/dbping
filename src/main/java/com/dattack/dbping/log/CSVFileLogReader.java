@@ -22,8 +22,7 @@ import java.text.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dattack.dbping.engine.LogEntry;
-import com.dattack.dbping.engine.LogEntry.LogEntryBuilder;
+import com.dattack.dbping.log.LogEntry.LogEntryBuilder;
 import com.dattack.formats.csv.CSVConfiguration;
 import com.dattack.formats.csv.CSVObject;
 import com.dattack.formats.csv.CSVReader;

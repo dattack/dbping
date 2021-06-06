@@ -15,7 +15,7 @@
  */
 package com.dattack.dbping.report;
 
-import com.dattack.dbping.engine.LogEntry;
+import com.dattack.dbping.log.LogEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

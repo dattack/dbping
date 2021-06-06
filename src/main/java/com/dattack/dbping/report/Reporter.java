@@ -21,7 +21,7 @@ import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 
-import com.dattack.dbping.engine.LogEntry;
+import com.dattack.dbping.log.LogEntry;
 import com.dattack.dbping.log.CSVFileLogReader;
 
 /**
