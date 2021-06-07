@@ -67,11 +67,11 @@
         <data-formats.version>0.3-SNAPSHOT</data-formats.version>
         <freemarker.version>2.3.23</freemarker.version>
         <jaxb-api.version>2.2.3</jaxb-api.version>
-        <junit.version>4.13.1</junit.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.30</slf4j.version>
         <h2.version>1.4.200</h2.version>
         <standalone-jndi.version>0.4-SNAPSHOT</standalone-jndi.version>
+        <junit-extensions.version>0.1</junit-extensions.version>
     </properties>
     <dependencies>
         <dependency>
@@ -94,7 +94,6 @@
             <artifactId>jaxb-api</artifactId>
             <version>${jaxb-api.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
@@ -107,9 +106,9 @@
         </dependency>
         <!-- For test only -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <groupId>com.dattack</groupId>
+            <artifactId>junit-extensions</artifactId>
+            <version>${junit-extensions.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
