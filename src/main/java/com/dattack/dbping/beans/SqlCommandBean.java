@@ -16,6 +16,7 @@
 package com.dattack.dbping.beans;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -38,7 +39,7 @@ public abstract class SqlCommandBean implements Serializable { //NOPMD
     private float weight;
 
     public SqlCommandBean() {
-        this.contextBeanList = Collections.emptyList();
+        this.contextBeanList = new ArrayList<>();
         this.maxRowsToDump = 0;
         this.weight = -1;
     }
@@ -83,7 +84,7 @@ public abstract class SqlCommandBean implements Serializable { //NOPMD
         return weight;
     }
 
-    @XmlAttribute(name = "weight")
+    @XmlAttribute
     public void setWeight(final float weight) {
         this.weight = weight;
     }
