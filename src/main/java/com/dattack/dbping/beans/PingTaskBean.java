@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlElements;
 /**
  * Configuration of a task executed by dbPing. The list of configurable properties are:
  *
+ * <ul>
  * <li>command-provider: name of the {@link com.dattack.dbping.engine.SqlCommandProvider} class to be used by this
  * task to order the execution of queries. Currently the possible values are:
  * <ul>
@@ -43,6 +44,7 @@ import javax.xml.bind.annotation.XmlElements;
  * <li>threads: number of threads used by the task. This parameter is optional (default: 1)</li>
  * <li>timeBetweenExecutions: number of milliseconds the task will wait before starting a new execution. This
  * parameter is optional (default: 0)</li>
+ * </ul>
  *
  * <p>Example:</p>
  * <pre>{@code

@@ -23,11 +23,13 @@ import javax.xml.bind.annotation.XmlAttribute;
  * Bean representing a key/value context parameter. It is possible to indicate an activation condition and a default
  * value when this condition evaluates to false. The list of configurable properties are:
  *
+ * <ul>
  * <li>key: the name of this property. This parameter is mandatory.</li>
  * <li>value: the value assigned to this property. This parameter is mandatory.</li>
  * <li>activation: the activation condition of this property. This parameter is optional.</li>
  * <li>unset: the value assigned to this property when the activation condition is false. This parameter is
  * optional (default: "")</li>
+ * </ul>
  *
  * <p>Example:</p>
  *
