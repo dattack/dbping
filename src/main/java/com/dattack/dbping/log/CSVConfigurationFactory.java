@@ -16,9 +16,10 @@
 package com.dattack.dbping.log;
 
 import com.dattack.formats.csv.CSVConfiguration;
-import com.dattack.formats.csv.CSVConfiguration.CsvConfigurationBuilder;
 
 /**
+ * Factory responsible for the custom construction of the configuration used for reading and writing data in CSV format.
+ *
  * @author cvarela
  * @since 0.1
  */
@@ -27,13 +28,13 @@ public class CSVConfigurationFactory {
 
     private static final String DEFAULT_SEPARATOR = "\t";
 
-    private final String separator;
+    private final transient String separator;
 
     public CSVConfigurationFactory() {
         this.separator = DEFAULT_SEPARATOR;
     }
 
     public CSVConfiguration create() {
-        return new CsvConfigurationBuilder().withSeparator(separator).build();
+        return CSVConfiguration.custom().withSeparator(separator).build();
     }
 }

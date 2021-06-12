@@ -19,8 +19,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.text.ParseException;
 
-import com.dattack.dbping.engine.LogEntry;
-
 /**
  * @author cvarela
  * @since 0.1

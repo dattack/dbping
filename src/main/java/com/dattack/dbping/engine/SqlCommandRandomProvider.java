@@ -15,10 +15,7 @@
  */
 package com.dattack.dbping.engine;
 
-import java.util.List;
 import java.util.Random;
-
-import com.dattack.dbping.beans.SqlCommandBean;
 
 /**
  * Selects a random query from the provided list.
@@ -26,28 +23,23 @@ import com.dattack.dbping.beans.SqlCommandBean;
  * @author cvarela
  * @since 0.1
  */
-public class SqlCommandRandomProvider implements SqlCommandProvider {
+public class SqlCommandRandomProvider extends SqlCommandProvider {
 
-    private List<SqlCommandBean> sentenceList;
-    private final Random randomGenerator;
+    private final transient Random randomGenerator;
 
     public SqlCommandRandomProvider() {
+        super();
         randomGenerator = new Random();
     }
 
     @Override
-    public SqlCommandBean nextSql() {
+    public ExecutableCommand nextSql() {
 
-        if (sentenceList == null || sentenceList.isEmpty()) {
+        if (isEmpty()) {
             throw new IllegalArgumentException("The sentence list must not be null or empty");
         }
 
-        final int index = randomGenerator.nextInt(sentenceList.size());
-        return sentenceList.get(index);
-    }
-
-    @Override
-    public void setSentences(final List<SqlCommandBean> sqlList) {
-        this.sentenceList = sqlList;
+        final int index = randomGenerator.nextInt(getSize());
+        return getCommand(index);
     }
 }

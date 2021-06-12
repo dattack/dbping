@@ -15,41 +15,33 @@
  */
 package com.dattack.dbping.engine;
 
-import java.util.List;
-
-import com.dattack.dbping.beans.SqlCommandBean;
-
 /**
  * Implements the round-robin strategy for SQL-sentence selection.
  *
  * @author cvarela
  * @since 0.1
  */
-public class SqlCommandRoundRobinProvider implements SqlCommandProvider {
+public class SqlCommandRoundRobinProvider extends SqlCommandProvider {
 
-    private List<SqlCommandBean> sentenceList;
-    private int index;
+    private transient int index;
 
     public SqlCommandRoundRobinProvider() {
+        super();
         index = 0;
     }
 
+    // TODO: refactoring needed (PMD.AvoidSynchronizedAtMethodLevel)
     @Override
-    public synchronized SqlCommandBean nextSql() {
+    public synchronized ExecutableCommand nextSql() {
 
-        if (sentenceList == null || sentenceList.isEmpty()) {
+        if (isEmpty()) {
             throw new IllegalArgumentException("The sentence list must not be null or empty");
         }
 
-        final SqlCommandBean sqlSentence = sentenceList.get(index++);
-        if (index >= sentenceList.size()) {
+        final ExecutableCommand command = getCommand(index++);
+        if (index >= getSize()) {
             index = 0;
         }
-        return sqlSentence;
-    }
-
-    @Override
-    public void setSentences(final List<SqlCommandBean> sqlList) {
-        this.sentenceList = sqlList;
+        return command;
     }
 }

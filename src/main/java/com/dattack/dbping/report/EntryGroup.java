@@ -21,16 +21,16 @@ package com.dattack.dbping.report;
  */
 public class EntryGroup {
 
-    private final int identifier;
+    private final int id;
     private final MetricName name;
 
     public EntryGroup(final int identifier, final MetricName name) {
-        this.identifier = identifier;
+        this.id = identifier;
         this.name = name;
     }
 
     public int getId() {
-        return identifier;
+        return id;
     }
 
     public MetricName getName() {

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.dattack.dbping.beans.PingTaskBean;
+import com.dattack.jtoolbox.util.SystemUtils;
 
 /**
  * @author cvarela
@@ -47,11 +48,11 @@ public class LogHeader implements Serializable {
     }
 
     private void populateProperties() {
-        properties.put("java version", System.getProperty("java.version"));
-        properties.put("OS",
-                System.getProperty("os.name") + " " //
-                        + System.getProperty("os.arch") + " " //
-                        + System.getProperty("os.version"));
-        properties.put("username", System.getProperty("user.name"));
+        properties.put("Java version", SystemUtils.getJavaVersion());
+        properties.put("OS", SystemUtils.getOsName() + " " //
+                        + SystemUtils.getOsArch() + " " //
+                        + SystemUtils.getOsVersion());
+        properties.put("Username", SystemUtils.getUsername());
+        properties.put("Hostname", SystemUtils.getHostname());
     }
 }

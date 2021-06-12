@@ -15,24 +15,13 @@
  */
 package com.dattack.dbping.engine;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-import javax.sql.DataSource;
-
+import com.dattack.dbping.beans.PingTaskBean;
+import com.dattack.dbping.engine.exceptions.ExecutableException;
+import com.dattack.dbping.log.LogWriter;
+import org.apache.commons.configuration.AbstractConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dattack.dbping.beans.PingTaskBean;
-import com.dattack.dbping.beans.SqlCommandBean;
-import com.dattack.dbping.beans.SqlCommandVisitor;
-import com.dattack.dbping.beans.SqlScriptBean;
-import com.dattack.dbping.beans.SqlStatementBean;
-import com.dattack.dbping.engine.LogEntry.LogEntryBuilder;
-import com.dattack.dbping.log.LogWriter;
-import com.dattack.jtoolbox.jdbc.JDBCUtils;
+import javax.sql.DataSource;
 
 /**
  * Executes a ping-job instance.
@@ -44,106 +33,42 @@ class PingJob implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PingJob.class);
 
-    private final PingTaskBean pingTaskBean;
-    private final DataSource dataSource;
-    private final SqlCommandProvider sentenceProvider;
-    private final LogWriter logWriter;
+    private final transient PingTaskBean pingTaskBean;
+    private final transient DataSource dataSource;
+    private final transient SqlCommandProvider sentenceProvider;
+    private final transient LogWriter logWriter;
+    private final transient AbstractConfiguration configuration;
 
-    public PingJob(final PingTaskBean configuration, final DataSource dataSource,
-            final SqlCommandProvider sentenceProvider, final LogWriter logWriter) {
+    public PingJob(final PingTaskBean pingTaskBean, final DataSource dataSource,
+                   final SqlCommandProvider sentenceProvider, final LogWriter logWriter,
+                   final AbstractConfiguration configuration) {
 
-        this.pingTaskBean = configuration;
+        this.pingTaskBean = pingTaskBean;
         this.dataSource = dataSource;
         this.sentenceProvider = sentenceProvider;
         this.logWriter = logWriter;
+        this.configuration = configuration;
     }
 
     @Override
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public void run() {
 
-        final String threadName = Thread.currentThread().getName();
+        final ExecutionContext context = new ExecutionContext(pingTaskBean, dataSource, logWriter, configuration);
+        context.set(pingTaskBean.getContextBeanList());
+        context.getConfiguration().setProperty(ExecutionContext.PARENT_NAME_PROPERTY, pingTaskBean.getName());
+        LOGGER.info("Starting job: {}", context.getName());
 
-        LOGGER.info("Running job '{}' at thread '{}'", pingTaskBean.getName(), threadName);
-
-        long iter = 0;
-
-        final LogEntryBuilder logEntryBuilder = new LogEntryBuilder(pingTaskBean.getMaxRowsToDump()) //
-                .withTaskName(pingTaskBean.getName()) //
-                .withThreadName(threadName);
-
-        while (testLoop(iter)) {
-            final long currentIteration = iter++;
-            // retrieve the SQL to be executed
-            final SqlCommandBean sqlSentence = sentenceProvider.nextSql();
-
-            logEntryBuilder.init().withSqlLabel(sqlSentence.getLabel()) //
-                    .withIteration(iter);
-
-            // sets the connection time
-            logEntryBuilder.connect();
-
-            sqlSentence.accept(new SqlCommandVisitor() {
-
-                @Override
-                public void visite(final SqlScriptBean command) {
-
-                    for (final SqlStatementBean item : command.getStatementList()) {
-                        logEntryBuilder.init().withSqlLabel(item.getLabel()) //
-                                .withIteration(currentIteration);
-
-                        // sets the connection time
-                        logEntryBuilder.connect();
-                        item.accept(this);
-                    }
-                }
-
-                @Override
-                public void visite(final SqlStatementBean command) {
-
-                    try (Connection connection = dataSource.getConnection()) {
-                        try (Statement stmt = connection.createStatement()) {
-                            ResultSet resultSet = null;
-                            try {
-
-                                final boolean executeResult = stmt.execute(command.getSql());
-                                if (executeResult) {
-                                    resultSet = stmt.getResultSet();
-                                    while (resultSet.next()) {
-                                        logEntryBuilder.addRow(resultSet);
-                                    }
-                                } else {
-                                    // not a ResultSet
-                                }
-
-                                // sets the total time
-                                logWriter.write(logEntryBuilder.build());
-                            } finally {
-                                JDBCUtils.closeQuietly(resultSet);
-                            }
-                        }
-                    } catch (final SQLException e) {
-                        logWriter.write(logEntryBuilder.withException(e).build());
-                        LOGGER.warn("Job error (job-name: '{}', thread: '{}'): {}", pingTaskBean.getName(), threadName,
-                                e.getMessage());
-                    }
-                }
-            });
-
-            if (testLoop(iter) && pingTaskBean.getTimeBetweenExecutions() > 0) {
-                synchronized (this) {
-                    try {
-                        wait(pingTaskBean.getTimeBetweenExecutions());
-                    } catch (final InterruptedException e) {
-                        LOGGER.warn(e.getMessage());
-                    }
-                }
+        while (context.hasMoreIterations()) {
+            try {
+                final ExecutableCommand executableCommand = sentenceProvider.nextSql();
+                executableCommand.execute(new ExecutionContext(context));
+                context.sleep();
+            } catch (ExecutableException e) {
+                LOGGER.warn(String.format("Job %s:", context.getName()), e);
             }
         }
 
-        LOGGER.info("Job finished (job-name: '{}', thread: '{}')", pingTaskBean.getName(), threadName);
-    }
-
-    private boolean testLoop(final long iteration) {
-        return pingTaskBean.getExecutions() <= 0 || iteration < pingTaskBean.getExecutions();
+        LOGGER.info("Job finished: {}", context.getName());
     }
 }

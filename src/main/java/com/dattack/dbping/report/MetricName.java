@@ -16,6 +16,7 @@
 package com.dattack.dbping.report;
 
 import org.apache.commons.lang.StringUtils;
+import java.util.Objects;
 
 /**
  * @author cvarela
@@ -23,35 +24,12 @@ import org.apache.commons.lang.StringUtils;
  */
 public class MetricName {
 
-    private final String taskName;
-    private final String sqlLabel;
-    private final String metric;
-
     public static final String CONNECTION_TIME_KEY = "Connection time";
-
-    public static final String FIRST_ROW_TIME_KEY = "First row time";
     public static final String EXECUTION_TIME_KEY = "Total time";
-
-    /**
-     * Creates a MetricName from its value.
-     *
-     * @param text
-     *            the metric name
-     * @return the MetricName
-     */
-    public static MetricName parse(final String text) {
-
-        if (text == null) {
-            throw new NullPointerException("Unable to parse a 'null' value as a metric name"); // NOPMD by cvarela on 20/02/16 19:29
-        }
-
-        final String[] tokens = text.split(":");
-        if (tokens.length > 3) {
-            throw new IllegalArgumentException(String.format("Unable to parse the metric name (value: %s)", text));
-        }
-
-        return new MetricName(tokens);
-    }
+    public static final String FIRST_ROW_TIME_KEY = "First row time";
+    private final String metric;
+    private final String sqlLabel;
+    private final String taskName;
 
     public MetricName(final String taskName, final String sqlLabel, final String metric) {
         this.taskName = normalize(taskName);
@@ -59,7 +37,8 @@ public class MetricName {
         this.metric = normalize(metric);
     }
 
-    private MetricName(final String[] tokens) {
+    @SuppressWarnings("PMD.NullAssignment")
+    private MetricName(final String... tokens) {
 
         int index = 0;
         if (index < tokens.length) {
@@ -71,7 +50,7 @@ public class MetricName {
         if (index < tokens.length) {
             this.sqlLabel = normalize(tokens[index++]);
             if (index < tokens.length) {
-                this.metric = normalize(tokens[index++]);
+                this.metric = normalize(tokens[index]);
             } else {
                 this.metric = null;
             }
@@ -79,22 +58,36 @@ public class MetricName {
             this.sqlLabel = null;
             this.metric = null;
         }
-
     }
 
-    @Override
-    public boolean equals(final Object obj) {
-        if (obj == null) {
-            return false;
+    private static boolean isEquals(final String text1, final String text2) {
+        return text1.equalsIgnoreCase(text2) || StringUtils.isBlank(text1) || StringUtils.isBlank(text2);
+    }
+
+    private static String normalize(final String text) {
+        return StringUtils.trimToEmpty(text).replaceAll("\"", "");
+    }
+
+    /**
+     * Creates a MetricName from its value.
+     *
+     * @param text the metric name
+     * @return the MetricName
+     * @throws NullPointerException     if the metric name is null
+     * @throws IllegalArgumentException if the format of the metric name is invalid
+     */
+    public static MetricName parse(final String text) throws NullPointerException, IllegalArgumentException {
+
+        if (Objects.isNull(text)) {
+            throw new NullPointerException("Unable to parse a 'null' value as a metric name"); // NOPMD
         }
-        if (obj == this) {
-            return true;
+
+        final String[] tokens = text.split(":");
+        if (tokens.length > 3) {
+            throw new IllegalArgumentException(String.format("Unable to parse the metric name (value: %s)", text));
         }
-        if (obj.getClass() != getClass()) {
-            return false;
-        }
-        final MetricName rhs = (MetricName) obj;
-        return isEquals(taskName, rhs.taskName) && isEquals(sqlLabel, rhs.sqlLabel) && isEquals(metric, rhs.metric);
+
+        return new MetricName(tokens);
     }
 
     public String getMetric() {
@@ -119,12 +112,19 @@ public class MetricName {
         return result;
     }
 
-    private static boolean isEquals(final String text1, final String text2) {
-        return text1.equalsIgnoreCase(text2) || StringUtils.isBlank(text1) || StringUtils.isBlank(text2);
-    }
-
-    private static String normalize(final String text) {
-        return StringUtils.trimToEmpty(text).replaceAll("\"", "");
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        final MetricName rhs = (MetricName) obj;
+        return isEquals(taskName, rhs.taskName) && isEquals(sqlLabel, rhs.sqlLabel) && isEquals(metric, rhs.metric);
     }
 
     @Override

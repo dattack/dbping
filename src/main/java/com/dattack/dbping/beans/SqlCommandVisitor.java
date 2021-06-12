@@ -16,12 +16,14 @@
 package com.dattack.dbping.beans;
 
 /**
+ * Visitor pattern for the SqlCommandBean class hierarchy.
+ *
  * @author cvarela
  * @since 0.1
  */
-public interface SqlCommandVisitor {
+public interface SqlCommandVisitor<T extends Throwable> {
 
-    void visite(final SqlScriptBean command);
+    void visit(final SqlScriptBean command) throws T;
 
-    void visite(final SqlStatementBean command);
+    void visit(final SqlStatementBean command) throws T;
 }

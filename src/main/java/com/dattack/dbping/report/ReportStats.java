@@ -15,12 +15,11 @@
  */
 package com.dattack.dbping.report;
 
+import com.dattack.dbping.log.LogEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.dattack.dbping.engine.LogEntry;
 
 /**
  * @author cvarela
@@ -28,49 +27,59 @@ import com.dattack.dbping.engine.LogEntry;
  */
 class ReportStats {
 
-    private final Map<MetricName, EntryGroup> groupMap;
-    private final Map<Integer, EntryStats> entryStatsMap;
-    private final Map<Integer, GroupStats> groupStatsMap;
-    private final ReportContext context;
+    private final transient ReportContext context;
+    private final transient Map<Integer, EntryStats> entryStatsMap;
+    private final transient Map<MetricName, EntryGroup> groupMap;
+    private final transient Map<Integer, GroupStats> groupStatsMap;
 
     public ReportStats(final ReportContext context) {
         this.context = context;
-        this.groupMap = new HashMap<MetricName, EntryGroup>();
-        this.entryStatsMap = new HashMap<Integer, EntryStats>();
-        this.groupStatsMap = new HashMap<Integer, GroupStats>();
+        this.groupMap = new HashMap<>();
+        this.entryStatsMap = new HashMap<>();
+        this.groupStatsMap = new HashMap<>();
     }
 
-    List<EntryStats> add(final LogEntry logEntry) {
+    public GroupStats getGroupStats(final int group) {
+        return groupStatsMap.get(group);
+    }
+
+    /* package */ List<EntryStats> add(final LogEntry logEntry) {
 
         final long eventTime = normalizeEventTime(logEntry.getEventTime());
 
-        final List<EntryStats> list = new ArrayList<EntryStats>();
+        final List<EntryStats> list = new ArrayList<>();
 
         // connection time
         addEntryStats(list,
-                new MetricName(logEntry.getTaskName(), logEntry.getSqlLabel(), MetricName.CONNECTION_TIME_KEY),
-                eventTime, logEntry.getConnectionTime());
+            new MetricName(logEntry.getTaskName(), logEntry.getSqlLabel(), MetricName.CONNECTION_TIME_KEY),
+            eventTime, logEntry.getConnectionTime());
 
         // first row
         addEntryStats(list,
-                new MetricName(logEntry.getTaskName(), logEntry.getSqlLabel(), MetricName.FIRST_ROW_TIME_KEY),
-                eventTime, logEntry.getFirstRowTime());
+            new MetricName(logEntry.getTaskName(), logEntry.getSqlLabel(), MetricName.FIRST_ROW_TIME_KEY),
+            eventTime, logEntry.getFirstRowTime());
 
         // execution time
         addEntryStats(list,
-                new MetricName(logEntry.getTaskName(), logEntry.getSqlLabel(), MetricName.EXECUTION_TIME_KEY),
-                eventTime, logEntry.getTotalTime());
+            new MetricName(logEntry.getTaskName(), logEntry.getSqlLabel(), MetricName.EXECUTION_TIME_KEY),
+            eventTime, logEntry.getTotalTime());
 
         return list;
     }
 
+    /* package */ List<EntryGroup> getEntryGroups() {
+        return new ArrayList<>(groupMap.values());
+    }
+
+    // TODO: refactoring needed
+    @SuppressWarnings("PMD.AvoidDeeplyNestedIfStmts")
     private void addEntryStats(final List<EntryStats> list, final MetricName metricName, final long valueX,
-            final long valueY) {
+                               final long valueY) {
 
         if (context.getMetricNameList().isEmpty() || context.getMetricNameList().contains(metricName)) {
 
             final EntryStats entry = process(
-                    new EntryStats(valueX, normalizeValue(valueY), getGroup(metricName).getId()));
+                new EntryStats(valueX, normalizeValue(valueY), getGroup(metricName).getId()));
             if (entry != null) {
                 GroupStats groupStats = groupStatsMap.get(entry.getGroup());
                 if (groupStats == null) {
@@ -83,13 +92,6 @@ class ReportStats {
         }
     }
 
-    List<EntryGroup> getEntryGroups() {
-
-        final List<EntryGroup> list = new ArrayList<EntryGroup>();
-        list.addAll(groupMap.values());
-        return list;
-    }
-
     private EntryGroup getGroup(final MetricName key) {
         EntryGroup group = groupMap.get(key);
         if (group == null) {
@@ -97,10 +99,6 @@ class ReportStats {
             groupMap.put(key, group);
         }
         return group;
-    }
-
-    public GroupStats getGroupStats(final int group) {
-        return groupStatsMap.get(group);
     }
 
     private long normalizeEventTime(final long eventTime) {

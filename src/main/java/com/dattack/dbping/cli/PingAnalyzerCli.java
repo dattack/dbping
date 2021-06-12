@@ -15,31 +15,32 @@
  */
 package com.dattack.dbping.cli;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-
+import com.dattack.dbping.report.MetricName;
+import com.dattack.dbping.report.ReportContext;
+import com.dattack.dbping.report.Reporter;
+import com.dattack.jtoolbox.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.configuration.ConfigurationException;
-
-import com.dattack.dbping.report.MetricName;
-import com.dattack.dbping.report.ReportContext;
-import com.dattack.dbping.report.Reporter;
-import com.dattack.jtoolbox.util.TimeUtils;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
+ * Starts the Analyzer CLI tool.
+ *
  * @author cvarela
  * @since 0.1
  */
+@SuppressWarnings({"PMD.SystemPrintln", "PMD.AvoidPrintStackTrace"})
 public final class PingAnalyzerCli {
 
     private static final String START_DATE_OPTION = "start_date";
@@ -56,6 +57,7 @@ public final class PingAnalyzerCli {
      * @param args
      *            the program arguments
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public static void main(final String[] args) {
 
         try {
@@ -98,7 +100,7 @@ public final class PingAnalyzerCli {
     }
 
     private static Instant parseInstant(final String txt) {
-        ZoneId timeZone = ZoneId.systemDefault();
+        final ZoneId timeZone = ZoneId.systemDefault();
         return LocalDateTime.parse(txt, DateTimeFormatter.ISO_DATE_TIME).atZone(timeZone).toInstant();
     }
 
@@ -126,7 +128,7 @@ public final class PingAnalyzerCli {
 
                 @Override
                 public boolean accept(final File dir, final String name) {
-                    return name.toLowerCase().endsWith(".log");
+                    return name.toLowerCase(Locale.getDefault()).endsWith(".log");
                 }
             };
 

@@ -19,24 +19,25 @@ package com.dattack.dbping.report;
  * @author cvarela
  * @since 0.1
  */
+@SuppressWarnings("checkstyle:MemberName")
 public class EntryStats {
 
-    private final long valueX;
-    private final long valueY;
+    private final long x;
+    private final long y;
     private final int group;
 
-    public EntryStats(final long valueX, final long valueY, final int group) {
-        this.valueX = valueX;
-        this.valueY = valueY;
+    public EntryStats(final long x, final long y, final int group) {
+        this.x = x;
+        this.y = y;
         this.group = group;
     }
 
     public long getX() {
-        return valueX;
+        return x;
     }
 
     public long getY() {
-        return valueY;
+        return y;
     }
 
     public int getGroup() {

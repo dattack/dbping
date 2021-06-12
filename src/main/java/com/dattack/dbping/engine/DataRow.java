@@ -25,6 +25,8 @@ import java.util.List;
  */
 public class DataRow implements Serializable {
 
+    private static final long serialVersionUID = -7008117304049063596L;
+
     private final List<Object> data;
 
     public DataRow(final int size) {

@@ -15,10 +15,15 @@
  */
 package com.dattack.dbping.beans;
 
+import com.dattack.jtoolbox.exceptions.DattackParserException;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.Objects;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -27,23 +32,28 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-
-import com.dattack.jtoolbox.exceptions.DattackParserException;
-
 /**
+ * Utility class that parses an XML file and instantiates the equivalent Beans objects.
+ *
  * @author cvarela
  * @since 0.1
  */
+@SuppressWarnings("PMD.ClassNamingConventions")
 public final class DbpingParser {
 
-    public static DbpingBean parse(final File file) throws DattackParserException {
+    /**
+     * Parses an XML file and instantiates an equivalent DbpingBean object.
+     *
+     * @param file the XML file to parse
+     * @return the equivalent DbpingBean object
+     * @throws DattackParserException if an error occurs while parsing is performed
+     * @throws IllegalArgumentException if the provided file is null
+     */
+    public static DbpingBean parse(final File file) throws DattackParserException, IllegalArgumentException {
 
-        if (file == null) {
-            throw new IllegalArgumentException("The 'dbping' configuration file can't be null. " //
-                    + "Check your configuration");
+        if (Objects.isNull(file)) {
+            throw new IllegalArgumentException("The 'dbping' configuration file can't be null." //
+                    + " Check your configuration");
         }
 
         final SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -51,11 +61,10 @@ public final class DbpingParser {
         spf.setNamespaceAware(true);
         spf.setValidating(true);
 
-        try (final FileInputStream fileInputStream = new FileInputStream(file)) {
+        try (InputStream fileInputStream = Files.newInputStream(file.toPath())) {
             final InputSource input = new InputSource(fileInputStream);
             final XMLReader xmlreader = spf.newSAXParser().getXMLReader();
             final Source source = new SAXSource(xmlreader, input);
-
             final JAXBContext ctx = JAXBContext.newInstance(DbpingBean.class);
             final Unmarshaller unmarshaller = ctx.createUnmarshaller();
             return (DbpingBean) unmarshaller.unmarshal(source);

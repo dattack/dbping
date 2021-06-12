@@ -15,24 +15,96 @@
  */
 package com.dattack.dbping.engine;
 
+import com.dattack.dbping.beans.SqlCommandBean;
+import com.dattack.dbping.beans.SqlCommandVisitor;
+import com.dattack.dbping.beans.SqlScriptBean;
+import com.dattack.dbping.beans.SqlStatementBean;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import com.dattack.dbping.beans.SqlCommandBean;
-
 /**
- * Defines the interface to be implemented by the provider of the SQL-query executed from a ping job.
+ * Defines the methods to be implemented by the provider of the SQL-query executed by a ping job.
  *
  * @author cvarela
  * @since 0.1
  */
-public interface SqlCommandProvider {
+public abstract class SqlCommandProvider implements SqlCommandVisitor<IOException> {
+
+    private final transient List<ExecutableCommand> executableCommandList = new ArrayList<>();
+
+    @Override
+    public void visit(final SqlScriptBean bean) throws IOException {
+
+        final ExecutableScript executableScript = new ExecutableScript(bean);
+        for (final SqlStatementBean statement : bean.getStatementList()) {
+            if (!statement.isSkip()) {
+                executableScript.add(createExecutableStatement(statement));
+            }
+        }
+
+        if (!executableScript.isEmpty()) {
+            executableCommandList.add(executableScript);
+        }
+    }
+
+    @Override
+    public void visit(final SqlStatementBean bean) throws IOException {
+        if (!bean.isSkip()) {
+            executableCommandList.add(createExecutableStatement(bean));
+        }
+    }
+
+    protected final ExecutableCommand getCommand(final int index) {
+        return executableCommandList.get(index);
+    }
+
+    protected final int getSize() {
+        return executableCommandList.size();
+    }
+
+    protected final boolean isEmpty() {
+        return executableCommandList.isEmpty();
+    }
+
+    @SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
+    protected void prepare(final List<SqlCommandBean> sqlList) {
+        // empty by default
+    }
 
     /**
-     * Returns the next SqlSentence to execute.
+     * Returns the next ExecutableCommand to execute.
      *
-     * @return the SQL-query to be executed
+     * @return the next ExecutableCommand to execute
      */
-    SqlCommandBean nextSql();
+    /* package */ abstract ExecutableCommand nextSql();
 
-    void setSentences(final List<SqlCommandBean> sqlList);
+    /**
+     * Sets the list os sentences to be executed.
+     *
+     * @param sqlList the list of sentences to be executed.
+     */
+
+    // TODO: refactoring needed (PMD.AvoidSynchronizedAtMethodLevel)
+    /* package */ final synchronized void setSentences(final List<SqlCommandBean> sqlList) throws IOException {
+
+        executableCommandList.clear();
+
+        for (final SqlCommandBean bean : sqlList) {
+            bean.accept(this);
+        }
+
+        prepare(sqlList);
+    }
+
+    private AbstractExecutableStatement<?> createExecutableStatement(final SqlStatementBean bean) throws IOException {
+
+        AbstractExecutableStatement<?> statement;
+        if (bean.isUsePreparedStatement()) {
+            statement = new ExecutablePreparedStatement(bean);
+        } else {
+            statement = new ExecutableStatement(bean);
+        }
+        return statement;
+    }
 }

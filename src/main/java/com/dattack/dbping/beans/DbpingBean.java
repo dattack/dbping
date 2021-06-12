@@ -18,11 +18,24 @@ package com.dattack.dbping.beans;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * Bean that maps to the root element of the configuration XML documents. Contains a list of {@link PingTaskBean}.
+ *
+ * <pre>{@code
+ * <dbping>
+ *     <task ...>
+ *           ...
+ *     </task>
+ *     ...
+ *     <task ...>
+ *           ...
+ *     </task>
+ * </dbping>
+ * }</pre>
+ *
  * @author cvarela
  * @since 0.1
  */
@@ -31,17 +44,14 @@ public class DbpingBean implements Serializable {
 
     private static final long serialVersionUID = 8398044544048577943L;
 
-    @XmlElement(name = "task", required = true, type = PingTaskBean.class)
-    private final List<PingTaskBean> taskList;
+    private List<PingTaskBean> taskList = new ArrayList<>();
 
-    public DbpingBean() {
-        this.taskList = new ArrayList<>();
-    }
-
-    /**
-     * @return the taskList
-     */
     public List<PingTaskBean> getTaskList() {
         return taskList;
+    }
+
+    @XmlElement(name = "task", required = true, type = PingTaskBean.class)
+    public void setTaskList(final List<PingTaskBean> taskList) {
+        this.taskList = taskList;
     }
 }
