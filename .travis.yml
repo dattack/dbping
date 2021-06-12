@@ -26,6 +26,8 @@ notifications:
     - dev@dattack.com
     on_success: always
     on_failure: always
+  slack:
+    secure: Ow2kNNMMefF905Z2Fy1/dZdCu5gC8xZ0bkiE3GjN5Ib3lcA3xpeerglg+3rey5N2FQLwN6/dkatzqu/pyM+MjAAtDGrbBYBNZ2n2n4/ckpnetpgTob+dKXcN7s/I/7eLnQ+eeOh1LP5ww3c6q2v1ofrTZwb5qH4Q5KjpMwuid7O01lBsX+QwOsPQdDLjLhndgzTi+uktgFoLO9uax65JrVHsqDy3orARX7/boVBtO9MuEf5BWFPI2oEOSPK2lWXx9FadezWJyHb3Iigrk10D2uVMXZh4GWuRSX7CjIp5UjU546f10WdBNPG811wHlygSEfCHaLKNQYPCzpQvXWJdfiRBJQ1ZHW5pceyZxgsFXKrxIedQrE3calVl/6bGThBF4RiqQ+Ar7R8N5JOV3T0qVMZ2crg7HJOphxAuS1t18ZzLX9XFQHugmrq2nJeKB3EwqFfgDS8eyRmGM1xJIz7b+pnzspSvhR7e5BCLxOYf7rKq8kDDxWwd7kcbfHTz6j/jvuj8zQoXrQnUbbC9IkGefg11vVdFQhYiMeaZSYF1hleDoR/7P7N9I/Q0DldIDC/2EBywTeTj4cVreFKp9Hydgk90gAtHHp0tetKN4SRNl1SsovZxz0NZnwxc/YtbDuNOmsKxsJ7kFuqXZLnS7JTkH5K7Ra4C1BkS5/ddoBtt2PE=
 cache:
   directories:
   - "~/.m2/repository"
