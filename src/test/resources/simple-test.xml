@@ -1,12 +1,18 @@
 <dbping>
 
-    <task name="simple-test" threads="2" executions="10" timeBetweenExecutions="1" datasource="jdbc/ds">
+    <task name="simple-test"
+          threads="2"
+          executions="10"
+          timeBetweenExecutions="1"
+          datasource="jdbc/ds"
+          strategy="com.dattack.dbping.engine.SqlCommandRandomProvider"
+          log="./logs/dbping_${task.name}.log">
+
         <query label="sql-1" batchSize="1000" fetchSize="100" maxRowsToDump="10" weight="0.3" repeats="2">
             <context key="k1" value="v1" activation="x" unset="-1" />
             <context key="k2" value="v2" activation="y" unset="-2" />
             <sql><![CDATA[SELECT * FROM salgrade WHERE hisal > 2500]]></sql>
         </query>
-        <log-file>./logs/dbping_${task.name}.log</log-file>
     </task>
 
 </dbping>

@@ -38,7 +38,8 @@ public class DbpingParserTest {
         final PingTaskBean pingTaskBean = dbpingBean.getTaskList().get(0);
 
         assertAll("Should return a valid PingTaskBean",
-            () -> assertNull(pingTaskBean.getCommandProvider(), "Unexpected command provider"),
+            () -> assertEquals("com.dattack.dbping.engine.SqlCommandRandomProvider",
+                pingTaskBean.getCommandProvider(), "Unexpected command provider strategy"),
             () -> assertEquals("jdbc/ds", pingTaskBean.getDatasource(), "Unexpected datasource"),
             () -> assertEquals("simple-test", pingTaskBean.getName(), "Unexpected task name"),
             () -> assertEquals(2, pingTaskBean.getThreads(), "Unexpected 'threads' value"),

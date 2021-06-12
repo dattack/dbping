@@ -1,17 +1,18 @@
 <dbping>
     <task name="salgrade_test" threads="1" executions="10"
-          timeBetweenExecutions="100" datasource="jdbc/h2-db1" maxRowsToDump="0">
+          timeBetweenExecutions="100" datasource="jdbc/h2-db1" maxRowsToDump="0"
+          log="./logs/dbping_${task.name}.log">
         <query label="sql-1">
             <sql><![CDATA[SELECT * FROM salgrade WHERE hisal > 2500]]></sql>
         </query>
         <query label="sql-2">
             <sql><![CDATA[SELECT * FROM salgrade WHERE losal < 1500]]></sql>
         </query>
-        <log-file>./logs/dbping_${task.name}.log</log-file>
     </task>
 
     <task name="emp_test" threads="1" executions="10"
-          timeBetweenExecutions="10" datasource="jdbc/h2-db1" maxRowsToDump="0">
+          timeBetweenExecutions="10" datasource="jdbc/h2-db1" maxRowsToDump="0"
+          log="./logs/dbping_${task.name}.log">>
         <query label="deptno10">
             <sql><![CDATA[SELECT * FROM emp WHERE deptno = 10]]></sql>
         </query>
@@ -27,11 +28,11 @@
         <query label="mgr">
             <sql><![CDATA[SELECT * FROM emp WHERE mgr IN (7839, 7698)]]></sql>
         </query>
-        <log-file>./logs/dbping_${task.name}.log</log-file>
     </task>
 
     <task name="emp_test_prepared" threads="1" executions="10"
-          timeBetweenExecutions="10" datasource="jdbc/h2-db1" maxRowsToDump="0">
+          timeBetweenExecutions="10" datasource="jdbc/h2-db1" maxRowsToDump="0"
+          log="./logs/dbping_${task.name}.log">>
         <query label="deptno">
             <sql><![CDATA[SELECT * FROM emp WHERE deptno = ?]]></sql>
             <parameter index="1" type="INTEGER" value="10, 20, 30, 40"/>
@@ -39,11 +40,11 @@
         <query label="mgr">
             <sql><![CDATA[SELECT * FROM emp WHERE mgr IN (7839, 7698)]]></sql>
         </query>
-        <log-file>./logs/dbping_${task.name}.log</log-file>
     </task>
 
     <task name="script" threads="1" executions="10"
-          timeBetweenExecutions="1000" datasource="jdbc/h2-db1" maxRowsToDump="0">
+          timeBetweenExecutions="1000" datasource="jdbc/h2-db1" maxRowsToDump="0"
+          log="./logs/dbping_${task.name}.log">>
         <script label="s1">
             <query label="s1.1">
                 <sql>
@@ -80,22 +81,21 @@
         <query label="deptno20">
             <sql><![CDATA[SELECT * FROM emp WHERE deptno = 20]]></sql>
         </query>
-        <log-file>./logs/dbping_${task.name}.log</log-file>
     </task>
 
     <task name="dept_test" threads="1" executions="10"
-          timeBetweenExecutions="100" datasource="jdbc/h2-db1">
+          timeBetweenExecutions="100" datasource="jdbc/h2-db1"
+          log="./logs/dbping_${task.name}.log">>
         <query label="q1">
             <sql><![CDATA[SELECT * FROM dept]]></sql>
         </query>
-        <log-file>./logs/dbping_${task.name}.log</log-file>
     </task>
 
-    <task name="error_test" threads="1" executions="1" datasource="jdbc/h2-db1">
+    <task name="error_test" threads="1" executions="1" datasource="jdbc/h2-db1"
+          log="./logs/dbping_${task.name}.log">>
         <query label="q1">
             <sql><![CDATA[SELECT * FROM missing_table]]></sql>
         </query>
-        <log-file>./logs/dbping_${task.name}.log</log-file>
     </task>
 
 </dbping>

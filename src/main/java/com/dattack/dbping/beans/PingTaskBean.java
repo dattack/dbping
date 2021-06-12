@@ -96,7 +96,7 @@ public class PingTaskBean implements Serializable {
         return commandProvider;
     }
 
-    @XmlElement(name = "command-provider")
+    @XmlAttribute(name = "strategy")
     public void setCommandProvider(final String commandProvider) {
         this.commandProvider = BeanHelper.normalizeToEmpty(commandProvider);
     }
@@ -147,7 +147,7 @@ public class PingTaskBean implements Serializable {
         return logFile;
     }
 
-    @XmlElement(name = "log-file", required = true)
+    @XmlAttribute(name = "log", required = true)
     public void setLogFile(final String logFile) {
         this.logFile = BeanHelper.normalizeToEmpty(logFile);
     }
