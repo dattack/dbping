@@ -40,14 +40,18 @@ public final class ExecutionContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionContext.class);
 
+    private static final String DBPING_PREFIX = "dbping.";
     public static final String PARENT_NAME_PROPERTY = "parent.name";
+    public static final String THREAD_NAME_PROPERTY = DBPING_PREFIX + "thread.name";
+    public static final String THREAD_ID_PROPERTY = DBPING_PREFIX + "thread.id";
+    private static final String LAP_ID_PROPERTY = DBPING_PREFIX + "lap.id";
 
     private final transient DataSource dataSource;
     private final transient PingTaskBean pingTaskBean;
     private final LogWriter logWriter;
     private final LogEntry.LogEntryBuilder logEntryBuilder;
     private final AbstractConfiguration configuration;
-    private transient long iteration;
+    private transient long lapId;
 
     public ExecutionContext(final ExecutionContext other) {
         this.pingTaskBean = other.pingTaskBean;
@@ -56,7 +60,7 @@ public final class ExecutionContext {
         this.logEntryBuilder = other.logEntryBuilder;
         this.configuration = new BaseConfiguration();
         ConfigurationUtils.copy(other.configuration, this.configuration);
-        this.iteration = other.iteration;
+        this.lapId = other.lapId;
     }
 
     /**
@@ -77,7 +81,7 @@ public final class ExecutionContext {
         this.logEntryBuilder = new LogEntry.LogEntryBuilder() //
                 .withTaskName(pingTaskBean.getName()) //
                 .withThreadName(threadName);
-        this.iteration = 0;
+        this.lapId = 0;
     }
 
     public Connection getConnection() throws SQLException {
@@ -85,15 +89,16 @@ public final class ExecutionContext {
     }
 
     public AbstractConfiguration getConfiguration() {
+        configuration.setProperty(LAP_ID_PROPERTY, lapId);
         return configuration;
     }
 
     private void incrIteration() {
-        iteration++;
+        lapId++;
     }
 
     public long getIteration() {
-        return iteration;
+        return lapId;
     }
 
     public LogWriter getLogWriter() {
@@ -125,7 +130,7 @@ public final class ExecutionContext {
     }
 
     public boolean hasMoreIterations() {
-        return pingTaskBean.getExecutions() <= 0 || iteration < pingTaskBean.getExecutions();
+        return pingTaskBean.getExecutions() <= 0 || lapId < pingTaskBean.getExecutions();
     }
 
     public boolean test(final String activation) {
