@@ -90,7 +90,10 @@ public final class PingEngine {
             for (int i = 0; i < pingTaskBean.getThreads(); i++) {
                 final BaseConfiguration threadConfig = new BaseConfiguration();
                 threadConfig.copy(conf);
-                new Thread(new PingJob(pingTaskBean, dataSource, commandProvider, logWriter, threadConfig)).start();
+                Thread thread = new Thread(new PingJob(pingTaskBean, dataSource, commandProvider, logWriter, threadConfig));
+                threadConfig.setProperty(ExecutionContext.THREAD_NAME_PROPERTY, thread.getName());
+                threadConfig.setProperty(ExecutionContext.THREAD_ID_PROPERTY, i);
+                thread.start();
             }
         }
     }

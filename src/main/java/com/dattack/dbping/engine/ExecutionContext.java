@@ -40,7 +40,11 @@ public final class ExecutionContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionContext.class);
 
+    private static final String DBPING_PREFIX = "dbping.";
     public static final String PARENT_NAME_PROPERTY = "parent.name";
+    public static final String THREAD_NAME_PROPERTY = DBPING_PREFIX + "thread.name";
+    public static final String THREAD_ID_PROPERTY = DBPING_PREFIX + "thread.id";
+    private static final String LAP_ID_PROPERTY = DBPING_PREFIX + "lap.id";
 
     private final transient DataSource dataSource;
     private final transient PingTaskBean pingTaskBean;
