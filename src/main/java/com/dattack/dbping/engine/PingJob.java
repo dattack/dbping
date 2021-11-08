@@ -55,15 +55,16 @@ class PingJob implements Runnable {
     public void run() {
 
         final ExecutionContext context = new ExecutionContext(pingTaskBean, dataSource, logWriter, configuration);
-        context.set(pingTaskBean.getContextBeanList());
         context.getConfiguration().setProperty(ExecutionContext.PARENT_NAME_PROPERTY, pingTaskBean.getName());
         LOGGER.info("Starting job: {}", context.getName());
 
         while (context.hasMoreIterations()) {
             try {
                 final ExecutableCommand executableCommand = sentenceProvider.nextSql();
-                executableCommand.execute(new ExecutionContext(context));
-                context.sleep();
+                ExecutionContext contextClone = new ExecutionContext(context);
+                contextClone.set(pingTaskBean.getContextBeanList());
+                executableCommand.execute(contextClone);
+                context.sleep(); // we must use the original context to sleep a few seconds
             } catch (ExecutableException e) {
                 LOGGER.warn(String.format("Job %s:", context.getName()), e);
             }

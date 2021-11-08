@@ -1,0 +1,40 @@
+<dbping>
+
+    <task name="simple" threads="1" executions="10"
+          timeBetweenExecutions="1000" datasource="jdbc/radar" maxRowsToDump="0">
+        <query label="s3.1">
+            <sql>
+                <![CDATA[
+                SELECT * FROM config.proxy WHERE SCHEMA = 'HTTP'
+            ]]></sql>
+        </query>
+        <log-file>./logs/dbping_${task.name}.log</log-file>
+    </task>
+
+    <task name="param1" threads="200" executions="2"
+          timeBetweenExecutions="1000" datasource="jdbc/radar" maxRowsToDump="0">
+        <query label="s3.1" usePrepareStatement="false">
+            <sql>
+                <![CDATA[
+                SELECT * FROM config.proxy WHERE SCHEMA IN ('?','?','?','?','?','?','?','?','?','?')
+            ]]></sql>
+            <parameter index="1" iterations="2" type="STRING" value="HTTP,SOCKS,HTTPS"/>
+
+            <cluster-parameter order="3" iterations="1" file="./src/assembly/etc/example/data.csv">
+                <parameter order="0" type="INTEGER" ref="0" />
+                <parameter order="1" type="INTEGER" ref="1" />
+                <parameter order="2" type="INTEGER" ref="2" />
+                <parameter order="3" type="INTEGER" ref="3" />
+                <parameter order="4" type="INTEGER" ref="4" />
+                <parameter order="5" type="INTEGER" ref="5" />
+                <parameter order="6" type="INTEGER" ref="6" />
+                <parameter order="7" type="INTEGER" ref="7" />
+                <parameter order="8" type="INTEGER" ref="8" />
+                <parameter order="9" type="INTEGER" ref="9" />
+                <parameter order="10" type="INTEGER" ref="10" />
+            </cluster-parameter>
+        </query>
+        <log-file>./logs/dbping_${task.name}.log</log-file>
+    </task>
+
+</dbping>

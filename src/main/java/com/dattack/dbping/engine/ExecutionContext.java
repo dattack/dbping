@@ -22,7 +22,6 @@ import com.dattack.dbping.log.LogWriter;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.ConfigurationUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.sql.Connection;
@@ -133,19 +132,7 @@ public final class ExecutionContext {
         return pingTaskBean.getExecutions() <= 0 || lapId < pingTaskBean.getExecutions();
     }
 
-    public boolean test(final String activation) {
-        return StringUtils.isBlank(activation)
-                || "EVEN".equalsIgnoreCase(activation) && getIteration() % 2 == 0
-                || "ODD".equalsIgnoreCase(activation) && getIteration() % 2 != 0;
-    }
-
     public void set(final List<ContextBean> list) {
-        list.forEach(x -> {
-            if (test(x.getActivation())) {
-                getConfiguration().setProperty(x.getKey(), x.getValue());
-            } else if (x.getUnset() != null) {
-                getConfiguration().setProperty(x.getKey(), x.getUnset());
-            }
-        });
+        list.forEach(x -> getConfiguration().setProperty(x.getKey(), x.getValue()));
     }
 }

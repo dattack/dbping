@@ -45,23 +45,9 @@ public class ContextBean implements Serializable {
 
     private static final long serialVersionUID = -1900734488693434419L;
 
-    private String activation;
     private String key;
-    private String unset;
-    private String value;
-
-    public ContextBean() {
-        this.unset = StringUtils.EMPTY;
-    }
-
-    public String getActivation() {
-        return activation;
-    }
-
-    @XmlAttribute
-    public void setActivation(final String activation) {
-        this.activation = BeanHelper.normalizeToEmpty(activation);
-    }
+    private String[] value;
+    private int index = 0;
 
     public String getKey() {
         return key;
@@ -72,21 +58,19 @@ public class ContextBean implements Serializable {
         this.key = BeanHelper.normalizeToEmpty(key);
     }
 
-    public String getUnset() {
-        return unset;
-    }
+    public synchronized String getValue() {
 
-    @XmlAttribute
-    public void setUnset(final String unset) {
-        this.unset = BeanHelper.normalizeToEmpty(unset);
-    }
-
-    public String getValue() {
-        return value;
+        if (value.length == 0) {
+            return StringUtils.EMPTY;
+        }
+        if (index >= value.length) {
+            index = 0;
+        }
+        return StringUtils.trimToEmpty(value[index++]);
     }
 
     @XmlAttribute(required = true)
     public void setValue(final String value) {
-        this.value = BeanHelper.normalizeToEmpty(value);
+        this.value = BeanHelper.normalizeToEmpty(value).split(",");
     }
 }

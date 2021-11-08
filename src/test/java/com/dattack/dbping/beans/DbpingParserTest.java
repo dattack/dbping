@@ -60,12 +60,8 @@ public class DbpingParserTest {
             () -> assertAll("",
                 () -> assertEquals("k1", sqlBean.getContextBeanList().get(0).getKey()),
                 () -> assertEquals("v1", sqlBean.getContextBeanList().get(0).getValue()),
-                () -> assertEquals("x", sqlBean.getContextBeanList().get(0).getActivation()),
-                () -> assertEquals("-1", sqlBean.getContextBeanList().get(0).getUnset()),
                 () -> assertEquals("k2", sqlBean.getContextBeanList().get(1).getKey()),
-                () -> assertEquals("v2", sqlBean.getContextBeanList().get(1).getValue()),
-                () -> assertEquals("y", sqlBean.getContextBeanList().get(1).getActivation()),
-                () -> assertEquals("-2", sqlBean.getContextBeanList().get(1).getUnset())
+                () -> assertEquals("v2", sqlBean.getContextBeanList().get(1).getValue())
             ),
             () -> assertEquals(100, sqlBean.getFetchSize(), "Unexpected fetch size"),
             () -> assertFalse(sqlBean.isIgnoreMetrics(), "Unexpected 'ignoreMetrics' value"),
