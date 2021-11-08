@@ -70,9 +70,17 @@ public final class PingEngine {
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.getDefault());
 
         final CompositeConfiguration conf = new CompositeConfiguration();
-        conf.setProperty("task.name", pingTaskBean.getName());
-        conf.setProperty("now", dateFormat.format(new Date()));
-        conf.setProperty("datasource", pingTaskBean.getDatasource());
+
+        conf.setProperty(ExecutionContext.TASK_NAME_PROPERTY, pingTaskBean.getName());
+        conf.setProperty(ExecutionContext.DEPRECATED_TASK_NAME_PROPERTY, pingTaskBean.getName());
+
+        String now = dateFormat.format(new Date());
+        conf.setProperty(ExecutionContext.NOW_PROPERTY, now);
+        conf.setProperty(ExecutionContext.DEPRECATED_NOW_PROPERTY, now);
+
+        conf.setProperty(ExecutionContext.DATASOURCE_PROPERTY, pingTaskBean.getDatasource());
+        conf.setProperty(ExecutionContext.DEPRECATED_DATASOURCE_PROPERTY, pingTaskBean.getDatasource());
+
         conf.addConfiguration(ConfigurationUtil.createEnvSystemConfiguration());
 
         final DataSource dataSource = new JNDIDataSource(pingTaskBean.getDatasource());

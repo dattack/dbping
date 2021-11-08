@@ -63,6 +63,7 @@ public abstract class SqlCommandBean implements Serializable { //NOPMD
 
     @XmlAttribute(required = true)
     public final void setLabel(final String label) {
+        BeanHelper.checkDeprecatedVariables(label, "label");
         this.label = label;
     }
 

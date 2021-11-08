@@ -15,6 +15,7 @@
  */
 package com.dattack.dbping.beans;
 
+import static com.dattack.dbping.engine.ExecutionContext.*;
 import com.dattack.jtoolbox.commons.configuration.ConfigurationUtil;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.lang.StringUtils;
@@ -68,5 +69,21 @@ public final class BeanHelper {
             return StringUtils.EMPTY;
         }
         return StringUtils.trimToEmpty(sql.replaceAll("\\s+", " "));
+    }
+
+    public static void checkDeprecatedVariables(final String value, final String paramName) {
+        checkDeprecatedVariables(value, paramName, DEPRECATED_PARENT_NAME_PROPERTY, PARENT_NAME_PROPERTY);
+        checkDeprecatedVariables(value, paramName, DEPRECATED_TASK_NAME_PROPERTY, TASK_NAME_PROPERTY);
+        checkDeprecatedVariables(value, paramName, DEPRECATED_NOW_PROPERTY, NOW_PROPERTY);
+        checkDeprecatedVariables(value, paramName, DEPRECATED_DATASOURCE_PROPERTY, DATASOURCE_PROPERTY);
+    }
+
+    private static void checkDeprecatedVariables(final String value, String paramName, final String oldVar,
+                                                 final String newVar) {
+
+        if (StringUtils.contains(value, "${" + oldVar + "}")) {
+            System.out.format("Found use of deprecated syntax in '%s' parameter; use '%s' instead of '%s': %s%n",
+                    paramName, newVar, oldVar, value);
+        }
     }
 }

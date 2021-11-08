@@ -47,7 +47,7 @@ public final class ExecutableStatement extends AbstractExecutableStatement<State
         context.getLogEntryBuilder() //
                 .init() //
                 .withIteration(context.getIteration()) //
-                .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration()));
+                .withSqlLabel(context.interpolate(getBean().getLabel()));
 
         try (Connection connection = context.getConnection()) {
 
@@ -78,7 +78,7 @@ public final class ExecutableStatement extends AbstractExecutableStatement<State
         context.getLogEntryBuilder() //
                 .init() //
                 .withIteration(context.getIteration()) //
-                .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration())) //
+                .withSqlLabel(context.interpolate(getBean().getLabel())) //
                 .withConnectionId(connection.hashCode()) //
                 .connect();
 

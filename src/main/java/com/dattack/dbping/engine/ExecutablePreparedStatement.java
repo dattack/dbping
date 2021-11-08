@@ -54,7 +54,7 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         // prepare log for this execution
         context.getLogEntryBuilder() //
             .init() //
-            .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration())) //
+            .withSqlLabel(context.interpolate(getBean().getLabel())) //
             .withIteration(context.getIteration());
 
         try (Connection connection = context.getConnection()) {
@@ -82,7 +82,7 @@ public class ExecutablePreparedStatement extends AbstractExecutableStatement<Pre
         // prepare log for this execution
         context.getLogEntryBuilder() //
             .init() //
-            .withSqlLabel(ConfigurationUtil.interpolate(getBean().getLabel(), context.getConfiguration())) //
+            .withSqlLabel(context.interpolate(getBean().getLabel())) //
             .withIteration(context.getIteration()) //
             .withConnectionId(connection.hashCode()) //
             .connect(); // connection already established so the connection-time must be zero

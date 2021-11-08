@@ -75,8 +75,8 @@ public class ExecutableScript implements ExecutableCommand {
             executableStatementList.forEach(s -> {
                 try {
                     final ExecutionContext delegateContext = new ExecutionContext(context);
-                    delegateContext.getConfiguration().setProperty(ExecutionContext.PARENT_NAME_PROPERTY,
-                            ConfigurationUtil.interpolate(bean.getLabel(), delegateContext.getConfiguration()));
+                    delegateContext.setProperty(ExecutionContext.PARENT_NAME_PROPERTY,
+                            delegateContext.interpolate(bean.getLabel()));
                     if (!getBean().getContextBeanList().isEmpty()) {
                         delegateContext.set(getBean().getContextBeanList());
                     }

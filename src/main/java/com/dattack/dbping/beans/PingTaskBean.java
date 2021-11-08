@@ -98,6 +98,7 @@ public class PingTaskBean implements Serializable {
 
     @XmlAttribute(name = "strategy")
     public void setCommandProvider(final String commandProvider) {
+        BeanHelper.checkDeprecatedVariables(commandProvider, "strategy");
         this.commandProvider = BeanHelper.normalizeToEmpty(commandProvider);
     }
 
@@ -121,6 +122,7 @@ public class PingTaskBean implements Serializable {
 
     @XmlAttribute(required = true)
     public void setDatasource(final String datasource) {
+        BeanHelper.checkDeprecatedVariables(datasource, "datasource");
         this.datasource = BeanHelper.normalizeToEmpty(datasource);
     }
 
@@ -149,6 +151,7 @@ public class PingTaskBean implements Serializable {
 
     @XmlAttribute(name = "log", required = true)
     public void setLogFile(final String logFile) {
+        BeanHelper.checkDeprecatedVariables(logFile, "log");
         this.logFile = BeanHelper.normalizeToEmpty(logFile);
     }
 
@@ -163,6 +166,7 @@ public class PingTaskBean implements Serializable {
 
     @XmlAttribute(required = true)
     public void setName(final String name) {
+        BeanHelper.checkDeprecatedVariables(name, "name");
         this.name = BeanHelper.normalizeToEmpty(name);
     }
 

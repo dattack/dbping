@@ -45,6 +45,7 @@ public class ClusterSqlParameterBean extends AbstractSqlParameterBean {
 
     @XmlAttribute(required = true)
     public void setFile(final String file) {
+        BeanHelper.checkDeprecatedVariables(file, "file");
         this.file = BeanHelper.normalizeToEmpty(file);
     }
 

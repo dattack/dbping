@@ -70,8 +70,7 @@ public class SimplePreparedStatementParameter extends AbstractPreparedStatementP
 
         final List<String> valueList = new ArrayList<>();
         if (StringUtils.isNotBlank(getBean().getFile())) {
-            try (Stream<String> stream = Files.lines(Paths.get(
-                    ConfigurationUtil.interpolate(getBean().getFile(), context.getConfiguration())))) {
+            try (Stream<String> stream = Files.lines(Paths.get(context.interpolate(getBean().getFile())))) {
                 stream.forEach(valueList::add);
             }
         } else if (StringUtils.isNotBlank(getBean().getValue())) {

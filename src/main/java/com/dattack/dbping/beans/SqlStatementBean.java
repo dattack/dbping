@@ -117,6 +117,7 @@ public class SqlStatementBean extends SqlCommandBean {
 
     @XmlElement(required = true)
     public void setSql(final String sql) {
+        BeanHelper.checkDeprecatedVariables(sql, "sql");
         this.sql = BeanHelper.normalizeToEmpty(sql);
     }
 

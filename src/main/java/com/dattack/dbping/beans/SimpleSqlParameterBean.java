@@ -45,6 +45,7 @@ public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
 
     @XmlAttribute
     public void setFile(final String file) {
+        BeanHelper.checkDeprecatedVariables(file, "file");
         this.file = BeanHelper.normalizeToEmpty(file);
     }
 
@@ -54,6 +55,7 @@ public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
 
     @XmlAttribute
     public void setFormat(final String format) {
+        BeanHelper.checkDeprecatedVariables(format, "format");
         this.format = BeanHelper.normalizeToEmpty(format);
     }
 
@@ -72,6 +74,7 @@ public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
 
     @XmlAttribute(required = true)
     public void setType(final String type) {
+        BeanHelper.checkDeprecatedVariables(type, "type");
         this.type = BeanHelper.normalizeToEmpty(type);
     }
 
@@ -81,6 +84,7 @@ public class SimpleSqlParameterBean extends AbstractSqlParameterBean {
 
     @XmlAttribute
     public void setValue(final String value) {
+        BeanHelper.checkDeprecatedVariables(value, "value");
         this.value = BeanHelper.normalizeToEmpty(value);
     }
 }

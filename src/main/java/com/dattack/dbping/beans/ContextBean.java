@@ -55,6 +55,7 @@ public class ContextBean implements Serializable {
 
     @XmlAttribute(required = true)
     public void setKey(final String key) {
+        BeanHelper.checkDeprecatedVariables(key, "key");
         this.key = BeanHelper.normalizeToEmpty(key);
     }
 
@@ -71,6 +72,7 @@ public class ContextBean implements Serializable {
 
     @XmlAttribute(required = true)
     public void setValue(final String value) {
+        BeanHelper.checkDeprecatedVariables(value, "value");
         this.value = BeanHelper.normalizeToEmpty(value).split(",");
     }
 }
