@@ -85,6 +85,7 @@ public class PingTaskBean implements Serializable {
         this.sqlStatementList = new ArrayList<>();
         this.threads = 1;
         this.timeBetweenExecutions = 0;
+        this.logFile = "${basedir}/logs/${task.name}_${now}.log";
     }
 
     /**
@@ -149,7 +150,7 @@ public class PingTaskBean implements Serializable {
         return logFile;
     }
 
-    @XmlAttribute(name = "log", required = true)
+    @XmlAttribute(name = "log")
     public void setLogFile(final String logFile) {
         BeanHelper.checkDeprecatedVariables(logFile, "log");
         this.logFile = BeanHelper.normalizeToEmpty(logFile);
