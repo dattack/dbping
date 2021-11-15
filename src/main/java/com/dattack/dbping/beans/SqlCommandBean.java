@@ -15,11 +15,13 @@
  */
 package com.dattack.dbping.beans;
 
+import com.dattack.dbping.engine.ExecutionContext;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
@@ -33,6 +35,8 @@ public abstract class SqlCommandBean implements Serializable { //NOPMD
 
     private static final long serialVersionUID = 6216650272101740792L;
 
+    private static final AtomicInteger COUNTER = new AtomicInteger();
+
     private List<ContextBean> contextBeanList;
     private String label;
     private int maxRowsToDump;
@@ -42,6 +46,7 @@ public abstract class SqlCommandBean implements Serializable { //NOPMD
         this.contextBeanList = new ArrayList<>();
         this.maxRowsToDump = 0;
         this.weight = -1;
+        setLabel(String.format("${%s}.%d" , ExecutionContext.PARENT_NAME_PROPERTY, COUNTER.getAndIncrement()));
     }
 
     public abstract <T extends Throwable> void accept(final SqlCommandVisitor<T> visitor) throws T;
